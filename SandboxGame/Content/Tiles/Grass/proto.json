@@ -1,9 +1,10 @@
 {
-  "id": "testgrass",
-  "name": "GRASS",
+  "id": "grass",
+  "name": "Grass",
   "category": "tile",
   "solid": false,
   "transparent": true,
+  "color": "#4a7c3f",
   "sprite": {
     "source": "sprite.png",
     "srcX": 0,

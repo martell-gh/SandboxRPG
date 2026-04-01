@@ -24,4 +24,6 @@ public class InputManager
                             && _previousMouse.LeftButton == ButtonState.Released;
     public bool RightClicked => _currentMouse.RightButton == ButtonState.Pressed
                              && _previousMouse.RightButton == ButtonState.Released;
+
+    public int ScrollDelta => _currentMouse.ScrollWheelValue - _previousMouse.ScrollWheelValue;
 }

@@ -38,3 +38,4 @@
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/Debug/net8.0/MTEditor.genruntimeconfig.cache
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/Debug/net8.0/ref/MTEditor.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/Content/DefaultFont.xnb
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/Debug/net8.0/MTEditor.sourcelink.json

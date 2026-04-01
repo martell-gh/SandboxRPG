@@ -38,3 +38,4 @@
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/bin/Debug/net8.0/System.Text.Encodings.Web.dll
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/bin/Debug/net8.0/System.Text.Json.dll
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
+/Users/more_tel/Desktop/SandboxRPG/SandboxGame/obj/Debug/net8.0/SandboxGame.sourcelink.json

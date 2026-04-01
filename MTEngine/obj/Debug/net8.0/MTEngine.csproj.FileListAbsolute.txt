@@ -10,3 +10,4 @@
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/refint/MTEngine.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/MTEngine.pdb
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/ref/MTEngine.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/MTEngine.sourcelink.json

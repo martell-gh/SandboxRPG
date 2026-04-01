@@ -1,9 +1,8 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MTEngine.Components;
 using MTEngine.Core;
-using MTEngine.Rendering;
+using MTEngine.Systems;
 using MTEngine.World;
 
 namespace SandboxGame.Game;
@@ -19,7 +18,6 @@ public class ConsoleCommands
         _engine = engine;
         _mapManager = mapManager;
         _tileMapRenderer = tileMapRenderer;
-
         DevConsole.OnCommand = HandleCommand;
     }
 
@@ -30,31 +28,62 @@ public class ConsoleCommands
         {
             case "help":
                 DevConsole.Log("Commands:");
-                DevConsole.Log("  maps - list available maps");
+                DevConsole.Log("  maps                   - list maps");
                 DevConsole.Log("  loadmap <id> [spawnId] - load map");
-                DevConsole.Log("  goto <spawnId> - teleport to spawn point");
-                DevConsole.Log("  clear - clear console");
+                DevConsole.Log("  goto <spawnId>         - teleport");
+                DevConsole.Log("  time                   - show game time");
+                DevConsole.Log("  settime <0-24>         - set time of day");
+                DevConsole.Log("  timescale <x>          - speed of time");
+                DevConsole.Log("  lighting <on|off>      - toggle lighting");
+                DevConsole.Log("  clear                  - clear console");
                 break;
 
             case "maps":
                 var available = _mapManager.GetAvailableMaps();
-                if (available.Count == 0)
-                    DevConsole.Log("No maps found.");
-                else
-                    foreach (var m in available)
-                        DevConsole.Log($"  - {m}");
+                if (available.Count == 0) DevConsole.Log("No maps found.");
+                else foreach (var m in available) DevConsole.Log($"  - {m}");
                 break;
 
             case "loadmap":
                 if (parts.Length < 2) { DevConsole.Log("Usage: loadmap <id> [spawnId]"); break; }
-                var mapId = parts[1];
-                var spawnId = parts.Length > 2 ? parts[2] : "default";
-                LoadMap(mapId, spawnId);
+                LoadMap(parts[1], parts.Length > 2 ? parts[2] : "default");
                 break;
 
             case "goto":
                 if (parts.Length < 2) { DevConsole.Log("Usage: goto <spawnId>"); break; }
                 TeleportToSpawn(parts[1]);
+                break;
+
+            case "time":
+                DevConsole.Log($"Time: {_engine.Clock.TimeString}  ({(int)_engine.Clock.Hour}h)  " +
+                               $"{(_engine.Clock.IsDay ? "Day" : "Night")}");
+                break;
+
+            case "settime":
+                if (parts.Length < 2 || !float.TryParse(parts[1], out float h))
+                { DevConsole.Log("Usage: settime <0-24>"); break; }
+                _engine.Clock.SetTime(h);
+                DevConsole.Log($"Time set to {_engine.Clock.TimeString}");
+                break;
+
+            case "timescale":
+                if (parts.Length < 2 || !float.TryParse(parts[1], out float ts))
+                { DevConsole.Log("Usage: timescale <multiplier>"); break; }
+                _engine.Clock.TimeScale = ts;
+                DevConsole.Log($"Time scale: {ts}x");
+                break;
+
+            case "lighting":
+                if (parts.Length > 1 && parts[1] == "off")
+                {
+                    _engine.LightingSystem.IsEnabled = false;
+                    DevConsole.Log("Lighting disabled.");
+                }
+                else
+                {
+                    _engine.LightingSystem.IsEnabled = true;
+                    DevConsole.Log("Lighting enabled.");
+                }
                 break;
 
             case "clear":
@@ -73,10 +102,7 @@ public class ConsoleCommands
         if (tileMap == null) { DevConsole.Log($"Map not found: {mapId}"); return; }
 
         _tileMapRenderer.TileMap = tileMap;
-
-        // подключаем коллизии к новой карте
         _engine.CollisionSystem.SetTileMap(tileMap);
-
         TeleportPlayerToSpawn(spawn);
         DevConsole.Log($"Loaded: {mapId} @ {spawnId}");
     }
@@ -85,21 +111,17 @@ public class ConsoleCommands
     {
         var map = _mapManager.CurrentMap;
         if (map == null) { DevConsole.Log("No map loaded."); return; }
-
         var spawn = map.SpawnPoints.FirstOrDefault(s => s.Id == spawnId);
-        if (spawn == null) { DevConsole.Log($"Spawn not found: {spawnId}"); return; }
-
+        if (spawn == null) { DevConsole.Log($"Spawn '{spawnId}' not found."); return; }
         TeleportPlayerToSpawn(spawn);
     }
 
     private void TeleportPlayerToSpawn(SpawnPoint? spawn)
     {
         if (spawn == null) return;
-
         var player = _engine.World
-            .GetEntitiesWith<TransformComponent, VelocityComponent>()
+            .GetEntitiesWith<TransformComponent, MTEngine.Components.PlayerTagComponent>()
             .FirstOrDefault();
-
         if (player == null) return;
 
         var t = player.GetComponent<TransformComponent>()!;

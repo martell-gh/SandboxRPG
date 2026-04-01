@@ -13,14 +13,26 @@ public class PlayerMovementSystem : GameSystem
     private InputManager _input = null!;
     private Camera _camera = null!;
 
+    private const float MinZoom = 1f;
+    private const float MaxZoom = 6f;
+    private const float ZoomStep = 0.25f;
+    private const float DefaultZoom = 3f;
+
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
         _camera = ServiceLocator.Get<Camera>();
+        _camera.Zoom = DefaultZoom;
     }
 
     public override void Update(float deltaTime)
     {
+        // зум колёсиком
+        if (_input.ScrollDelta > 0)
+            _camera.Zoom = Math.Min(MaxZoom, _camera.Zoom + ZoomStep);
+        else if (_input.ScrollDelta < 0)
+            _camera.Zoom = Math.Max(MinZoom, _camera.Zoom - ZoomStep);
+
         foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
         {
             var transform = entity.GetComponent<TransformComponent>()!;
@@ -39,7 +51,6 @@ public class PlayerMovementSystem : GameSystem
             transform.Position += dir * velocity.Speed * deltaTime;
             _camera.Follow(transform.Position);
 
-            // переключаем анимацию
             if (sprite != null)
             {
                 if (dir == Vector2.Zero)

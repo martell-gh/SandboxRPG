@@ -8,16 +8,17 @@ namespace MTEngine.World;
 
 public class TileMapRenderer : GameSystem
 {
-    private SpriteBatch _spriteBatch = null!;
-    private Camera _camera = null!;
-    private AssetManager _assets = null!;
-    private PrototypeManager _prototypes = null!;
+    private SpriteBatch? _spriteBatch;
+    private Camera? _camera;
+    private AssetManager? _assets;
+    private PrototypeManager? _prototypes;
 
     public TileMap? TileMap { get; set; }
 
-    public override void OnInitialize()
+    public override void Update(float deltaTime)
     {
-        // лениво — получим в Draw
+        _prototypes ??= ServiceLocator.Get<PrototypeManager>();
+        TileMap?.Update(deltaTime, _prototypes);
     }
 
     public override void Draw()
@@ -29,7 +30,6 @@ public class TileMapRenderer : GameSystem
 
         if (TileMap == null) return;
 
-        // вычисляем видимую область
         var viewport = _spriteBatch.GraphicsDevice.Viewport;
         var topLeft = _camera.ScreenToWorld(Vector2.Zero);
         var bottomRight = _camera.ScreenToWorld(new Vector2(viewport.Width, viewport.Height));

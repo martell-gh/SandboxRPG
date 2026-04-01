@@ -14,23 +14,16 @@ public class World
         return e;
     }
 
-    public void DestroyEntity(Entity entity)
-    {
-        _toRemove.Add(entity);
-    }
+    public void DestroyEntity(Entity entity) => _toRemove.Add(entity);
 
     public IEnumerable<Entity> GetEntities() => _entities;
 
     public IEnumerable<Entity> GetEntitiesWith<T>() where T : Component
-    {
-        return _entities.Where(e => e.Active && e.HasComponent<T>());
-    }
+        => _entities.Where(e => e.Active && e.HasComponent<T>());
 
     public IEnumerable<Entity> GetEntitiesWith<T1, T2>()
         where T1 : Component where T2 : Component
-    {
-        return _entities.Where(e => e.Active && e.HasComponent<T1>() && e.HasComponent<T2>());
-    }
+        => _entities.Where(e => e.Active && e.HasComponent<T1>() && e.HasComponent<T2>());
 
     public T AddSystem<T>(T system) where T : GameSystem
     {
@@ -40,25 +33,32 @@ public class World
     }
 
     public T? GetSystem<T>() where T : GameSystem
-    {
-        return _systems.OfType<T>().FirstOrDefault();
-    }
+        => _systems.OfType<T>().FirstOrDefault();
 
     public void Update(float deltaTime)
     {
         foreach (var e in _toAdd) _entities.Add(e);
         _toAdd.Clear();
-
         foreach (var e in _toRemove) _entities.Remove(e);
         _toRemove.Clear();
 
-        foreach (var system in _systems)
-            if (system.Enabled) system.Update(deltaTime);
+        foreach (var s in _systems)
+            if (s.Enabled) s.Update(deltaTime);
     }
 
-    public void Draw()
+    // Только Scene-слой: тайлы, спрайты
+    public void DrawScene()
     {
-        foreach (var system in _systems)
-            if (system.Enabled) system.Draw();
+        foreach (var s in _systems)
+            if (s.Enabled && s.DrawLayer == DrawLayer.Scene)
+                s.Draw();
+    }
+
+    // Только Overlay-слой: UI, меню, без освещения
+    public void DrawOverlay()
+    {
+        foreach (var s in _systems)
+            if (s.Enabled && s.DrawLayer == DrawLayer.Overlay)
+                s.Draw();
     }
 }

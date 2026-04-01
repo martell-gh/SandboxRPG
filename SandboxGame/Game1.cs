@@ -21,34 +21,47 @@ public class Game1 : GameEngine
         DevConsole.SetFont(font, GraphicsDevice);
         DevConsole.Log("Game started! Type 'help'.");
 
+        InteractionSystem.SetFont(font);
+
         Prototypes.LoadFromDirectory(GamePaths.Tiles);
+
         var mapManager = new MapManager(GamePaths.Maps, Prototypes);
-        
         ServiceLocator.Register(mapManager);
 
         World.AddSystem(new PlayerMovementSystem());
-
         _commands = new ConsoleCommands(this, mapManager, TileMapRenderer);
 
-        // создаём игрока из прототипа
-        var playerProto = EntityPrototype.LoadFromFile(Path.Combine(GamePaths.Entities, "Player/proto.json"));
+        // Игрок из прототипа
+        var playerProto = EntityPrototype.LoadFromFile(
+            Path.Combine(GamePaths.Entities, "Player/proto.json"));
+
         if (playerProto != null)
         {
-            var player = EntityFactory.CreateFromPrototype(playerProto, new Vector2(100, 100));
-            DevConsole.Log("Player created from prototype!");
+            var player = EntityFactory.CreateFromPrototype(playerProto, new Vector2(200, 200));
+            if (player != null)
+            {
+                player.AddComponent(new PlayerTagComponent());
+
+                // Небольшой ореол вокруг игрока
+                player.AddComponent(new LightComponent
+                {
+                    Color = new Color(255, 240, 200),
+                    Radius = 80f,
+                    Intensity = 0.7f
+                });
+            }
+            DevConsole.Log("Player created from prototype.");
         }
         else
         {
-            DevConsole.Log("Player prototype not found! Check Content/Entities/Player/proto.json");
+            DevConsole.Log("Player prototype not found!");
         }
 
         World.Update(0f);
 
         var maps = mapManager.GetAvailableMaps();
-        if (maps.Count > 0)
-            _commands.LoadMap(maps[0]);
-        else
-            DevConsole.Log("No maps! Create one in MTEditor.");
+        if (maps.Count > 0) _commands.LoadMap(maps[0]);
+        else DevConsole.Log("No maps! Create one in MTEditor.");
     }
 
     protected override void Update(GameTime gameTime)
@@ -61,8 +74,8 @@ public class Game1 : GameEngine
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
-        World.Draw();
-        DevConsole.Draw();
+        // GameEngine.Draw() делает всю работу по RT + освещению
+        base.Draw(gameTime);
+        DevConsole.Draw(); // поверх всего
     }
 }
