@@ -1,0 +1,15 @@
+{
+  "id": "new_map",
+  "name": "New Map",
+  "width": 50,
+  "height": 50,
+  "tileSize": 16,
+  "spawnPoints": [
+    {
+      "id": "default",
+      "x": 3,
+      "y": 9
+    }
+  ],
+  "tiles": []
+}

@@ -1,0 +1,148 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {}
+  },
+  "projects": {
+    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
+        "projectName": "MTEditor",
+        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
+        "packagesPath": "/Users/more_tel/.nuget/packages/",
+        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/more_tel/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj": {
+                "projectPath": "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "MonoGame.Content.Builder.Task": {
+              "target": "Package",
+              "version": "[3.8.4.1, )"
+            },
+            "MonoGame.Framework.DesktopGL": {
+              "target": "Package",
+              "version": "[3.8.4.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj",
+        "projectName": "MTEngine",
+        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj",
+        "packagesPath": "/Users/more_tel/.nuget/packages/",
+        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/more_tel/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "MonoGame.Framework.DesktopGL": {
+              "target": "Package",
+              "version": "[3.8.4.1, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[10.0.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

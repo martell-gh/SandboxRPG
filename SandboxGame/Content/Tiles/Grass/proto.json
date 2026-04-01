@@ -1,0 +1,14 @@
+{
+  "id": "testgrass",
+  "name": "GRASS",
+  "category": "tile",
+  "solid": false,
+  "transparent": true,
+  "sprite": {
+    "source": "sprite.png",
+    "srcX": 0,
+    "srcY": 0,
+    "width": 16,
+    "height": 16
+  }
+}
