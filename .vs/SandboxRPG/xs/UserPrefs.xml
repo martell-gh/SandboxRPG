@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{BA126932-27BD-48AE-AAA6-B655EFFB80EF}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="MTEngine/World/MapManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="SandboxGame/Content/Entities/Player/proto.json">
     <Files>
       <File FileName="SandboxGame/Content/Content.mgcb" Line="16" Column="1" IsPinned="True" />
       <File FileName="MTEngine/ECS/Entity.cs" />
-      <File FileName="MTEngine/ECS/GameSystem.cs" />
-      <File FileName="MTEngine/ECS/World.cs" />
+      <File FileName="MTEngine/ECS/GameSystem.cs" Line="23" Column="2" />
+      <File FileName="MTEngine/ECS/World.cs" Line="64" Column="2" />
       <File FileName="MTEngine/Core/EventBus.cs" />
       <File FileName="MTEngine/Core/ServiceLocator.cs" />
       <File FileName="MTEngine/Core/InputManager.cs" />
@@ -16,11 +16,11 @@
       <File FileName="MTEngine/World/Tile.cs" />
       <File FileName="MTEngine/World/TileMap.cs" />
       <File FileName="MTEngine/World/ChunkManager.cs" />
-      <File FileName="SandboxGame/Game1.cs" Line="111" Column="1" />
+      <File FileName="SandboxGame/Game1.cs" Line="81" Column="2" />
       <File FileName="MTEngine/Components/VelocityComponent.cs" />
       <File FileName="SandboxGame/Content/DefaultFont.spritefont" />
       <File FileName="MTEngine/Core/DevConsole.cs" />
-      <File FileName="SandboxGame/Systems/PlayerMovementSystem.cs" Line="65" Column="2" />
+      <File FileName="SandboxGame/Systems/PlayerMovementSystem.cs" />
       <File FileName="MTEngine/Core/AssetManager.cs" />
       <File FileName="MTEngine/Core/PrototypeManager.cs" />
       <File FileName="SandboxGame/Content/Tiles/Grass/proto.json" />
@@ -36,44 +36,46 @@
       <File FileName="MTEditor/Content/Content.mgcb" />
       <File FileName="MTEditor/Content/DefaultFont.spritefont" />
       <File FileName="MTEditor/UI/MapSelectDialog.cs" />
-      <File FileName="MTEngine/World/MapManager.cs" Line="40" Column="1" />
-      <File FileName="MTEngine/Core/GameEngine.cs" Line="28" Column="12" />
-      <File FileName="SandboxGame/Game/ConsoleCommands.cs" Line="63" Column="62" />
+      <File FileName="MTEngine/World/MapManager.cs" Line="31" Column="1" />
+      <File FileName="MTEngine/Core/GameEngine.cs" Line="28" Column="39" />
+      <File FileName="SandboxGame/Game/ConsoleCommands.cs" />
       <File FileName="MTEditor/FileDialog.cs" />
       <File FileName="MTEditor/UI/SaveMapDialog.cs" />
       <File FileName="MTEditor/EditorHistory.cs" />
       <File FileName="MTEngine/Rendering/AnimationSystem.cs" />
       <File FileName="MTEngine/Components/ColliderComponent.cs" />
       <File FileName="MTEngine/Systems/CollisionSystem.cs" />
-      <File FileName="SandboxGame/Content/Entities/Player/proto.json" />
+      <File FileName="SandboxGame/Content/Entities/Player/proto.json" Line="19" Column="19" />
       <File FileName="MTEngine/Core/EntityPrototype.cs" />
       <File FileName="MTEngine/Core/EntityFactory.cs" />
       <File FileName="SandboxGame/Game/GamePaths.cs" />
-      <File FileName="SandboxGame/Maps/river.map.json" Line="16" Column="15" />
-      <File FileName="MTEngine/Core/GameClock.cs" Line="9" Column="6" />
-      <File FileName="MTEngine/Components/PlayerTagComponent.cs" Line="6" Column="25" />
-      <File FileName="MTEngine/Components/InteractableComponent.cs" Line="23" Column="2" />
-      <File FileName="MTEngine/Components/LightComponent.cs" Line="14" Column="29" />
-      <File FileName="MTEngine/Systems/LightingSystem.cs" Line="103" Column="31" />
-      <File FileName="MTEngine/Systems/DayNightSystem.cs" Line="61" Column="2" />
-      <File FileName="MTEngine/Systems/InteractionSystem.cs" Line="236" Column="19" />
+      <File FileName="SandboxGame/Maps/river.map.json" />
+      <File FileName="MTEngine/Core/GameClock.cs" />
+      <File FileName="MTEngine/Components/PlayerTagComponent.cs" />
+      <File FileName="MTEngine/Components/InteractableComponent.cs" />
+      <File FileName="MTEngine/Components/LightComponent.cs" Line="11" Column="37" />
+      <File FileName="MTEngine/Systems/LightingSystem.cs" Line="112" Column="2" />
+      <File FileName="MTEngine/Systems/DayNightSystem.cs" />
+      <File FileName="MTEngine/Systems/InteractionSystem.cs" Line="17" Column="62" />
+      <File FileName="SandboxGame/Content/Entities/Player/animations.json" Line="11" Column="24" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="SandboxRPG" expanded="True">
-            <Node name="MTEngine">
+            <Node name="MTEngine" expanded="True">
               <Node name="Components" expanded="True" />
               <Node name="Core" expanded="True" />
+              <Node name="ECS" expanded="True" />
               <Node name="Systems" expanded="True" />
-              <Node name="World" expanded="True">
-                <Node name="MapManager.cs" selected="True" />
-              </Node>
+              <Node name="World" expanded="True" />
             </Node>
             <Node name="SandboxGame">
-              <Node name="Content" expanded="True" />
-              <Node name="Maps" expanded="True" />
-              <Node name="Systems" expanded="True" />
+              <Node name="Content" expanded="True">
+                <Node name="Entities" expanded="True">
+                  <Node name="Player" expanded="True" />
+                </Node>
+              </Node>
             </Node>
           </Node>
         </State>
@@ -81,11 +83,11 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.SandboxGame PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.MTEditor PreferredExecutionTarget="MonoDevelop.Default" />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.SandboxGame PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

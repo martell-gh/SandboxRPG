@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MTEngine")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d24dc6686d074b35c388f422b515fa6c256540a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a2fec8f52f8d2e20d9967b591ee339759014127")]
 [assembly: System.Reflection.AssemblyProductAttribute("MTEngine")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MTEngine")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

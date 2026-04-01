@@ -1,0 +1,17 @@
+{
+  "texture": "sprite.png",
+  "clips": {
+    "idle_down": {
+      "loop": true,
+      "frames": [
+        {
+          "srcX": 0,
+          "srcY": 0,
+          "width": 32,
+          "height": 32,
+          "duration": 1.0
+        }
+      ]
+    }
+  }
+}

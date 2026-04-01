@@ -11,15 +11,15 @@
       "source": "sprite.png",
       "srcX": 0,
       "srcY": 0,
-      "width": 16,
-      "height": 16,
+      "width": 32,
+      "height": 32,
       "layerDepth": 0.5
     },
     "collider": {
-      "width": 10,
-      "height": 10,
-      "offsetX": 3,
-      "offsetY": 4
+      "width": 26,
+      "height": 26,
+      "offsetX": 6,
+      "offsetY": 6
     },
     "velocity": {
       "speed": 150

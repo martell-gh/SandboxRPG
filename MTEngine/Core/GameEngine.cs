@@ -29,7 +29,6 @@ public class GameEngine : Game
     public DayNightSystem DayNightSystem { get; private set; } = new();
     public InteractionSystem InteractionSystem { get; private set; } = new();
 
-    // SceneRT — сцена рисуется сюда, потом освещение накладывается поверх
     private RenderTarget2D? _sceneRT;
 
     public GameEngine()
@@ -56,13 +55,12 @@ public class GameEngine : Game
         ServiceLocator.Register(GraphicsDevice);
         ServiceLocator.Register(Clock);
 
-        // Системы обновляются все, рисуются по слоям
-        World.AddSystem(TileMapRenderer);    // Scene
-        World.AddSystem(CollisionSystem);    // обновляет позиции
-        World.AddSystem(DayNightSystem);     // обновляет AmbientColor
-        World.AddSystem(new Renderer());     // Scene — спрайты сущностей
-        World.AddSystem(LightingSystem);     // Draw() пустой — управляем вручную
-        World.AddSystem(InteractionSystem);  // Overlay — поверх без освещения
+        World.AddSystem(TileMapRenderer);
+        World.AddSystem(CollisionSystem);
+        World.AddSystem(DayNightSystem);
+        World.AddSystem(new Renderer());
+        World.AddSystem(LightingSystem);
+        World.AddSystem(InteractionSystem);
 
         base.Initialize();
     }
@@ -91,24 +89,30 @@ public class GameEngine : Game
     {
         EnsureSceneRT();
 
-        // ── Шаг 1: Сцена → SceneRT ──────────────────────────────────────
+        // ── Шаг 1: Сцена → SceneRT ─────────────────────────────────
         GraphicsDevice.SetRenderTarget(_sceneRT);
         GraphicsDevice.Clear(Color.Black);
-        World.DrawScene(); // TileMapRenderer + Renderer
+        World.DrawScene();
 
-        // ── Шаг 2: SceneRT → Backbuffer ─────────────────────────────────
+        // ── Шаг 2: Lightmap → LightRT (пока мы ещё НЕ на backbuffer) ──
+        // Это критично — если сначала рисовать на backbuffer, а потом
+        // переключиться на lightRT, backbuffer потеряет содержимое.
+        LightingSystem.BuildLightMap(GraphicsDevice);
+
+        // ── Шаг 3: Всё на backbuffer за один проход ─────────────────
         GraphicsDevice.SetRenderTarget(null);
         GraphicsDevice.Clear(Color.Black);
 
+        // Рисуем сцену
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
         SpriteBatch.Draw(_sceneRT!, GraphicsDevice.Viewport.Bounds, Color.White);
         SpriteBatch.End();
 
-        // ── Шаг 3: Освещение multiply поверх сцены ──────────────────────
-        LightingSystem.Apply(GraphicsDevice);
+        // Накладываем освещение поверх (multiply)
+        LightingSystem.ApplyLightMap(GraphicsDevice);
 
-        // ── Шаг 4: UI поверх (без освещения) ────────────────────────────
-        World.DrawOverlay(); // InteractionSystem
+        // ── Шаг 4: UI поверх (без освещения) ────────────────────────
+        World.DrawOverlay();
 
         base.Draw(gameTime);
     }
