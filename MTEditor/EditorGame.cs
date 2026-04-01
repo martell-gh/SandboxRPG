@@ -81,22 +81,22 @@ public class EditorGame : Game
     }
 
     private void NewMap()
+{
+    _currentMap = new MapData
     {
-        _currentMap = new MapData
-        {
-            Id = "new_map",
-            Name = "New Map",
-            Width = 50,
-            Height = 50,
-            TileSize = 16
-        };
-        _currentTileMap = new TileMap(50, 50, 16);
-        _history = new EditorHistory();
-        _camera.Position = new Vector2(
-            _currentMap.Width * _currentMap.TileSize / 2f,
-            _currentMap.Height * _currentMap.TileSize / 2f
-        );
-    }
+        Id = "new_map",
+        Name = "New Map",
+        Width = 50,
+        Height = 50,
+        TileSize = 32
+    };
+    _currentTileMap = new TileMap(50, 50, 32);
+    _history = new EditorHistory();
+    _camera.Position = new Vector2(
+        _currentMap.Width * _currentMap.TileSize / 2f,
+        _currentMap.Height * _currentMap.TileSize / 2f
+    );
+}
 
     protected override void Update(GameTime gameTime)
     {

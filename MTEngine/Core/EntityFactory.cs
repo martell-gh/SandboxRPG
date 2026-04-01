@@ -22,37 +22,35 @@ public class EntityFactory
         var entity = _world.CreateEntity(proto.Name);
         var components = proto.Components;
 
-        // Transform
-        var tx = components?["transform"]?.AsObject();
         entity.AddComponent(new TransformComponent(position));
 
-        // Sprite + Animations
         Texture2D? texture = null;
         if (proto.SpritePath != null)
             texture = _assets.LoadFromFile(proto.SpritePath);
 
-        // фоллбек — белый квадрат
         if (texture == null)
         {
-            texture = new Texture2D(_assets.GraphicsDevice, 16, 16);
-            var pixels = new Color[16 * 16];
+            texture = new Texture2D(_assets.GraphicsDevice, 32, 32);
+            var pixels = new Color[32 * 32];
             for (int i = 0; i < pixels.Length; i++) pixels[i] = Color.White;
             texture.SetData(pixels);
         }
 
         var spriteNode = components?["sprite"]?.AsObject();
+        int spriteW = spriteNode?["width"]?.GetValue<int>() ?? 32;
+        int spriteH = spriteNode?["height"]?.GetValue<int>() ?? 32;
+
         var sprite = entity.AddComponent(new SpriteComponent(texture)
         {
-            LayerDepth = spriteNode?["layerDepth"]?.GetValue<float>() ?? 0.5f
+            LayerDepth = spriteNode?["layerDepth"]?.GetValue<float>() ?? 0.5f,
+            Origin = new Vector2(spriteW / 2f, spriteH / 2f)
         });
 
-        // анимации
         if (proto.AnimationsPath != null)
         {
             var animSet = AnimationSet.LoadFromFile(proto.AnimationsPath);
             if (animSet != null)
             {
-                // путь к текстуре анимации — относительно папки прототипа
                 if (!string.IsNullOrEmpty(animSet.TexturePath) && proto.DirectoryPath != null)
                 {
                     var animTexPath = Path.Combine(proto.DirectoryPath, animSet.TexturePath);
@@ -71,27 +69,25 @@ public class EntityFactory
             sprite.SourceRect = new Rectangle(
                 spriteNode["srcX"]?.GetValue<int>() ?? 0,
                 spriteNode["srcY"]?.GetValue<int>() ?? 0,
-                spriteNode["width"]?.GetValue<int>() ?? 16,
-                spriteNode["height"]?.GetValue<int>() ?? 16
+                spriteW,
+                spriteH
             );
         }
 
-        // Collider
         var colliderNode = components?["collider"]?.AsObject();
         if (colliderNode != null)
         {
             entity.AddComponent(new ColliderComponent
             {
-                Width = colliderNode["width"]?.GetValue<int>() ?? 12,
-                Height = colliderNode["height"]?.GetValue<int>() ?? 12,
+                Width = colliderNode["width"]?.GetValue<int>() ?? 20,
+                Height = colliderNode["height"]?.GetValue<int>() ?? 20,
                 Offset = new Vector2(
-                    colliderNode["offsetX"]?.GetValue<float>() ?? 2f,
-                    colliderNode["offsetY"]?.GetValue<float>() ?? 2f
+                    colliderNode["offsetX"]?.GetValue<float>() ?? -10f,
+                    colliderNode["offsetY"]?.GetValue<float>() ?? -10f
                 )
             });
         }
 
-        // Velocity
         var velocityNode = components?["velocity"]?.AsObject();
         if (velocityNode != null)
         {

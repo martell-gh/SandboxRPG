@@ -40,15 +40,16 @@ public class Game1 : GameEngine
             var player = EntityFactory.CreateFromPrototype(playerProto, new Vector2(200, 200));
             if (player != null)
             {
+                // копируем компоненты из прототипа
                 player.AddComponent(new PlayerTagComponent());
 
                 // Небольшой ореол вокруг игрока
-                player.AddComponent(new LightComponent
+                /*player.AddComponent(new LightComponent
                 {
                     Color = new Color(255, 240, 200),
                     Radius = 80f,
                     Intensity = 0.7f
-                });
+                });*/
             }
             DevConsole.Log("Player created from prototype.");
         }

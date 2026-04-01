@@ -41,7 +41,7 @@ public class MapData
     public int Height { get; set; } = 50;
 
     [JsonPropertyName("tileSize")]
-    public int TileSize { get; set; } = 16;
+    public int TileSize { get; set; } = 32;
 
     [JsonPropertyName("spawnPoints")]
     public List<SpawnPoint> SpawnPoints { get; set; } = new();
@@ -49,7 +49,6 @@ public class MapData
     [JsonPropertyName("tiles")]
     public List<TileData> Tiles { get; set; } = new();
 
-    // валидация перед сохранением
     public (bool valid, string error) Validate()
     {
         if (string.IsNullOrWhiteSpace(Id))

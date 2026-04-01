@@ -4,5 +4,12 @@
   "category": "tile",
   "solid": true,
   "transparent": true,
-  "color": "#2a6db5"
+  "color": "#2a6db5",
+  "sprite": {
+    "source": "sprite.png",
+    "srcX": 0,
+    "srcY": 0,
+    "width": 32,
+    "height": 32
+  }
 }

@@ -1,0 +1,18 @@
+{
+  "texture": "sprite.png",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "frames": [
+        { "srcX": 0,  "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 32, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 64, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 96, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 128, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 160, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 192, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 },
+        { "srcX": 224, "srcY": 0, "width": 32, "height": 32, "duration": 0.1 }
+      ]
+    }
+  }
+}

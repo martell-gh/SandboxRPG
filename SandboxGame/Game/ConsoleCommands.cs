@@ -37,7 +37,13 @@ public class ConsoleCommands
                 DevConsole.Log("  lighting <on|off>      - toggle lighting");
                 DevConsole.Log("  clear                  - clear console");
                 break;
-
+            case "comps":
+                var player = _engine.World
+                .GetEntitiesWith<TransformComponent, PlayerTagComponent>()
+                .FirstOrDefault();
+                foreach (var comp in player.GetAllComponents())
+                    DevConsole.Log($"  - {comp.GetType().Name}");
+                break;
             case "maps":
                 var available = _mapManager.GetAvailableMaps();
                 if (available.Count == 0) DevConsole.Log("No maps found.");
@@ -119,13 +125,15 @@ public class ConsoleCommands
     private void TeleportPlayerToSpawn(SpawnPoint? spawn)
     {
         if (spawn == null) return;
+
         var player = _engine.World
-            .GetEntitiesWith<TransformComponent, MTEngine.Components.PlayerTagComponent>()
+            .GetEntitiesWith<TransformComponent, PlayerTagComponent>()
             .FirstOrDefault();
         if (player == null) return;
 
         var t = player.GetComponent<TransformComponent>()!;
-        t.Position = new Vector2(spawn.X * 16, spawn.Y * 16);
+        var tileSize = _mapManager.CurrentMap?.TileSize ?? 32;
+        t.Position = new Vector2(spawn.X * tileSize, spawn.Y * tileSize);
         _engine.Camera.Position = t.Position;
     }
 }

@@ -10,7 +10,7 @@ public class CollisionSystem : GameSystem
     private TileMap? _tileMap;
     private readonly int _tileSize;
 
-    public CollisionSystem(int tileSize = 16)
+    public CollisionSystem(int tileSize = 32)
     {
         _tileSize = tileSize;
     }
@@ -39,7 +39,6 @@ public class CollisionSystem : GameSystem
     {
         if (_tileMap == null) return position;
 
-        // тайлы вокруг персонажа
         int startX = bounds.Left / _tileSize - 1;
         int startY = bounds.Top / _tileSize - 1;
         int endX = bounds.Right / _tileSize + 1;
@@ -70,13 +69,10 @@ public class CollisionSystem : GameSystem
 
                 if (!currentBounds.Intersects(tileRect)) continue;
 
-                // вычисляем глубину пересечения
                 var intersect = Rectangle.Intersect(currentBounds, tileRect);
 
-                // толкаем по наименьшей оси
                 if (intersect.Width < intersect.Height)
                 {
-                    // толкаем по X
                     if (currentBounds.Center.X < tileRect.Center.X)
                         resolved.X -= intersect.Width;
                     else
@@ -84,7 +80,6 @@ public class CollisionSystem : GameSystem
                 }
                 else
                 {
-                    // толкаем по Y
                     if (currentBounds.Center.Y < tileRect.Center.Y)
                         resolved.Y -= intersect.Height;
                     else
@@ -96,7 +91,6 @@ public class CollisionSystem : GameSystem
         return resolved;
     }
 
-    // проверка — можно ли встать на позицию
     public bool CanMoveTo(Rectangle bounds)
     {
         if (_tileMap == null) return true;

@@ -12,11 +12,9 @@ public class TileMap
     public int TileSize { get; }
 
     private readonly Tile[,] _tiles;
-
-    // один AnimationPlayer на прототип (все тайлы одного типа синхронны)
     private readonly Dictionary<string, AnimationPlayer> _tileAnimPlayers = new();
 
-    public TileMap(int width, int height, int tileSize = 16)
+    public TileMap(int width, int height, int tileSize = 32)
     {
         Width = width;
         Height = height;
@@ -49,7 +47,6 @@ public class TileMap
 
     public bool IsSolid(int x, int y) => GetTile(x, y).Solid;
 
-    // обновляем анимации тайлов
     public void Update(float deltaTime, PrototypeManager prototypes)
     {
         foreach (var proto in prototypes.GetAllTiles())
@@ -90,19 +87,15 @@ public class TileMap
 
                 var destRect = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
 
-                // текстура
                 Texture2D? tex = null;
                 Rectangle? srcRect = null;
 
                 if (proto.Sprite?.FullPath != null)
                     tex = assets.LoadFromFile(proto.Sprite.FullPath);
 
-                // анимация переопределяет srcRect
                 if (proto.Animations != null && _tileAnimPlayers.TryGetValue(proto.Id, out var player))
                 {
                     srcRect = player.GetSourceRect();
-
-                    // если текстура анимации отличается
                     if (tex == null && !string.IsNullOrEmpty(proto.Animations.TexturePath))
                         tex = assets.LoadFromFile(proto.Animations.TexturePath);
                 }
@@ -120,7 +113,6 @@ public class TileMap
                     continue;
                 }
 
-                // фоллбек на цвет
                 spriteBatch.Draw(assets.GetColorTexture(proto.Color), destRect, Color.White);
             }
         }

@@ -3,10 +3,9 @@
   "name": "Player",
   "category": "entity",
   "components": {
-    "transform": {
-      "x": 0,
-      "y": 0
+    "light": {
     },
+    "transform": { "x": 0, "y": 0 },
     "sprite": {
       "source": "sprite.png",
       "srcX": 0,
@@ -16,14 +15,13 @@
       "layerDepth": 0.5
     },
     "collider": {
-      "width": 26,
-      "height": 26,
-      "offsetX": 6,
-      "offsetY": 6
+      "width": 20,
+      "height": 20,
+      "offsetX": -10,
+      "offsetY": -10
     },
-    "velocity": {
-      "speed": 150
-    }
+    "velocity": { "speed": 150 }
+    
   },
   "animations": "animations.json"
 }

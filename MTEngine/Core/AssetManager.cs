@@ -60,8 +60,8 @@ public class AssetManager
             return existing;
 
         var color = HexToColor(colorHex);
-        var tex = new Texture2D(_graphics, 16, 16);
-        var pixels = new Color[16 * 16];
+        var tex = new Texture2D(_graphics, 32, 32);
+        var pixels = new Color[32 * 32];
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = color;
         tex.SetData(pixels);

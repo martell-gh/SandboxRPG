@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MTEditor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a2fec8f52f8d2e20d9967b591ee339759014127")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7080b971f69bc62c39c06c85ef49df575765d46b")]
 [assembly: System.Reflection.AssemblyProductAttribute("MTEditor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MTEditor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
