@@ -20,6 +20,7 @@ public class EntityFactory
     public Entity? CreateFromPrototype(EntityPrototype proto, Vector2 position)
     {
         var entity = _world.CreateEntity(proto.Name);
+        entity.PrototypeId = proto.Id;
 
         bool hasTransform = false;
 

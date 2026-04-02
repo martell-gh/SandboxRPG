@@ -5,8 +5,10 @@ public class Entity
     private static int _nextId = 0;
 
     public int Id { get; } = _nextId++;
+    public string PrototypeId { get; set; } = "";
     public string Name { get; set; }
     public bool Active { get; set; } = true;
+    public World? World { get; internal set; }
 
     private readonly Dictionary<Type, Component> _components = new();
 

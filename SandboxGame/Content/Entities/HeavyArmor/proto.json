@@ -1,0 +1,31 @@
+{
+  "id": "heavy_armor",
+  "name": "Heavy Armor",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "item.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Heavy Armor",
+      "size": "Medium",
+      "slots": 2,
+      "tags": ["clothing", "armor", "torso"]
+    },
+    "wearable": {
+      "slot": "torso",
+      "speedMultiplier": 0.82,
+      "durability": 140,
+      "maxDurability": 140,
+      "materials": ["metal_plate", "leather_patch"],
+      "icon": "icon.png",
+      "equippedAnimations": "equipped_animations.json"
+    }
+  }
+}

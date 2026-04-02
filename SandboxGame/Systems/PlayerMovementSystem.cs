@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Items;
 using MTEngine.Rendering;
 
 namespace SandboxGame.Systems;
@@ -33,7 +34,7 @@ public class PlayerMovementSystem : GameSystem
             {
                 var sprite = entity.GetComponent<SpriteComponent>();
                 if (sprite != null)
-                    sprite.PlayClip("idle_down");
+                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
             }
             return;
         }
@@ -49,6 +50,7 @@ public class PlayerMovementSystem : GameSystem
             var transform = entity.GetComponent<TransformComponent>()!;
             var velocity = entity.GetComponent<VelocityComponent>()!;
             var sprite = entity.GetComponent<SpriteComponent>();
+            var equipment = entity.GetComponent<EquipmentComponent>();
 
             var dir = Vector2.Zero;
 
@@ -59,18 +61,31 @@ public class PlayerMovementSystem : GameSystem
 
             if (dir != Vector2.Zero) dir.Normalize();
 
-            transform.Position += dir * velocity.Speed * deltaTime;
+            var speedMultiplier = equipment?.GetMoveSpeedMultiplier() ?? 1f;
+            transform.Position += dir * velocity.Speed * speedMultiplier * deltaTime;
             _camera.Follow(transform.Position);
 
             if (sprite != null)
             {
-                if (dir == Vector2.Zero)
-                    sprite.PlayClip("idle_down");
-                else if (Math.Abs(dir.X) > Math.Abs(dir.Y))
-                    sprite.PlayClip(dir.X < 0 ? "walk_left" : "walk_right");
-                else
-                    sprite.PlayClip(dir.Y < 0 ? "walk_up" : "walk_down");
+                sprite.PlayClip(ResolveDirectionalIdleClip(dir, sprite));
             }
         }
+    }
+
+    private static string ResolveDirectionalIdleClip(Vector2 dir, SpriteComponent sprite)
+    {
+        if (dir != Vector2.Zero)
+        {
+            if (Math.Abs(dir.X) > Math.Abs(dir.Y))
+                return dir.X < 0 ? "idle_left" : "idle_right";
+
+            return dir.Y < 0 ? "idle_up" : "idle_down";
+        }
+
+        var current = sprite.AnimationPlayer?.CurrentClipName;
+        if (!string.IsNullOrWhiteSpace(current) && current.StartsWith("idle_", StringComparison.Ordinal))
+            return current;
+
+        return "idle_down";
     }
 }

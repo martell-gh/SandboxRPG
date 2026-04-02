@@ -9,7 +9,7 @@ public class World
 
     public Entity CreateEntity(string name = "Entity")
     {
-        var e = new Entity(name);
+        var e = new Entity(name) { World = this };
         _toAdd.Add(e);
         return e;
     }

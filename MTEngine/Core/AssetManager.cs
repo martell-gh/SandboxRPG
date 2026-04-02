@@ -43,6 +43,7 @@ public class AssetManager
         {
             using var stream = File.OpenRead(filePath);
             var tex = Texture2D.FromStream(_graphics, stream);
+            PremultiplyAlpha(tex);
             _textures[filePath] = tex;
             Console.WriteLine($"[AssetManager] Loaded: {filePath}");
             return tex;
@@ -59,7 +60,7 @@ public class AssetManager
         if (_textures.TryGetValue(colorHex, out var existing))
             return existing;
 
-        var color = HexToColor(colorHex);
+        var color = ParseHexColor(colorHex);
         var tex = new Texture2D(_graphics, 32, 32);
         var pixels = new Color[32 * 32];
         for (int i = 0; i < pixels.Length; i++)
@@ -69,13 +70,54 @@ public class AssetManager
         return tex;
     }
 
-    private static Color HexToColor(string hex)
+    public static Color ParseHexColor(string? hex, Color? fallback = null)
     {
-        hex = hex.TrimStart('#');
-        var r = Convert.ToInt32(hex[..2], 16);
-        var g = Convert.ToInt32(hex[2..4], 16);
-        var b = Convert.ToInt32(hex[4..6], 16);
-        return new Color(r, g, b);
+        if (string.IsNullOrWhiteSpace(hex))
+            return fallback ?? Color.White;
+
+        hex = hex.Trim().TrimStart('#');
+
+        try
+        {
+            var a = 255;
+            if (hex.Length == 8)
+            {
+                a = Convert.ToInt32(hex[6..8], 16);
+                hex = hex[..6];
+            }
+
+            if (hex.Length != 6)
+                return fallback ?? Color.White;
+
+            var r = Convert.ToInt32(hex[..2], 16);
+            var g = Convert.ToInt32(hex[2..4], 16);
+            var b = Convert.ToInt32(hex[4..6], 16);
+            return new Color(r, g, b, a);
+        }
+        catch
+        {
+            return fallback ?? Color.White;
+        }
+    }
+
+    private static void PremultiplyAlpha(Texture2D texture)
+    {
+        var data = new Color[texture.Width * texture.Height];
+        texture.GetData(data);
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            var color = data[i];
+            var alpha = color.A / 255f;
+            data[i] = new Color(
+                (byte)(color.R * alpha),
+                (byte)(color.G * alpha),
+                (byte)(color.B * alpha),
+                color.A
+            );
+        }
+
+        texture.SetData(data);
     }
 
     public void UnloadAll()

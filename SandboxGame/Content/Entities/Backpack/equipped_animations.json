@@ -1,0 +1,9 @@
+{
+  "texture": "equipped.png",
+  "clips": {
+    "idle_down": { "loop": true, "frames": [{ "srcX": 0, "srcY": 0, "width": 32, "height": 32, "duration": 1.0 }] },
+    "idle_up": { "loop": true, "frames": [{ "srcX": 0, "srcY": 32, "width": 32, "height": 32, "duration": 1.0 }] },
+    "idle_left": { "loop": true, "frames": [{ "srcX": 0, "srcY": 64, "width": 32, "height": 32, "duration": 1.0 }] },
+    "idle_right": { "loop": true, "frames": [{ "srcX": 0, "srcY": 96, "width": 32, "height": 32, "duration": 1.0 }] }
+  }
+}

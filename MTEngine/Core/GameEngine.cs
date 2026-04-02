@@ -28,6 +28,7 @@ public class GameEngine : Game
     public LightingSystem LightingSystem { get; private set; } = new();
     public DayNightSystem DayNightSystem { get; private set; } = new();
     public InteractionSystem InteractionSystem { get; private set; } = new();
+    public PopupTextSystem PopupTextSystem { get; private set; } = new();
 
     private RenderTarget2D? _sceneRT;
 
@@ -54,6 +55,7 @@ public class GameEngine : Game
         ServiceLocator.Register(Camera);
         ServiceLocator.Register(GraphicsDevice);
         ServiceLocator.Register(Clock);
+        ServiceLocator.Register(PopupTextSystem);
 
         World.AddSystem(TileMapRenderer);
         World.AddSystem(CollisionSystem);
@@ -61,6 +63,7 @@ public class GameEngine : Game
         World.AddSystem(new Renderer());
         World.AddSystem(LightingSystem);
         World.AddSystem(InteractionSystem);
+        World.AddSystem(PopupTextSystem);
 
         base.Initialize();
     }

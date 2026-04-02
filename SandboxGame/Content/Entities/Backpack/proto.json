@@ -1,0 +1,36 @@
+{
+  "id": "backpack",
+  "name": "Backpack",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Backpack",
+      "size": "Medium",
+      "slots": 2,
+      "tags": ["container", "backpack", "wearable-storage"]
+    },
+    "wearable": {
+      "slot": "back",
+      "durability": 70,
+      "maxDurability": 70,
+      "materials": ["cloth_bolt", "leather_patch"],
+      "icon": "icon.png",
+      "equippedAnimations": "equipped_animations.json"
+    },
+    "storage": {
+      "name": "Backpack",
+      "slots": 8,
+      "maxItemSize": 3,
+      "blacklist": ["wearable-storage"]
+    }
+  }
+}

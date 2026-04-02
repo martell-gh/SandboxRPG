@@ -7,4 +7,6 @@ public static class GamePaths
 
     public static string Tiles => Path.Combine(Content, "Tiles");
     public static string Entities => Path.Combine(Content, "Entities");
+    public static string Textures => Path.Combine(Content, "Textures");
+    public static string Ui => Path.Combine(Textures, "UI");
 }

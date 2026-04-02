@@ -22,8 +22,14 @@ public class InputManager
     public Microsoft.Xna.Framework.Point MousePosition => _currentMouse.Position;
     public bool LeftClicked => _currentMouse.LeftButton == ButtonState.Pressed
                             && _previousMouse.LeftButton == ButtonState.Released;
+    public bool LeftReleased => _currentMouse.LeftButton == ButtonState.Released
+                             && _previousMouse.LeftButton == ButtonState.Pressed;
     public bool RightClicked => _currentMouse.RightButton == ButtonState.Pressed
                              && _previousMouse.RightButton == ButtonState.Released;
+    public bool RightReleased => _currentMouse.RightButton == ButtonState.Released
+                              && _previousMouse.RightButton == ButtonState.Pressed;
+    public bool LeftDown => _currentMouse.LeftButton == ButtonState.Pressed;
+    public bool RightDown => _currentMouse.RightButton == ButtonState.Pressed;
 
     public int ScrollDelta => _currentMouse.ScrollWheelValue - _previousMouse.ScrollWheelValue;
 }

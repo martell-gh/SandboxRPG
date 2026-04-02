@@ -23,6 +23,7 @@ public class Game1 : GameEngine
         DevConsole.Log("Game started! Type 'help'.");
 
         InteractionSystem.SetFont(font);
+        PopupTextSystem.SetFont(font);
 
         Prototypes.LoadFromDirectory(GamePaths.Tiles);
         Prototypes.LoadFromDirectory(GamePaths.Entities);

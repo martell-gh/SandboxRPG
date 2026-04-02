@@ -1,0 +1,31 @@
+{
+  "id": "leather_boots",
+  "name": "Leather Boots",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "item.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "color": "#8A613A"
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Leather Boots",
+      "size": "Small",
+      "slots": 1,
+      "tags": ["clothing", "shoes", "boots"]
+    },
+    "wearable": {
+      "slot": "shoes",
+      "durability": 80,
+      "maxDurability": 80,
+      "materials": ["leather_patch"],
+      "icon": "icon.png",
+      "equippedAnimations": "equipped_animations.json"
+    }
+  }
+}

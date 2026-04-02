@@ -1,0 +1,23 @@
+{
+  "id": "greatsword",
+  "name": "Greatsword",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Greatsword",
+      "slots": 3,
+      "size": "Large",
+      "twoHanded": true,
+      "tags": ["weapon", "melee", "two-handed"]
+    }
+  }
+}

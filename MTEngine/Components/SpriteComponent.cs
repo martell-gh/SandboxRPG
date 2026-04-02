@@ -17,10 +17,23 @@ public class SpriteComponent : Component, IPrototypeInitializable
     [DataField("layerDepth")]
     public float LayerDepth { get; set; } = 0f;
 
+    [DataField("ySort")]
+    public bool YSort { get; set; } = false;
+
+    [DataField("sortOffsetY")]
+    public float SortOffsetY { get; set; } = 0f;
+
     public bool Visible { get; set; } = true;
 
     [DataField("source")]
     public string? Source { get; set; }
+
+    [DataField("color")]
+    public string ColorHex
+    {
+        get => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}{Color.A:X2}";
+        set => Color = AssetManager.ParseHexColor(value, Color.White);
+    }
 
     [DataField("srcX")]
     public int SrcX { get; set; }

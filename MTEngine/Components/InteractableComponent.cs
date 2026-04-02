@@ -2,23 +2,19 @@ using MTEngine.ECS;
 
 namespace MTEngine.Components;
 
-public class InteractionAction
-{
-    public string Id { get; set; } = "";
-    public string Label { get; set; } = "";
-    public Action<Entity, Entity>? Execute { get; set; }
-}
-
-
+/// <summary>
+/// Marker component that makes an entity interactable via right-click.
+/// Actions are NOT stored here — they come from other components
+/// that implement IInteractionSource.
+/// </summary>
+[RegisterComponent("interactable")]
 public class InteractableComponent : Component
 {
+    /// <summary>Name shown in the interaction menu header.</summary>
+    [DataField("name")]
     public string DisplayName { get; set; } = "Object";
-    public float InteractRange { get; set; } = 64f; // пиксели
 
-    public List<InteractionAction> Actions { get; } = new();
-
-    public void AddAction(string id, string label, Action<Entity, Entity> execute)
-    {
-        Actions.Add(new InteractionAction { Id = id, Label = label, Execute = execute });
-    }
+    /// <summary>Max distance (in pixels) from which the player can interact.</summary>
+    [DataField("range")]
+    public float InteractRange { get; set; } = 64f;
 }
