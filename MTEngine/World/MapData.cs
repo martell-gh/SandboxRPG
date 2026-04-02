@@ -24,6 +24,21 @@ public class TileData
 
     [JsonPropertyName("protoId")]
     public string ProtoId { get; set; } = "";
+
+    [JsonPropertyName("layer")]
+    public int Layer { get; set; } = 0;
+}
+
+public class MapEntityData
+{
+    [JsonPropertyName("x")]
+    public int X { get; set; }
+
+    [JsonPropertyName("y")]
+    public int Y { get; set; }
+
+    [JsonPropertyName("protoId")]
+    public string ProtoId { get; set; } = "";
 }
 
 public class MapData
@@ -49,6 +64,9 @@ public class MapData
     [JsonPropertyName("tiles")]
     public List<TileData> Tiles { get; set; } = new();
 
+    [JsonPropertyName("entities")]
+    public List<MapEntityData> Entities { get; set; } = new();
+
     public (bool valid, string error) Validate()
     {
         if (string.IsNullOrWhiteSpace(Id))
@@ -59,6 +77,10 @@ public class MapData
             return (false, "No spawn points! Add at least one.");
         if (SpawnPoints.Any(s => string.IsNullOrWhiteSpace(s.Id)))
             return (false, "Spawn point has empty id");
+        if (Tiles.Any(t => string.IsNullOrWhiteSpace(t.ProtoId)))
+            return (false, "Tile has empty proto id");
+        if (Entities.Any(e => string.IsNullOrWhiteSpace(e.ProtoId)))
+            return (false, "Entity has empty proto id");
         return (true, "");
     }
 }

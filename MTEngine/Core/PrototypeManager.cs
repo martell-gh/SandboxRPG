@@ -30,6 +30,7 @@ public class TilePrototype
 public class PrototypeManager
 {
     private readonly Dictionary<string, TilePrototype> _tiles = new();
+    private readonly Dictionary<string, EntityPrototype> _entities = new();
 
     public void LoadFromDirectory(string rootDirectory)
     {
@@ -94,6 +95,14 @@ public class PrototypeManager
                     _tiles[id] = proto;
                     Console.WriteLine($"[PrototypeManager] Loaded tile: {id}");
                 }
+                else if (category == "entity")
+                {
+                    var entityProto = EntityPrototype.LoadFromFile(file);
+                    if (entityProto == null) continue;
+
+                    _entities[id] = entityProto;
+                    Console.WriteLine($"[PrototypeManager] Loaded entity: {id}");
+                }
             }
             catch (Exception e)
             {
@@ -102,11 +111,17 @@ public class PrototypeManager
         }
 
         Console.WriteLine($"[PrototypeManager] Total tiles: {_tiles.Count}");
+        Console.WriteLine($"[PrototypeManager] Total entities: {_entities.Count}");
     }
 
     public TilePrototype? GetTile(string id)
         => _tiles.TryGetValue(id, out var p) ? p : null;
 
+    public EntityPrototype? GetEntity(string id)
+        => _entities.TryGetValue(id, out var p) ? p : null;
+
     public IEnumerable<TilePrototype> GetAllTiles() => _tiles.Values;
+    public IEnumerable<EntityPrototype> GetAllEntities() => _entities.Values;
     public bool TileExists(string id) => _tiles.ContainsKey(id);
+    public bool EntityExists(string id) => _entities.ContainsKey(id);
 }

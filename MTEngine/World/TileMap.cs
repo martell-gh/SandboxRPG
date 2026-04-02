@@ -10,33 +10,36 @@ public class TileMap
     public int Width { get; }
     public int Height { get; }
     public int TileSize { get; }
+    public int LayerCount { get; }
 
-    private readonly Tile[,] _tiles;
+    private readonly Tile[,,] _tiles;
     private readonly Dictionary<string, AnimationPlayer> _tileAnimPlayers = new();
 
-    public TileMap(int width, int height, int tileSize = 32)
+    public TileMap(int width, int height, int tileSize = 32, int layerCount = 3)
     {
         Width = width;
         Height = height;
         TileSize = tileSize;
-        _tiles = new Tile[width, height];
+        LayerCount = Math.Max(1, layerCount);
+        _tiles = new Tile[width, height, LayerCount];
 
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                _tiles[x, y] = Tile.Empty;
+        for (int layer = 0; layer < LayerCount; layer++)
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                    _tiles[x, y, layer] = Tile.Empty;
     }
 
-    public Tile GetTile(int x, int y)
+    public Tile GetTile(int x, int y, int layer = 0)
     {
-        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        if (x < 0 || x >= Width || y < 0 || y >= Height || layer < 0 || layer >= LayerCount)
             return Tile.Empty;
-        return _tiles[x, y];
+        return _tiles[x, y, layer];
     }
 
-    public void SetTile(int x, int y, Tile tile)
+    public void SetTile(int x, int y, Tile tile, int layer = 0)
     {
-        if (x < 0 || x >= Width || y < 0 || y >= Height) return;
-        _tiles[x, y] = tile;
+        if (x < 0 || x >= Width || y < 0 || y >= Height || layer < 0 || layer >= LayerCount) return;
+        _tiles[x, y, layer] = tile;
     }
 
     public Point WorldToTile(Vector2 worldPos)
@@ -45,7 +48,16 @@ public class TileMap
     public Vector2 TileToWorld(int tx, int ty)
         => new(tx * TileSize, ty * TileSize);
 
-    public bool IsSolid(int x, int y) => GetTile(x, y).Solid;
+    public bool IsSolid(int x, int y)
+    {
+        for (int layer = 0; layer < LayerCount; layer++)
+        {
+            if (GetTile(x, y, layer).Solid)
+                return true;
+        }
+
+        return false;
+    }
 
     public void Update(float deltaTime, PrototypeManager prototypes)
     {
@@ -79,41 +91,44 @@ public class TileMap
         {
             for (int y = startY; y < endY; y++)
             {
-                var tile = _tiles[x, y];
-                if (tile.Type == TileType.Empty || tile.ProtoId == null) continue;
-
-                var proto = prototypes.GetTile(tile.ProtoId);
-                if (proto == null) continue;
-
-                var destRect = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
-
-                Texture2D? tex = null;
-                Rectangle? srcRect = null;
-
-                if (proto.Sprite?.FullPath != null)
-                    tex = assets.LoadFromFile(proto.Sprite.FullPath);
-
-                if (proto.Animations != null && _tileAnimPlayers.TryGetValue(proto.Id, out var player))
+                for (int layer = 0; layer < LayerCount; layer++)
                 {
-                    srcRect = player.GetSourceRect();
-                    if (tex == null && !string.IsNullOrEmpty(proto.Animations.TexturePath))
-                        tex = assets.LoadFromFile(proto.Animations.TexturePath);
-                }
-                else if (proto.Sprite != null && tex != null)
-                {
-                    srcRect = new Rectangle(
-                        proto.Sprite.SrcX, proto.Sprite.SrcY,
-                        proto.Sprite.Width, proto.Sprite.Height
-                    );
-                }
+                    var tile = _tiles[x, y, layer];
+                    if (tile.Type == TileType.Empty || tile.ProtoId == null) continue;
 
-                if (tex != null)
-                {
-                    spriteBatch.Draw(tex, destRect, srcRect, Color.White);
-                    continue;
-                }
+                    var proto = prototypes.GetTile(tile.ProtoId);
+                    if (proto == null) continue;
 
-                spriteBatch.Draw(assets.GetColorTexture(proto.Color), destRect, Color.White);
+                    var destRect = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
+
+                    Texture2D? tex = null;
+                    Rectangle? srcRect = null;
+
+                    if (proto.Sprite?.FullPath != null)
+                        tex = assets.LoadFromFile(proto.Sprite.FullPath);
+
+                    if (proto.Animations != null && _tileAnimPlayers.TryGetValue(proto.Id, out var player))
+                    {
+                        srcRect = player.GetSourceRect();
+                        if (tex == null && !string.IsNullOrEmpty(proto.Animations.TexturePath))
+                            tex = assets.LoadFromFile(proto.Animations.TexturePath);
+                    }
+                    else if (proto.Sprite != null && tex != null)
+                    {
+                        srcRect = new Rectangle(
+                            proto.Sprite.SrcX, proto.Sprite.SrcY,
+                            proto.Sprite.Width, proto.Sprite.Height
+                        );
+                    }
+
+                    if (tex != null)
+                    {
+                        spriteBatch.Draw(tex, destRect, srcRect, Color.White);
+                        continue;
+                    }
+
+                    spriteBatch.Draw(assets.GetColorTexture(proto.Color), destRect, Color.White);
+                }
             }
         }
     }

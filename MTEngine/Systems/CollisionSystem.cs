@@ -50,8 +50,7 @@ public class CollisionSystem : GameSystem
         {
             for (int ty = startY; ty <= endY; ty++)
             {
-                var tile = _tileMap.GetTile(tx, ty);
-                if (!tile.Solid) continue;
+                if (!_tileMap.IsSolid(tx, ty)) continue;
 
                 var tileRect = new Rectangle(
                     tx * _tileSize,
@@ -102,7 +101,7 @@ public class CollisionSystem : GameSystem
 
         for (int tx = startX; tx <= endX; tx++)
             for (int ty = startY; ty <= endY; ty++)
-                if (_tileMap.GetTile(tx, ty).Solid) return false;
+                if (_tileMap.IsSolid(tx, ty)) return false;
 
         return true;
     }

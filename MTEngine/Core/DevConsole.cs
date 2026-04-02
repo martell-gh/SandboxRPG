@@ -10,14 +10,18 @@ public static class DevConsole
     public static bool IsOpen { get; private set; } = false;
 
     private static readonly List<string> _history = new();
+    private static readonly List<string> _commandHistory = new();
     private static string _input = "";
     private static int _scrollOffset = 0;
+    private static int _historyCursor = -1;
     private static SpriteFont? _font;
     private static SpriteBatch? _spriteBatch;
     private static GraphicsDevice? _graphics;
 
     private static KeyboardState _prev;
     private static KeyboardState _current;
+    private static MouseState _prevMouse;
+    private static MouseState _currentMouse;
 
     // колбэк для обработки команд
     public static Action<string>? OnCommand { get; set; }
@@ -32,6 +36,7 @@ public static class DevConsole
     public static void Log(string message)
     {
         _history.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+        ClampScrollOffset();
         Console.WriteLine($"[DEV] {message}");
     }
 
@@ -43,19 +48,40 @@ public static class DevConsole
 
         _prev = _current;
         _current = Keyboard.GetState();
+        _prevMouse = _currentMouse;
+        _currentMouse = Mouse.GetState();
 
         // тильда — открыть/закрыть
         if (IsPressed(Keys.OemTilde))
         {
             IsOpen = !IsOpen;
             _input = "";
+            _historyCursor = _commandHistory.Count;
         }
 
         if (!IsOpen) return;
 
         // скролл
-        if (IsPressed(Keys.PageUp)) _scrollOffset = Math.Max(0, _scrollOffset - 5);
-        if (IsPressed(Keys.PageDown)) _scrollOffset = Math.Min(Math.Max(0, _history.Count - 20), _scrollOffset + 5);
+        if (IsPressed(Keys.PageUp)) _scrollOffset += 5;
+        if (IsPressed(Keys.PageDown)) _scrollOffset -= 5;
+
+        var wheelDelta = _currentMouse.ScrollWheelValue - _prevMouse.ScrollWheelValue;
+        if (wheelDelta > 0) _scrollOffset += 3;
+        if (wheelDelta < 0) _scrollOffset -= 3;
+
+        ClampScrollOffset();
+
+        if (IsPressed(Keys.Up))
+        {
+            RecallPreviousCommand();
+            return;
+        }
+
+        if (IsPressed(Keys.Down))
+        {
+            RecallNextCommand();
+            return;
+        }
 
         // ввод текста
         foreach (var key in _current.GetPressedKeys())
@@ -73,9 +99,11 @@ public static class DevConsole
                 if (_input.Trim().Length > 0)
                 {
                     Log($"> {_input}");
+                    _commandHistory.Add(_input);
                     OnCommand?.Invoke(_input.Trim());
                     _input = "";
-                    _scrollOffset = Math.Max(0, _history.Count - 20);
+                    _scrollOffset = 0;
+                    _historyCursor = _commandHistory.Count;
                 }
                 continue;
             }
@@ -129,6 +157,7 @@ public static class DevConsole
 
         // логи
         int maxLines = (height - 50) / 16;
+        ClampScrollOffset(maxLines);
         int startIdx = Math.Max(0, _history.Count - maxLines - _scrollOffset);
         int endIdx = Math.Min(_history.Count, startIdx + maxLines);
 
@@ -141,14 +170,17 @@ public static class DevConsole
 
         // поле ввода
         DrawRect(0, height - 26, width, 26, Color.DarkGreen * 0.7f);
-        _spriteBatch.DrawString(_font!, $"> {_input}_", new Vector2(5, height - 22), Color.White);
+        var cursor = (DateTime.Now.Millisecond < 500) ? "_" : "";
+        _spriteBatch.DrawString(_font!, $"> {_input}{cursor}", new Vector2(5, height - 22), Color.White);
 
         // скроллбар
         if (_history.Count > maxLines)
         {
             var barHeight = height - 50;
             var thumbHeight = Math.Max(20, barHeight * maxLines / _history.Count);
-            var thumbY = 25 + (barHeight - thumbHeight) * _scrollOffset / Math.Max(1, _history.Count - maxLines);
+            var maxOffset = Math.Max(1, _history.Count - maxLines);
+            var scrollRatio = 1f - (_scrollOffset / (float)maxOffset);
+            var thumbY = 25 + (barHeight - thumbHeight) * scrollRatio;
             DrawRect(width - 8, 25, 8, barHeight, Color.DarkGreen * 0.5f);
             DrawRect(width - 8, (int)thumbY, 8, thumbHeight, Color.LimeGreen * 0.8f);
         }
@@ -170,6 +202,38 @@ public static class DevConsole
 
     private static bool IsPressed(Keys key)
         => _current.IsKeyDown(key) && _prev.IsKeyUp(key);
+
+    private static void RecallPreviousCommand()
+    {
+        if (_commandHistory.Count == 0) return;
+
+        _historyCursor = Math.Max(0, _historyCursor - 1);
+        _input = _commandHistory[_historyCursor];
+    }
+
+    private static void RecallNextCommand()
+    {
+        if (_commandHistory.Count == 0) return;
+
+        _historyCursor = Math.Min(_commandHistory.Count, _historyCursor + 1);
+        _input = _historyCursor >= _commandHistory.Count ? "" : _commandHistory[_historyCursor];
+    }
+
+    private static void ClampScrollOffset(int? maxLinesOverride = null)
+    {
+        var maxLines = maxLinesOverride ?? GetVisibleLineCapacity();
+        var maxOffset = Math.Max(0, _history.Count - maxLines);
+        _scrollOffset = Math.Clamp(_scrollOffset, 0, maxOffset);
+    }
+
+    private static int GetVisibleLineCapacity()
+    {
+        if (_graphics == null)
+            return 20;
+
+        var height = _graphics.Viewport.Height / 2;
+        return Math.Max(1, (height - 50) / 16);
+    }
 
     private static char KeyToChar(Keys key, bool shift)
     {

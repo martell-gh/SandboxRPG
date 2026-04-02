@@ -3,14 +3,30 @@ using MTEngine.ECS;
 
 namespace MTEngine.Components;
 
+[RegisterComponent("collider")]
 public class ColliderComponent : Component
 {
-    // размер хитбокса в пикселях
+    [DataField("width")]
     public int Width { get; set; } = 12;
+
+    [DataField("height")]
     public int Height { get; set; } = 12;
 
-    // смещение от позиции entity (центрирование)
     public Vector2 Offset { get; set; } = new Vector2(2, 2);
+
+    [DataField("offsetX")]
+    public float OffsetX
+    {
+        get => Offset.X;
+        set => Offset = new Vector2(value, Offset.Y);
+    }
+
+    [DataField("offsetY")]
+    public float OffsetY
+    {
+        get => Offset.Y;
+        set => Offset = new Vector2(Offset.X, value);
+    }
 
     public Rectangle GetBounds(Vector2 position)
     {

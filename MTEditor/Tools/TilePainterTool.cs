@@ -12,7 +12,7 @@ public class TilePainterTool
     private TileMap _tileMap;
     private readonly PrototypeManager _prototypes;
     private readonly AssetManager _assets;
-    private readonly EditorHistory _history;
+    private EditorHistory _history;
 
     private bool _wasPaintingLeft = false;
     private bool _wasPaintingRight = false;
@@ -33,7 +33,15 @@ public class TilePainterTool
         _tileMap = tileMap;
     }
 
+    public void SetHistory(EditorHistory history)
+    {
+        _history = history;
+    }
+
     public void Update(MouseState mouse, MouseState prev, Vector2 worldPos, string? selectedTileId)
+        => Update(mouse, prev, worldPos, selectedTileId, 0);
+
+    public void Update(MouseState mouse, MouseState prev, Vector2 worldPos, string? selectedTileId, int activeLayer)
     {
         var tileX = (int)Math.Floor(worldPos.X / _map.TileSize);
         var tileY = (int)Math.Floor(worldPos.Y / _map.TileSize);
@@ -59,7 +67,7 @@ public class TilePainterTool
                 var proto = _prototypes.GetTile(selectedTileId);
                 if (proto != null)
                 {
-                    var oldTile = _tileMap.GetTile(tileX, tileY);
+                    var oldTile = _tileMap.GetTile(tileX, tileY, activeLayer);
                     var newTile = new Tile
                     {
                         ProtoId = selectedTileId,
@@ -71,8 +79,8 @@ public class TilePainterTool
                     // записываем только если тайл реально изменился
                     if (oldTile.ProtoId != newTile.ProtoId)
                     {
-                        _history.Record(tileX, tileY, oldTile, newTile);
-                        _tileMap.SetTile(tileX, tileY, newTile);
+                        _history.Record(activeLayer, tileX, tileY, oldTile, newTile);
+                        _tileMap.SetTile(tileX, tileY, newTile, activeLayer);
                     }
                 }
             }
@@ -80,11 +88,11 @@ public class TilePainterTool
             // стираем тайл
             if (isRight)
             {
-                var oldTile = _tileMap.GetTile(tileX, tileY);
+                var oldTile = _tileMap.GetTile(tileX, tileY, activeLayer);
                 if (oldTile.Type != TileType.Empty)
                 {
-                    _history.Record(tileX, tileY, oldTile, Tile.Empty);
-                    _tileMap.SetTile(tileX, tileY, Tile.Empty);
+                    _history.Record(activeLayer, tileX, tileY, oldTile, Tile.Empty);
+                    _tileMap.SetTile(tileX, tileY, Tile.Empty, activeLayer);
                 }
             }
         }

@@ -132,7 +132,8 @@ public class MapManager
 
     private TileMap BuildTileMap(MapData data)
     {
-        var map = new TileMap(data.Width, data.Height, data.TileSize);
+        var layerCount = Math.Max(3, data.Tiles.Count == 0 ? 1 : data.Tiles.Max(tile => tile.Layer) + 1);
+        var map = new TileMap(data.Width, data.Height, data.TileSize, layerCount);
 
         foreach (var tileData in data.Tiles)
         {
@@ -149,7 +150,7 @@ public class MapManager
                 Solid = proto.Solid,
                 Transparent = proto.Transparent,
                 Type = proto.Solid ? TileType.Wall : TileType.Floor
-            });
+            }, tileData.Layer);
         }
 
         return map;

@@ -27,6 +27,17 @@ public class PlayerMovementSystem : GameSystem
 
     public override void Update(float deltaTime)
     {
+        if (DevConsole.IsOpen)
+        {
+            foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
+            {
+                var sprite = entity.GetComponent<SpriteComponent>();
+                if (sprite != null)
+                    sprite.PlayClip("idle_down");
+            }
+            return;
+        }
+
         // зум колёсиком
         if (_input.ScrollDelta > 0)
             _camera.Zoom = Math.Min(MaxZoom, _camera.Zoom + ZoomStep);

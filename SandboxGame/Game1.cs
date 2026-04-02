@@ -12,6 +12,7 @@ namespace SandboxGame;
 public class Game1 : GameEngine
 {
     private ConsoleCommands _commands = null!;
+    private MapEntitySpawner _mapEntitySpawner = null!;
 
     protected override void LoadContent()
     {
@@ -24,9 +25,11 @@ public class Game1 : GameEngine
         InteractionSystem.SetFont(font);
 
         Prototypes.LoadFromDirectory(GamePaths.Tiles);
+        Prototypes.LoadFromDirectory(GamePaths.Entities);
 
         var mapManager = new MapManager(GamePaths.Maps, Prototypes);
         ServiceLocator.Register(mapManager);
+        _mapEntitySpawner = new MapEntitySpawner(Prototypes, EntityFactory, World, EventBus);
 
         World.AddSystem(new PlayerMovementSystem());
         _commands = new ConsoleCommands(this, mapManager, TileMapRenderer);

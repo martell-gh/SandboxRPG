@@ -9,6 +9,7 @@ public class InteractionAction
     public Action<Entity, Entity>? Execute { get; set; }
 }
 
+
 public class InteractableComponent : Component
 {
     public string DisplayName { get; set; } = "Object";

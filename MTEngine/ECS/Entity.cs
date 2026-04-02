@@ -22,14 +22,31 @@ public class Entity
         return component;
     }
 
+    public Component AddComponent(Component component)
+    {
+        component.Owner = this;
+        _components[component.GetType()] = component;
+        return component;
+    }
+
     public T? GetComponent<T>() where T : Component
     {
         return _components.TryGetValue(typeof(T), out var c) ? (T)c : null;
     }
 
+    public Component? GetComponent(Type componentType)
+    {
+        return _components.TryGetValue(componentType, out var c) ? c : null;
+    }
+
     public bool HasComponent<T>() where T : Component
     {
         return _components.ContainsKey(typeof(T));
+    }
+
+    public bool HasComponent(Type componentType)
+    {
+        return _components.ContainsKey(componentType);
     }
 
     public void RemoveComponent<T>() where T : Component

@@ -1,4 +1,6 @@
 using System.Text.Json.Nodes;
+using Microsoft.Xna.Framework;
+using MTEngine.Rendering;
 
 namespace MTEngine.Core;
 
@@ -11,6 +13,8 @@ public class EntityPrototype
     public string? AnimationsPath { get; set; }
     public string? SpritePath { get; set; }
     public string? DirectoryPath { get; set; }
+    public Rectangle? PreviewSourceRect { get; set; }
+    public string PreviewColor { get; set; } = "#ffffff";
 
     public static EntityPrototype? LoadFromFile(string protoPath)
     {
@@ -48,6 +52,32 @@ public class EntityPrototype
                 var src = spriteNode["source"]?.GetValue<string>();
                 if (src != null)
                     proto.SpritePath = Path.Combine(dir, src);
+
+                var width = spriteNode["width"]?.GetValue<int>() ?? 32;
+                var height = spriteNode["height"]?.GetValue<int>() ?? 32;
+                proto.PreviewSourceRect = new Rectangle(
+                    spriteNode["srcX"]?.GetValue<int>() ?? 0,
+                    spriteNode["srcY"]?.GetValue<int>() ?? 0,
+                    width,
+                    height
+                );
+            }
+
+            var colorNode = node["components"]?["light"]?["color"]?.GetValue<string>();
+            if (!string.IsNullOrWhiteSpace(colorNode))
+                proto.PreviewColor = colorNode;
+
+            if (proto.PreviewSourceRect == null && proto.AnimationsPath != null)
+            {
+                var animSet = AnimationSet.LoadFromFile(proto.AnimationsPath);
+                var clip = animSet?.GetClip("idle") ?? animSet?.GetAllClips().FirstOrDefault();
+                if (clip?.Frames.Count > 0)
+                {
+                    proto.PreviewSourceRect = clip.Frames[0].SourceRect;
+
+                    if (string.IsNullOrEmpty(proto.SpritePath) && !string.IsNullOrEmpty(animSet!.TexturePath))
+                        proto.SpritePath = Path.Combine(dir, animSet.TexturePath);
+                }
             }
 
             return proto;

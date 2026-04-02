@@ -43,7 +43,7 @@ public class EditorHUD
         if (_messageTimer > 0) _messageTimer -= 0.016f;
     }
 
-    public void Draw(SpriteBatch spriteBatch, EditorGame.Tool activeTool, MapData map, EditorHistory history)
+    public void Draw(SpriteBatch spriteBatch, EditorGame.Tool activeTool, MapData map, EditorHistory history, int activeLayer, TilePalette palette)
     {
         var viewport = _graphics.Viewport;
         var panelY = viewport.Height - PanelHeight;
@@ -53,14 +53,23 @@ public class EditorHUD
         spriteBatch.Draw(_pixel, new Rectangle(0, panelY, viewport.Width, 1), Color.DarkGreen);
 
         // строка 1 — инфо о карте
-        var tool = activeTool == EditorGame.Tool.TilePainter ? "[1] Painter" : "[2] Spawn";
+        var tool = activeTool switch
+        {
+            EditorGame.Tool.TilePainter => "[1] Tiles",
+            EditorGame.Tool.EntityPainter => "[2] Objects",
+            _ => "[3] Spawn"
+        };
+        var selected = activeTool == EditorGame.Tool.TilePainter
+            ? palette.SelectedTileId ?? "-"
+            : activeTool == EditorGame.Tool.EntityPainter
+                ? palette.SelectedEntityId ?? "-"
+                : "spawn";
         spriteBatch.DrawString(_font,
-            $"Tool: {tool}   Map: {map.Id}   Name: {map.Name}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Undo: {history.UndoCount}   Redo: {history.RedoCount}",
+            $"Tool: {tool}   Selected: {selected}   Tile Layer: {activeLayer}   Map: {map.Id}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Objects: {map.Entities.Count}",
             new Vector2(175, panelY + 5), Color.LimeGreen);
 
-        // строка 2 — хоткеи
         spriteBatch.DrawString(_font,
-            "Ctrl+S=Save   Ctrl+O=Load   Ctrl+N=New   Ctrl+Z=Undo   Ctrl+Y=Redo   [1]=Painter   [2]=Spawn   Arrows=Move   Scroll=Zoom",
+            "Ctrl+S=Save   Ctrl+O=Load   Ctrl+N=New   Ctrl+Z=Undo   Ctrl+Y=Redo   [1]=Tiles   [2]=Objects   [3]=Spawn   Q/E=Layer   Arrows=Move   Scroll=Zoom",
             new Vector2(175, panelY + 22), Color.Gray);
 
         // сообщение по центру над панелью

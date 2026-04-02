@@ -6,6 +6,7 @@ namespace MTEditor;
 
 public class TileAction
 {
+    public int Layer { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
     public Tile OldTile { get; set; } = Tile.Empty;
@@ -19,7 +20,7 @@ public class EditorHistory
     private List<TileAction>? _currentBatch;
 
     // ячейки изменённые в текущем батче — чтобы не дублировать
-    private readonly HashSet<(int, int)> _currentBatchCells = new();
+    private readonly HashSet<(int, int, int)> _currentBatchCells = new();
 
     public int UndoCount => _undo.Count;
     public int RedoCount => _redo.Count;
@@ -33,22 +34,23 @@ public class EditorHistory
         _currentBatchCells.Clear();
     }
 
-    public void Record(int x, int y, Tile oldTile, Tile newTile)
+    public void Record(int layer, int x, int y, Tile oldTile, Tile newTile)
     {
         if (_currentBatch == null) return;
 
         // каждую ячейку пишем только один раз за батч
         // чтобы oldTile был реально старым, а не промежуточным
-        if (_currentBatchCells.Contains((x, y))) return;
+        if (_currentBatchCells.Contains((layer, x, y))) return;
 
         _currentBatch.Add(new TileAction
         {
+            Layer = layer,
             X = x,
             Y = y,
             OldTile = oldTile.Clone(), // глубокая копия!
             NewTile = newTile.Clone()
         });
-        _currentBatchCells.Add((x, y));
+        _currentBatchCells.Add((layer, x, y));
     }
 
     public void CommitBatch()
@@ -76,7 +78,7 @@ public class EditorHistory
 
         var batch = _undo.Pop();
         foreach (var action in batch)
-            tileMap.SetTile(action.X, action.Y, action.OldTile.Clone());
+            tileMap.SetTile(action.X, action.Y, action.OldTile.Clone(), action.Layer);
 
         _redo.Push(batch);
         Console.WriteLine($"[History] Undid {batch.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");
@@ -92,7 +94,7 @@ public class EditorHistory
 
         var batch = _redo.Pop();
         foreach (var action in batch)
-            tileMap.SetTile(action.X, action.Y, action.NewTile.Clone());
+            tileMap.SetTile(action.X, action.Y, action.NewTile.Clone(), action.Layer);
 
         _undo.Push(batch);
         Console.WriteLine($"[History] Redid {batch.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");

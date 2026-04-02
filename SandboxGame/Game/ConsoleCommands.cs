@@ -1,7 +1,13 @@
+using System;
 using System.Linq;
+using System.Reflection;
+using System.Globalization;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using MTEngine.Components;
 using MTEngine.Core;
+using MTEngine.ECS;
 using MTEngine.Systems;
 using MTEngine.World;
 
@@ -39,10 +45,35 @@ public class ConsoleCommands
                 break;
             case "comps":
                 var player = _engine.World
-                .GetEntitiesWith<TransformComponent, PlayerTagComponent>()
-                .FirstOrDefault();
+                    .GetEntitiesWith<TransformComponent, PlayerTagComponent>()
+                    .FirstOrDefault();
+
+                if (player == null)
+                {
+                    DevConsole.Log("Player not found.");
+                    break;
+                }
+
                 foreach (var comp in player.GetAllComponents())
+                {
                     DevConsole.Log($"  - {comp.GetType().Name}");
+
+                    foreach (var property in GetDisplayProperties(comp.GetType()))
+                    {
+                        object value;
+
+                        try
+                        {
+                            value = property.GetValue(comp);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+
+                        DevConsole.Log($"      {property.Name}: {FormatValue(value)}");
+                    }
+                }
                 break;
             case "maps":
                 var available = _mapManager.GetAvailableMaps();
@@ -122,7 +153,7 @@ public class ConsoleCommands
         TeleportPlayerToSpawn(spawn);
     }
 
-    private void TeleportPlayerToSpawn(SpawnPoint? spawn)
+    private void TeleportPlayerToSpawn(SpawnPoint spawn)
     {
         if (spawn == null) return;
 
@@ -135,5 +166,49 @@ public class ConsoleCommands
         var tileSize = _mapManager.CurrentMap?.TileSize ?? 32;
         t.Position = new Vector2(spawn.X * tileSize, spawn.Y * tileSize);
         _engine.Camera.Position = t.Position;
+    }
+
+    private static IEnumerable<PropertyInfo> GetDisplayProperties(Type type)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
+
+        return type
+            .GetProperties(flags)
+            .Where(prop =>
+                prop.CanRead &&
+                prop.GetIndexParameters().Length == 0 &&
+                prop.Name != nameof(Component.Owner));
+    }
+
+    private static string FormatValue(object value)
+    {
+        if (value == null)
+            return "null";
+
+        return value switch
+        {
+            string str => string.IsNullOrEmpty(str) ? "\"\"" : str,
+            Vector2 vector => $"({FormatNumber(vector.X)}, {FormatNumber(vector.Y)})",
+            Rectangle rect => $"({rect.X}, {rect.Y}, {rect.Width}, {rect.Height})",
+            Color color => $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}",
+            IEnumerable enumerable when value is not string => FormatEnumerable(enumerable),
+            IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
+            _ => value.ToString() ?? value.GetType().Name
+        };
+    }
+
+    private static string FormatEnumerable(IEnumerable values)
+    {
+        var items = values.Cast<object>()
+            .Take(5)
+            .Select(FormatValue)
+            .ToList();
+
+        return items.Count == 0 ? "[]" : $"[{string.Join(", ", items)}]";
+    }
+
+    private static string FormatNumber(float value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
     }
 }

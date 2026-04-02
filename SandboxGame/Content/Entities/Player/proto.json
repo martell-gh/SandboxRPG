@@ -4,6 +4,7 @@
   "category": "entity",
   "components": {
     "light": {
+      "color": "#FF0000"
     },
     "transform": { "x": 0, "y": 0 },
     "sprite": {
@@ -20,7 +21,7 @@
       "offsetX": -10,
       "offsetY": -10
     },
-    "velocity": { "speed": 150 }
+    "velocity": { "speed": 100 }
     
   },
   "animations": "animations.json"
