@@ -130,7 +130,23 @@ public class ConsumableComponent : Component, IInteractionSource, IPrototypeInit
         });
 
         foreach (var substance in Substances)
+        {
+            if (substance.Nutrition > 0f || substance.Hydration > 0f || substance.BladderLoad > 0f || substance.BowelLoad > 0f)
+            {
+                metab.DigestingItems.Add(new DigestingItem
+                {
+                    Name = $"{item.ItemName}:{substance.Name}",
+                    RemainingNutrition = substance.Nutrition,
+                    RemainingHydration = substance.Hydration,
+                    BladderLoad = substance.BladderLoad,
+                    BowelLoad = substance.BowelLoad,
+                    Duration = Math.Max(1f, substance.AbsorptionTime),
+                    Elapsed = 0f
+                });
+            }
+
             metab.ActiveSubstances.Add(substance.ToActiveDose(item.ItemName));
+        }
 
         var verb = GetVerb();
         Systems.PopupTextSystem.Show(actor, $"{verb}: {item.ItemName}", Microsoft.Xna.Framework.Color.YellowGreen);

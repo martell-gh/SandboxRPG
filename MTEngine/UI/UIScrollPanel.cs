@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MTEngine.Core;
 
 namespace MTEngine.UI;
 
@@ -51,13 +52,20 @@ public class UIScrollPanel : UIPanel
         if (BackColor.HasValue)
             sb.Draw(pixel, Bounds, BackColor.Value);
 
-        // Scissor-based clipping via simple bounds check
+        var gd = ServiceLocator.Has<GraphicsDevice>() ? ServiceLocator.Get<GraphicsDevice>() : null;
+        var previousScissor = gd?.ScissorRectangle ?? Rectangle.Empty;
+        if (gd != null)
+            gd.ScissorRectangle = Rectangle.Intersect(previousScissor, Bounds);
+
         foreach (var child in Children)
         {
             if (child.Bounds.Bottom < Bounds.Top || child.Bounds.Top > Bounds.Bottom)
                 continue;
             child.Draw(sb, pixel, font);
         }
+
+        if (gd != null)
+            gd.ScissorRectangle = previousScissor;
 
         // Scroll bar
         if (_contentHeight > Bounds.Height)

@@ -515,7 +515,7 @@ public class InteractionSystem : GameSystem
         _targetEntity = activeItem;
         _activeContext = ctx;
         _menuActions = actions;
-        _menuScreenPos = new Vector2(_gd.Viewport.Width - MenuWidth - 16, _gd.Viewport.Height - 160);
+        _menuScreenPos = GetMouseAnchoredMenuPosition();
         _menuOpen = true;
         _hoveredIndex = -1;
     }
@@ -1511,6 +1511,14 @@ public class InteractionSystem : GameSystem
         }
 
         return new Rectangle(x, y, MenuWidth, totalH);
+    }
+
+    private Vector2 GetMouseAnchoredMenuPosition()
+    {
+        if (_input == null)
+            return _menuScreenPos;
+
+        return new Vector2(_input.MousePosition.X + 14, _input.MousePosition.Y - 8);
     }
 
     private Rectangle GetItemRect(int i)

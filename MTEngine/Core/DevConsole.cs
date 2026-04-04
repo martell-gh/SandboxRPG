@@ -44,12 +44,21 @@ public static class DevConsole
 
     public static void Update()
     {
-        if (!DevMode) return;
-
         _prev = _current;
         _current = Keyboard.GetState();
         _prevMouse = _currentMouse;
         _currentMouse = Mouse.GetState();
+
+        if (IsPressed(Keys.F3))
+        {
+            DevMode = !DevMode;
+            if (!DevMode)
+                IsOpen = false;
+
+            Log($"Developer mode: {(DevMode ? "ON" : "OFF")}");
+        }
+
+        if (!DevMode) return;
 
         // тильда — открыть/закрыть
         if (IsPressed(Keys.OemTilde))

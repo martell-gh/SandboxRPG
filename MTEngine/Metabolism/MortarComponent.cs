@@ -103,6 +103,8 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
         foreach (var dose in incoming)
             Buffer.Add(dose);
 
+        MergeBuffer();
+
         hands.RemoveFromHand(sourceEntity);
         item!.ContainedIn = null;
         sourceEntity.Active = false;
@@ -157,6 +159,15 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
 
     private void Cleanup()
     {
-        Buffer.RemoveAll(dose => dose.Amount <= 0.001f && dose.EffectiveVolume <= 0.001f);
+        var merged = SubstanceResolver.MergeById(Buffer);
+        Buffer.Clear();
+        Buffer.AddRange(merged);
+    }
+
+    private void MergeBuffer()
+    {
+        var merged = SubstanceResolver.MergeById(Buffer);
+        Buffer.Clear();
+        Buffer.AddRange(merged);
     }
 }

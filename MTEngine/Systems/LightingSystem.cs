@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Items;
 using MTEngine.Rendering;
 
 namespace MTEngine.Systems;
@@ -49,15 +50,18 @@ public class LightingSystem : GameSystem
             transformMatrix: _camera.GetViewMatrix()
         );
 
-        foreach (var entity in World.GetEntitiesWith<TransformComponent, LightComponent>())
+        foreach (var entity in World.GetEntities())
         {
-            var tf = entity.GetComponent<TransformComponent>()!;
-            var lt = entity.GetComponent<LightComponent>()!;
-            if (!lt.Enabled) continue;
+            var lt = entity.GetComponent<LightComponent>();
+            if (lt == null || !lt.Enabled)
+                continue;
+
+            if (!TryGetLightPosition(entity, out var position))
+                continue;
 
             float r = lt.Radius;
             var dest = new Rectangle(
-                (int)(tf.Position.X - r), (int)(tf.Position.Y - r),
+                (int)(position.X - r), (int)(position.Y - r),
                 (int)(r * 2), (int)(r * 2)
             );
             _sb.Draw(_lightCircle!, dest, lt.Color * lt.Intensity);
@@ -108,5 +112,33 @@ public class LightingSystem : GameSystem
 
         tex.SetData(pixels);
         return tex;
+    }
+
+    private static bool TryGetLightPosition(Entity entity, out Vector2 position)
+    {
+        position = Vector2.Zero;
+
+        if (entity.Active && entity.GetComponent<TransformComponent>() is { } worldTf)
+        {
+            position = worldTf.Position;
+            return true;
+        }
+
+        var item = entity.GetComponent<ItemComponent>();
+        var container = item?.ContainedIn;
+        if (container == null)
+            return false;
+
+        var carrierTf = container.GetComponent<TransformComponent>();
+        if (carrierTf == null)
+            return false;
+
+        if (container.HasComponent<HandsComponent>() || container.HasComponent<EquipmentComponent>())
+        {
+            position = carrierTf.Position;
+            return true;
+        }
+
+        return false;
     }
 }

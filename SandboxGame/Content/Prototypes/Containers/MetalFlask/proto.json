@@ -30,8 +30,6 @@
       "contents": [
         { "id": "spring_water", "amount": 60 }
       ],
-      "hydration": 45,
-      "bladderLoad": 18,
       "digestTime": 6
     }
   }

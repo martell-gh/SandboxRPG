@@ -34,6 +34,8 @@ public class SubstanceWorkbenchSystem : GameSystem
         _actor = actor;
         _source = source;
         _target = target;
+        if (_rowsPanel != null)
+            _rowsPanel.ScrollOffset = 0;
         RebuildTransferRows();
         _transferWindow!.Open(new Point(760, 80));
     }
@@ -114,7 +116,11 @@ public class SubstanceWorkbenchSystem : GameSystem
             ? "Выбери вещество и объём переноса."
             : "Источник пуст.";
 
-        foreach (var substance in _source.GetSubstances().Where(dose => dose.Amount > 0.001f))
+        var substances = SubstanceResolver.MergeById(_source.GetSubstances())
+            .Where(dose => dose.Amount > 0.001f)
+            .ToList();
+
+        foreach (var substance in substances)
         {
             var row = new UIPanel
             {
@@ -140,7 +146,7 @@ public class SubstanceWorkbenchSystem : GameSystem
             _rowsPanel.Add(row);
         }
 
-        if (!_source.GetSubstances().Any(dose => dose.Amount > 0.001f))
+        if (substances.Count == 0)
         {
             _rowsPanel.Add(new UILabel
             {

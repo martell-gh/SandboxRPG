@@ -22,6 +22,10 @@ public class SubstancePrototype
     public string Color { get; set; } = "#FFFFFFFF";
     public float DefaultAmount { get; set; } = 1f;
     public float VolumePerUnit { get; set; } = 1f;
+    public float Nutrition { get; set; }
+    public float Hydration { get; set; }
+    public float BladderLoad { get; set; }
+    public float BowelLoad { get; set; }
     public float AbsorptionTime { get; set; } = 5f;
     public float ClearanceTime { get; set; } = 60f;
     public List<string> Smells { get; set; } = new();
@@ -39,6 +43,10 @@ public class SubstancePrototype
             Color = Color,
             Amount = amount,
             Volume = amount * Math.Max(VolumePerUnit, 0.01f),
+            Nutrition = Nutrition * amount,
+            Hydration = Hydration * amount,
+            BladderLoad = BladderLoad * amount,
+            BowelLoad = BowelLoad * amount,
             AbsorptionTime = AbsorptionTime,
             ClearanceTime = ClearanceTime,
             Smells = new List<string>(Smells),
@@ -79,6 +87,10 @@ public class SubstancePrototype
                 Color = node["color"]?.GetValue<string>() ?? "#FFFFFFFF",
                 DefaultAmount = node["defaultAmount"]?.GetValue<float>() ?? 1f,
                 VolumePerUnit = node["volumePerUnit"]?.GetValue<float>() ?? 1f,
+                Nutrition = node["nutrition"]?.GetValue<float>() ?? 0f,
+                Hydration = node["hydration"]?.GetValue<float>() ?? 0f,
+                BladderLoad = node["bladderLoad"]?.GetValue<float>() ?? 0f,
+                BowelLoad = node["bowelLoad"]?.GetValue<float>() ?? 0f,
                 AbsorptionTime = node["absorptionTime"]?.GetValue<float>() ?? 5f,
                 ClearanceTime = node["clearanceTime"]?.GetValue<float>() ?? 60f,
                 Smells = DeserializeNode<List<string>>(node["smells"]) ?? new List<string>(),
@@ -135,6 +147,29 @@ public static class SubstanceResolver
 
         return result;
     }
+
+    public static List<SubstanceDose> MergeById(IEnumerable<SubstanceDose>? doses)
+    {
+        var result = new List<SubstanceDose>();
+        if (doses == null)
+            return result;
+
+        foreach (var group in doses
+                     .Where(dose => dose.Amount > 0.001f || dose.EffectiveVolume > 0.001f)
+                     .GroupBy(dose => dose.Id, StringComparer.OrdinalIgnoreCase))
+        {
+            var first = group.First().CloneScaled(1f);
+            first.Amount = group.Sum(dose => dose.Amount);
+            first.Volume = group.Sum(dose => dose.EffectiveVolume);
+            first.Nutrition = group.Sum(dose => dose.Nutrition);
+            first.Hydration = group.Sum(dose => dose.Hydration);
+            first.BladderLoad = group.Sum(dose => dose.BladderLoad);
+            first.BowelLoad = group.Sum(dose => dose.BowelLoad);
+            result.Add(first);
+        }
+
+        return result;
+    }
 }
 
 public class SubstanceDose
@@ -144,6 +179,10 @@ public class SubstanceDose
     public string Color { get; set; } = "#FFFFFFFF";
     public float Amount { get; set; } = 1f;
     public float Volume { get; set; } = 1f;
+    public float Nutrition { get; set; }
+    public float Hydration { get; set; }
+    public float BladderLoad { get; set; }
+    public float BowelLoad { get; set; }
     public float AbsorptionTime { get; set; } = 5f;
     public float ClearanceTime { get; set; } = 60f;
     public List<string> Smells { get; set; } = new();
@@ -164,6 +203,10 @@ public class SubstanceDose
             Color = Color,
             Amount = Amount * factor,
             Volume = EffectiveVolume * factor,
+            Nutrition = Nutrition * factor,
+            Hydration = Hydration * factor,
+            BladderLoad = BladderLoad * factor,
+            BowelLoad = BowelLoad * factor,
             AbsorptionTime = AbsorptionTime,
             ClearanceTime = ClearanceTime,
             Smells = new List<string>(Smells),
@@ -183,6 +226,10 @@ public class SubstanceDose
             Color = Color,
             Amount = Amount,
             Volume = EffectiveVolume,
+            Nutrition = Nutrition,
+            Hydration = Hydration,
+            BladderLoad = BladderLoad,
+            BowelLoad = BowelLoad,
             AbsorptionTime = AbsorptionTime,
             ClearanceTime = ClearanceTime,
             Smells = new List<string>(Smells),

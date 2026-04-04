@@ -1,0 +1,32 @@
+{
+  "id": "lamp",
+  "name": "Lamp",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Lamp",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["tool", "lamp", "light"]
+    },
+    "lamp": {
+      "name": "Lamp",
+      "on": false
+    },
+    "light": {
+      "color": "#FFD98A",
+      "radius": 150,
+      "intensity": 0.95,
+      "enabled": false
+    }
+  }
+}

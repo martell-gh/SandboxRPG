@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MTEngine.Components;
 using MTEngine.Core;
@@ -18,20 +20,26 @@ public class MetabolismUI : GameSystem
 {
     public override DrawLayer DrawLayer => DrawLayer.Overlay;
 
-    private XmlWindow _window;
-    private UIProgressBar _healthBar;
-    private UIProgressBar _hungerBar;
-    private UIProgressBar _thirstBar;
-    private UIProgressBar _bladderBar;
-    private UIProgressBar _bowelBar;
-    private UILabel _statusLabel;
-    private UILabel _digestLabel;
-    private UILabel _speedLabel;
-    private InputManager _input;
+    private XmlWindow _window = null!;
+    private UIProgressBar _healthBar = null!;
+    private UIProgressBar _hungerBar = null!;
+    private UIProgressBar _thirstBar = null!;
+    private UIProgressBar _bladderBar = null!;
+    private UIProgressBar _bowelBar = null!;
+    private UILabel _statusLabel = null!;
+    private UILabel _digestLabel = null!;
+    private UILabel _speedLabel = null!;
+    private InputManager _input = null!;
+    private SpriteBatch _sb = null!;
+    private GraphicsDevice _gd = null!;
+    private SpriteFont _font = null!;
+    private Texture2D _pixel = null!;
 
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
+        _sb = ServiceLocator.Get<SpriteBatch>();
+        _gd = ServiceLocator.Get<GraphicsDevice>();
     }
 
     private void EnsureWindow()
@@ -58,19 +66,131 @@ public class MetabolismUI : GameSystem
         _window.OnUpdate += UpdateBars;
     }
 
+    private void EnsureHudResources()
+    {
+        if (_pixel != null)
+            return;
+
+        _pixel = new Texture2D(_gd, 1, 1);
+        _pixel.SetData(new[] { Color.White });
+
+        if (ServiceLocator.Has<UIManager>())
+        {
+            var ui = ServiceLocator.Get<UIManager>();
+            var fontField = typeof(UIManager).GetField("_font", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            _font = (SpriteFont?)fontField?.GetValue(ui) ?? _font;
+        }
+    }
+
     public override void Update(float deltaTime)
     {
         EnsureWindow();
         if (_window == null || _input == null) return;
 
         // Toggle with M key
-        if (_input.IsPressed(Keys.M) && !DevConsole.IsOpen)
+        if (!DevConsole.DevMode && _window.IsOpen)
+            _window.Close();
+
+        if (DevConsole.DevMode && _input.IsPressed(Keys.M) && !DevConsole.IsOpen)
         {
             if (_window.IsOpen)
                 _window.Close();
             else
                 _window.Open(new Point(20, 60));
         }
+    }
+
+    public override void Draw()
+    {
+        EnsureHudResources();
+        if (_pixel == null || _font == null)
+            return;
+
+        var player = World.GetEntitiesWith<PlayerTagComponent, MetabolismComponent>().FirstOrDefault();
+        if (player == null)
+            return;
+
+        var m = player.GetComponent<MetabolismComponent>()!;
+        var health = player.GetComponent<HealthComponent>();
+
+        _sb.Begin(samplerState: SamplerState.PointClamp);
+
+        var panelX = 16;
+        var panelY = 16;
+        var panelWidth = 248;
+        var lineHeight = 20;
+        var barX = panelX + 72;
+        var barWidth = 160;
+        var currentY = panelY;
+
+        var rows = new System.Collections.Generic.List<(string Label, float Value, float Max, Color Fill, string Text)>();
+
+        if (health != null)
+        {
+            var healthColor = health.IsDead
+                ? new Color(90, 90, 90)
+                : health.Health <= health.MaxHealth * 0.25f ? Color.Red
+                : health.Health <= health.MaxHealth * 0.6f ? Color.Orange
+                : new Color(90, 185, 90);
+            rows.Add(("HP", health.Health, health.MaxHealth, healthColor, $"{health.Health:0}/{health.MaxHealth:0}"));
+        }
+
+        rows.Add(("Голод", m.Hunger, 100f, m.HungerStatus switch
+        {
+            NeedStatus.Critical => Color.Red,
+            NeedStatus.Warning => new Color(204, 136, 51),
+            _ => new Color(100, 180, 60)
+        }, $"{m.Hunger:0}/100"));
+
+        rows.Add(("Жажда", m.Thirst, 100f, m.ThirstStatus switch
+        {
+            NeedStatus.Critical => Color.Red,
+            NeedStatus.Warning => new Color(51, 136, 204),
+            _ => new Color(50, 140, 210)
+        }, $"{m.Thirst:0}/100"));
+
+        rows.Add(("Пузырь", m.Bladder, 100f, m.BladderStatus switch
+        {
+            NeedStatus.Critical => Color.Red,
+            NeedStatus.Warning => new Color(204, 204, 51),
+            _ => new Color(140, 180, 60)
+        }, $"{m.Bladder:0}%"));
+
+        rows.Add(("Кишеч.", m.Bowel, 100f, m.BowelStatus switch
+        {
+            NeedStatus.Critical => Color.Red,
+            NeedStatus.Warning => new Color(160, 120, 50),
+            _ => new Color(140, 160, 80)
+        }, $"{m.Bowel:0}%"));
+
+        var panelHeight = rows.Count * lineHeight + 12;
+        _sb.Draw(_pixel, new Rectangle(panelX - 8, panelY - 8, panelWidth, panelHeight), Color.Black * 0.58f);
+
+        foreach (var row in rows)
+        {
+            DrawHudBar(panelX, currentY, barX, barWidth, row.Label, row.Value, row.Max, row.Fill, row.Text);
+            currentY += lineHeight;
+        }
+
+        _sb.End();
+    }
+
+    private void DrawHudBar(int panelX, int y, int barX, int barWidth, string label, float value, float max, Color fillColor, string text)
+    {
+        _sb.DrawString(_font, label, new Vector2(panelX, y + 2), Color.White);
+
+        var barRect = new Rectangle(barX, y + 2, barWidth, 14);
+        _sb.Draw(_pixel, barRect, new Color(35, 35, 35, 220));
+        _sb.Draw(_pixel, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), Color.White * 0.15f);
+        _sb.Draw(_pixel, new Rectangle(barRect.X, barRect.Bottom - 1, barRect.Width, 1), Color.Black * 0.45f);
+
+        var ratio = max <= 0f ? 0f : Math.Clamp(value / max, 0f, 1f);
+        var fillWidth = Math.Max(0, (int)((barRect.Width - 2) * ratio));
+        if (fillWidth > 0)
+            _sb.Draw(_pixel, new Rectangle(barRect.X + 1, barRect.Y + 1, fillWidth, barRect.Height - 2), fillColor);
+
+        var textSize = _font.MeasureString(text);
+        _sb.DrawString(_font, text, new Vector2(barRect.Right - textSize.X - 4, y + 1), Color.White);
     }
 
     private void UpdateBars(float dt)

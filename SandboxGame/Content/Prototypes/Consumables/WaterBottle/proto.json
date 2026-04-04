@@ -20,14 +20,14 @@
     },
     "consumable": {
       "nutrition": 0,
-      "hydration": 40,
-      "bladderLoad": 25,
-      "bowelLoad": 2,
+      "hydration": 0,
+      "bladderLoad": 0,
+      "bowelLoad": 0,
       "digestTime": 10,
       "type": "Drink",
       "eatVerb": "Выпить",
       "substances": [
-        { "id": "spring_water", "amount": 25 }
+        { "id": "spring_water", "amount": 40 }
       ]
     }
   }

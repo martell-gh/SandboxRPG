@@ -305,9 +305,27 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
                 if (part.Amount <= 0.001f && part.EffectiveVolume <= 0.001f)
                     continue;
 
+                if (part.Nutrition > 0f || part.Hydration > 0f || part.BladderLoad > 0f || part.BowelLoad > 0f)
+                {
+                    metabolism.DigestingItems.Add(new DigestingItem
+                    {
+                        Name = $"{itemName}:{part.Name}",
+                        RemainingNutrition = part.Nutrition,
+                        RemainingHydration = part.Hydration,
+                        BladderLoad = part.BladderLoad,
+                        BowelLoad = part.BowelLoad,
+                        Duration = Math.Max(1f, part.AbsorptionTime),
+                        Elapsed = 0f
+                    });
+                }
+
                 metabolism.ActiveSubstances.Add(part.ToActiveDose(itemName));
                 dose.Amount = Math.Max(0f, dose.Amount - part.Amount);
                 dose.Volume = Math.Max(0f, dose.EffectiveVolume - part.EffectiveVolume);
+                dose.Nutrition = Math.Max(0f, dose.Nutrition - part.Nutrition);
+                dose.Hydration = Math.Max(0f, dose.Hydration - part.Hydration);
+                dose.BladderLoad = Math.Max(0f, dose.BladderLoad - part.BladderLoad);
+                dose.BowelLoad = Math.Max(0f, dose.BowelLoad - part.BowelLoad);
             }
         }
 
@@ -420,9 +438,7 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
         if (_normalized)
             return;
 
-        Contents = Contents
-            .Where(dose => dose.Amount > 0.001f || dose.EffectiveVolume > 0.001f)
-            .ToList();
+        Contents = SubstanceResolver.MergeById(Contents);
 
         ResolveRecipes();
         CleanupContents();
@@ -488,9 +504,7 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
 
     private void CleanupContents()
     {
-        Contents = Contents
-            .Where(dose => dose.Amount > 0.001f || dose.EffectiveVolume > 0.001f)
-            .ToList();
+        Contents = SubstanceResolver.MergeById(Contents);
     }
 
     private static Texture2D? LoadTexture(AssetManager assets, string dir, string? relativePath)

@@ -212,7 +212,9 @@ public class UIManager : GameSystem
         EnsureResources();
         if (_sb == null || _pixel == null) return;
 
-        _sb.Begin(samplerState: SamplerState.PointClamp);
+        _sb.Begin(
+            samplerState: SamplerState.PointClamp,
+            rasterizerState: new RasterizerState { ScissorTestEnable = true });
 
         foreach (var w in _windows)
             w.Draw(_sb, _pixel, _font);

@@ -3,9 +3,6 @@
   "name": "Player",
   "category": "entity",
   "components": {
-    "light": {
-      "color": "#FF0000"
-    },
     "transform": { "x": 0, "y": 0 },
     "sprite": {
       "source": "sprite.png",
