@@ -149,6 +149,7 @@ public class MapManager
                 ProtoId = tileData.ProtoId,
                 Solid = proto.Solid,
                 Transparent = proto.Transparent,
+                Opaque = proto.Opaque,
                 Type = proto.Solid ? TileType.Wall : TileType.Floor
             }, tileData.Layer);
         }

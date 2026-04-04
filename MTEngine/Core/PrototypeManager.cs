@@ -21,6 +21,7 @@ public class TilePrototype
     public string? DirectoryPath { get; set; }
     public bool Solid { get; set; }
     public bool Transparent { get; set; } = true;
+    public bool Opaque { get; set; }
     public string Color { get; set; } = "#ffffff";
     public string? Tileset { get; set; }
     public int SrcX { get; set; }
@@ -64,6 +65,7 @@ public class PrototypeManager
                         DirectoryPath = Path.GetDirectoryName(file),
                         Solid = node["solid"]?.GetValue<bool>() ?? false,
                         Transparent = node["transparent"]?.GetValue<bool>() ?? true,
+                        Opaque = node["opaque"]?.GetValue<bool>() ?? false,
                         Color = node["color"]?.GetValue<string>() ?? "#ffffff",
                         Tileset = node["tileset"]?.GetValue<string>(),
                         SrcX = node["srcX"]?.GetValue<int>() ?? 0,

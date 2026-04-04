@@ -34,6 +34,7 @@ public class InteractionSystem : GameSystem
     private static readonly string UiTextureRoot = Path.Combine("SandboxGame", "Content", "Textures", "UI");
 
     private InputManager? _input;
+    private IKeyBindingSource? _keys;
     private Camera? _camera;
     private SpriteBatch? _sb;
     private SpriteFont? _font;
@@ -121,6 +122,7 @@ public class InteractionSystem : GameSystem
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
+        _keys = ServiceLocator.Has<IKeyBindingSource>() ? ServiceLocator.Get<IKeyBindingSource>() : null;
         _camera = ServiceLocator.Get<Camera>();
         _gd = ServiceLocator.Get<GraphicsDevice>();
     }
@@ -179,19 +181,19 @@ public class InteractionSystem : GameSystem
 
         if (!_menuOpen && hands != null)
         {
-            if (_input.IsPressed(Keys.Tab))
+            if (_input.IsPressed(GetKey("SwapHand", Keys.Tab)))
             {
                 hands.SwapActiveHand();
                 return;
             }
 
-            if (_input.IsPressed(Keys.Q))
+            if (_input.IsPressed(GetKey("Drop", Keys.Q)))
             {
                 hands.TryDropActive();
                 return;
             }
 
-            if (_input.IsPressed(Keys.E))
+            if (_input.IsPressed(GetKey("Use", Keys.E)))
             {
                 TryUseActiveItem(player!, hands);
                 return;
@@ -1584,4 +1586,7 @@ public class InteractionSystem : GameSystem
 
         itemEntity.Active = true;
     }
+
+    private Keys GetKey(string action, Keys fallback)
+        => _keys?.GetKey(action) ?? fallback;
 }

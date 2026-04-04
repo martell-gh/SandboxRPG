@@ -1,0 +1,16 @@
+{
+  "id": "wall",
+  "name": "Wall",
+  "category": "tile",
+  "solid": true,
+  "transparent": true,
+  "opaque": true,
+  "color": "#6F665C",
+  "sprite": {
+    "source": "sprite.png",
+    "srcX": 0,
+    "srcY": 0,
+    "width": 32,
+    "height": 32
+  }
+}

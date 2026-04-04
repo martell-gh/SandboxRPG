@@ -12,10 +12,12 @@ namespace MTEngine.Metabolism;
 public class SubstanceDebugSystem : GameSystem
 {
     private InputManager _input = null!;
+    private IKeyBindingSource? _keys;
 
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
+        _keys = ServiceLocator.Has<IKeyBindingSource>() ? ServiceLocator.Get<IKeyBindingSource>() : null;
     }
 
     public override void Update(float deltaTime)
@@ -27,10 +29,10 @@ public class SubstanceDebugSystem : GameSystem
         if (player == null)
             return;
 
-        if (_input.IsPressed(Keys.P))
+        if (_input.IsPressed(GetKey("InspectContainer", Keys.P)))
             PrintHeldContainer(player);
 
-        if (_input.IsPressed(Keys.O))
+        if (_input.IsPressed(GetKey("InspectMemory", Keys.O)))
             PrintKnowledgeMemory(player);
     }
 
@@ -69,4 +71,7 @@ public class SubstanceDebugSystem : GameSystem
         Console.WriteLine($"[Memory]\n{text}");
         Systems.PopupTextSystem.Show(player, "Справочник выведен в консоль", Color.LightGreen, lifetime: 1.5f);
     }
+
+    private Keys GetKey(string action, Keys fallback)
+        => _keys?.GetKey(action) ?? fallback;
 }

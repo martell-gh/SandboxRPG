@@ -38,6 +38,12 @@
     },
     {
       "x": 24,
+      "y": 20,
+      "protoId": "wall",
+      "layer": 0
+    },
+    {
+      "x": 24,
       "y": 22,
       "protoId": "grass",
       "layer": 0
@@ -64,6 +70,12 @@
       "x": 25,
       "y": 21,
       "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 20,
+      "protoId": "wall",
       "layer": 0
     },
     {
@@ -94,6 +106,12 @@
       "x": 26,
       "y": 21,
       "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 20,
+      "protoId": "wall",
       "layer": 0
     },
     {
@@ -268,6 +286,11 @@
       "x": 18,
       "y": 19,
       "protoId": "work_pants"
+    },
+    {
+      "x": 26,
+      "y": 25,
+      "protoId": "lamp"
     }
   ]
 }

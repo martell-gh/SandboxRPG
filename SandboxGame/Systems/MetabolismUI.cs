@@ -1,9 +1,9 @@
+#nullable enable
 using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
@@ -30,6 +30,7 @@ public class MetabolismUI : GameSystem
     private UILabel _digestLabel = null!;
     private UILabel _speedLabel = null!;
     private InputManager _input = null!;
+    private IKeyBindingSource? _keys;
     private SpriteBatch _sb = null!;
     private GraphicsDevice _gd = null!;
     private SpriteFont _font = null!;
@@ -38,6 +39,7 @@ public class MetabolismUI : GameSystem
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
+        _keys = ServiceLocator.Has<IKeyBindingSource>() ? ServiceLocator.Get<IKeyBindingSource>() : null;
         _sb = ServiceLocator.Get<SpriteBatch>();
         _gd = ServiceLocator.Get<GraphicsDevice>();
     }
@@ -53,14 +55,14 @@ public class MetabolismUI : GameSystem
         if (!File.Exists(path)) return;
 
         _window = ui.LoadWindow(path);
-        _healthBar = _window.Get<UIProgressBar>("healthBar");
-        _hungerBar = _window.Get<UIProgressBar>("hungerBar");
-        _thirstBar = _window.Get<UIProgressBar>("thirstBar");
-        _bladderBar = _window.Get<UIProgressBar>("bladderBar");
-        _bowelBar = _window.Get<UIProgressBar>("bowelBar");
-        _statusLabel = _window.Get<UILabel>("statusLabel");
-        _digestLabel = _window.Get<UILabel>("digestLabel");
-        _speedLabel = _window.Get<UILabel>("speedLabel");
+        _healthBar = _window.Get<UIProgressBar>("healthBar")!;
+        _hungerBar = _window.Get<UIProgressBar>("hungerBar")!;
+        _thirstBar = _window.Get<UIProgressBar>("thirstBar")!;
+        _bladderBar = _window.Get<UIProgressBar>("bladderBar")!;
+        _bowelBar = _window.Get<UIProgressBar>("bowelBar")!;
+        _statusLabel = _window.Get<UILabel>("statusLabel")!;
+        _digestLabel = _window.Get<UILabel>("digestLabel")!;
+        _speedLabel = _window.Get<UILabel>("speedLabel")!;
 
         // Update every frame while open
         _window.OnUpdate += UpdateBars;
@@ -91,7 +93,7 @@ public class MetabolismUI : GameSystem
         if (!DevConsole.DevMode && _window.IsOpen)
             _window.Close();
 
-        if (DevConsole.DevMode && _input.IsPressed(Keys.M) && !DevConsole.IsOpen)
+        if (DevConsole.DevMode && _input.IsPressed(GetKey("Metabolism", Microsoft.Xna.Framework.Input.Keys.M)) && !DevConsole.IsOpen)
         {
             if (_window.IsOpen)
                 _window.Close();
@@ -322,4 +324,7 @@ public class MetabolismUI : GameSystem
                 _speedLabel.Text = "";
         }
     }
+
+    private Microsoft.Xna.Framework.Input.Keys GetKey(string action, Microsoft.Xna.Framework.Input.Keys fallback)
+        => _keys?.GetKey(action) ?? fallback;
 }

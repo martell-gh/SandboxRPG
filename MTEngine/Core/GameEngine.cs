@@ -29,6 +29,7 @@ public class GameEngine : Game
     public TileMapRenderer TileMapRenderer { get; private set; } = new();
     public CollisionSystem CollisionSystem { get; private set; } = new();
     public LightingSystem LightingSystem { get; private set; } = new();
+    public VisibilityOcclusionSystem VisibilityOcclusionSystem { get; private set; } = new();
     public DayNightSystem DayNightSystem { get; private set; } = new();
     public InteractionSystem InteractionSystem { get; private set; } = new();
     public PopupTextSystem PopupTextSystem { get; private set; } = new();
@@ -74,6 +75,7 @@ public class GameEngine : Game
         World.AddSystem(CollisionSystem);
         World.AddSystem(DayNightSystem);
         World.AddSystem(new Renderer());
+        World.AddSystem(VisibilityOcclusionSystem);
         World.AddSystem(LightingSystem);
         World.AddSystem(InteractionSystem);
         World.AddSystem(PopupTextSystem);
@@ -152,7 +154,10 @@ public class GameEngine : Game
     private void HandleWindowHotkeys()
     {
         var altDown = Input.IsDown(Keys.LeftAlt) || Input.IsDown(Keys.RightAlt);
-        if (Input.IsPressed(Keys.F11) || (altDown && Input.IsPressed(Keys.Enter)))
+        var fullscreenKey = ServiceLocator.Has<IKeyBindingSource>()
+            ? ServiceLocator.Get<IKeyBindingSource>().GetKey("Fullscreen")
+            : Keys.F11;
+        if (Input.IsPressed(fullscreenKey) || (altDown && Input.IsPressed(Keys.Enter)))
             ToggleFullscreen();
     }
 

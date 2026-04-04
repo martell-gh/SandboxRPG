@@ -5,17 +5,26 @@ using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Items;
 using MTEngine.Rendering;
+using MTEngine.World;
 
 namespace MTEngine.Systems;
 
 public class LightingSystem : GameSystem
 {
+    private const float ShadowFeatherWidth = 18f;
+
     public override void Draw() { }
 
     private RenderTarget2D? _lightRT;
     private Texture2D? _lightCircle;
     private SpriteBatch? _sb;
     private Camera? _camera;
+    private TileMapRenderer? _tileMapRenderer;
+    private BasicEffect? _shadowEffect;
+    private readonly List<VertexPositionColor> _shadowVertices = new();
+    private readonly List<VertexPositionColor> _shadowFeatherVertices = new();
+    private VertexPositionColor[] _vertexBuffer = Array.Empty<VertexPositionColor>();
+    private VertexPositionColor[] _featherBuffer = Array.Empty<VertexPositionColor>();
 
     public Color AmbientColor { get; set; } = Color.White;
     public bool IsEnabled { get; set; } = true;
@@ -68,6 +77,7 @@ public class LightingSystem : GameSystem
         }
 
         _sb.End();
+        DrawLightOcclusion(gd);
         // НЕ переключаем на null здесь — это сделает GameEngine
     }
 
@@ -95,6 +105,132 @@ public class LightingSystem : GameSystem
         _lightCircle ??= BuildLightCircle(gd, 256);
     }
 
+    private void DrawLightOcclusion(GraphicsDevice gd)
+    {
+        _camera ??= ServiceLocator.Get<Camera>();
+        _tileMapRenderer ??= World.GetSystem<TileMapRenderer>();
+        if (_camera == null || _tileMapRenderer?.TileMap == null)
+            return;
+
+        var map = _tileMapRenderer.TileMap;
+        var viewport = gd.Viewport;
+        var topLeft = _camera.ScreenToWorld(Vector2.Zero);
+        var bottomRight = _camera.ScreenToWorld(new Vector2(viewport.Width, viewport.Height));
+        var startX = Math.Max(0, (int)MathF.Floor(topLeft.X / map.TileSize) - 2);
+        var startY = Math.Max(0, (int)MathF.Floor(topLeft.Y / map.TileSize) - 2);
+        var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 2);
+        var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 2);
+        var shadowLength = MathF.Max(map.Width, map.Height) * map.TileSize * 2f;
+
+        _shadowEffect ??= BuildShadowEffect(gd);
+        _shadowEffect.View = _camera.GetViewMatrix();
+        _shadowEffect.Projection = Matrix.CreateOrthographicOffCenter(
+            0f, viewport.Width, viewport.Height, 0f, 0f, 1f);
+
+        var ambientShadowColor = AmbientColor;
+        var ambientFeatherOuter = new Color(ambientShadowColor.R, ambientShadowColor.G, ambientShadowColor.B, (byte)0);
+
+        foreach (var entity in World.GetEntities())
+        {
+            var light = entity.GetComponent<LightComponent>();
+            if (light == null || !light.Enabled)
+                continue;
+
+            if (!TryGetLightPosition(entity, out var lightPosition))
+                continue;
+
+            var lightTile = map.WorldToTile(lightPosition);
+            if (!map.IsInBounds(lightTile.X, lightTile.Y))
+                continue;
+
+            _shadowVertices.Clear();
+            _shadowFeatherVertices.Clear();
+
+            for (var y = startY; y <= endY; y++)
+            {
+                var x = startX;
+                while (x <= endX)
+                {
+                    if (!map.IsOpaque(x, y) || !map.HasLineOfSight(lightTile, new Point(x, y)))
+                    {
+                        x++;
+                        continue;
+                    }
+
+                    var runStart = x;
+                    while (x + 1 <= endX && map.IsOpaque(x + 1, y)
+                           && map.HasLineOfSight(lightTile, new Point(x + 1, y)))
+                        x++;
+
+                    TileShadowGeometry.AppendShadowRect(
+                        _shadowVertices,
+                        _shadowFeatherVertices,
+                        lightPosition,
+                        runStart * map.TileSize, y * map.TileSize,
+                        (x + 1) * map.TileSize, (y + 1) * map.TileSize,
+                        shadowLength,
+                        ShadowFeatherWidth,
+                        ambientShadowColor,
+                        ambientShadowColor,
+                        ambientFeatherOuter);
+
+                    x++;
+                }
+            }
+
+            DrawShadowVertices(gd);
+        }
+    }
+
+    private void DrawShadowVertices(GraphicsDevice gd)
+    {
+        if (_shadowEffect == null || (_shadowVertices.Count == 0 && _shadowFeatherVertices.Count == 0))
+            return;
+
+        var previousBlend = gd.BlendState;
+        var previousRasterizer = gd.RasterizerState;
+        var previousDepth = gd.DepthStencilState;
+
+        gd.RasterizerState = RasterizerState.CullNone;
+        gd.DepthStencilState = DepthStencilState.None;
+
+        foreach (var pass in _shadowEffect.CurrentTechnique.Passes)
+        {
+            pass.Apply();
+
+            if (_shadowVertices.Count > 0)
+            {
+                gd.BlendState = BlendState.Opaque;
+                EnsureBuffer(ref _vertexBuffer, _shadowVertices);
+                gd.DrawUserPrimitives(
+                    PrimitiveType.TriangleList,
+                    _vertexBuffer, 0,
+                    _shadowVertices.Count / 3);
+            }
+
+            if (_shadowFeatherVertices.Count > 0)
+            {
+                gd.BlendState = BlendState.AlphaBlend;
+                EnsureBuffer(ref _featherBuffer, _shadowFeatherVertices);
+                gd.DrawUserPrimitives(
+                    PrimitiveType.TriangleList,
+                    _featherBuffer, 0,
+                    _shadowFeatherVertices.Count / 3);
+            }
+        }
+
+        gd.BlendState = previousBlend;
+        gd.RasterizerState = previousRasterizer;
+        gd.DepthStencilState = previousDepth;
+    }
+
+    private static void EnsureBuffer(ref VertexPositionColor[] buffer, List<VertexPositionColor> source)
+    {
+        if (buffer.Length < source.Count)
+            buffer = new VertexPositionColor[source.Count * 2];
+        source.CopyTo(buffer);
+    }
+
     private static Texture2D BuildLightCircle(GraphicsDevice gd, int size)
     {
         var tex = new Texture2D(gd, size, size);
@@ -112,6 +248,16 @@ public class LightingSystem : GameSystem
 
         tex.SetData(pixels);
         return tex;
+    }
+
+    private static BasicEffect BuildShadowEffect(GraphicsDevice graphicsDevice)
+    {
+        return new BasicEffect(graphicsDevice)
+        {
+            World = Matrix.Identity,
+            VertexColorEnabled = true,
+            TextureEnabled = false
+        };
     }
 
     private static bool TryGetLightPosition(Entity entity, out Vector2 position)

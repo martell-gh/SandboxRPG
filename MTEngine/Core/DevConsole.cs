@@ -49,7 +49,7 @@ public static class DevConsole
         _prevMouse = _currentMouse;
         _currentMouse = Mouse.GetState();
 
-        if (IsPressed(Keys.F3))
+        if (IsPressed(GetKey("DevMode", Keys.F3)))
         {
             DevMode = !DevMode;
             if (!DevMode)
@@ -61,7 +61,7 @@ public static class DevConsole
         if (!DevMode) return;
 
         // тильда — открыть/закрыть
-        if (IsPressed(Keys.OemTilde))
+        if (IsPressed(GetKey("Console", Keys.OemTilde)))
         {
             IsOpen = !IsOpen;
             _input = "";
@@ -211,6 +211,14 @@ public static class DevConsole
 
     private static bool IsPressed(Keys key)
         => _current.IsKeyDown(key) && _prev.IsKeyUp(key);
+
+    private static Keys GetKey(string action, Keys fallback)
+    {
+        if (ServiceLocator.Has<IKeyBindingSource>())
+            return ServiceLocator.Get<IKeyBindingSource>().GetKey(action);
+
+        return fallback;
+    }
 
     private static void RecallPreviousCommand()
     {

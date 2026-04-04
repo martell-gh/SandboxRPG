@@ -19,6 +19,7 @@ public class Tile
     public string? ProtoId { get; set; }
     public bool Solid { get; set; }
     public bool Transparent { get; set; } = true;
+    public bool Opaque { get; set; }
     public Rectangle SourceRect { get; set; }
     public float LayerDepth { get; set; } = 0f;
 
@@ -31,6 +32,7 @@ public class Tile
         ProtoId = ProtoId,
         Solid = Solid,
         Transparent = Transparent,
+        Opaque = Opaque,
         SourceRect = SourceRect,
         LayerDepth = LayerDepth
     };

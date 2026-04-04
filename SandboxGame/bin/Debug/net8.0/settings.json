@@ -1,0 +1,19 @@
+{
+  "DevMode": true,
+  "KeyBindings": {
+    "MoveUp": "W",
+    "MoveDown": "S",
+    "MoveLeft": "A",
+    "MoveRight": "D",
+    "Use": "E",
+    "Drop": "Q",
+    "SwapHand": "Tab",
+    "Metabolism": "M",
+    "Pause": "Escape",
+    "DevMode": "F3",
+    "Console": "OemTilde",
+    "InspectContainer": "P",
+    "InspectMemory": "O",
+    "Fullscreen": "F11"
+  }
+}

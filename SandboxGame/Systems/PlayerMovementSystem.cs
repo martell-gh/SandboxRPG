@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -13,6 +14,7 @@ public class PlayerMovementSystem : GameSystem
 {
     private InputManager _input = null!;
     private Camera _camera = null!;
+    private IKeyBindingSource? _keys;
 
     private const float MinZoom = 1f;
     private const float MaxZoom = 6f;
@@ -23,6 +25,7 @@ public class PlayerMovementSystem : GameSystem
     {
         _input = ServiceLocator.Get<InputManager>();
         _camera = ServiceLocator.Get<Camera>();
+        _keys = ServiceLocator.Has<IKeyBindingSource>() ? ServiceLocator.Get<IKeyBindingSource>() : null;
         _camera.Zoom = DefaultZoom;
     }
 
@@ -64,10 +67,10 @@ public class PlayerMovementSystem : GameSystem
 
             var dir = Vector2.Zero;
 
-            if (_input.IsDown(Keys.W)) dir.Y -= 1;
-            if (_input.IsDown(Keys.S)) dir.Y += 1;
-            if (_input.IsDown(Keys.A)) dir.X -= 1;
-            if (_input.IsDown(Keys.D)) dir.X += 1;
+            if (_input.IsDown(GetKey("MoveUp", Keys.W))) dir.Y -= 1;
+            if (_input.IsDown(GetKey("MoveDown", Keys.S))) dir.Y += 1;
+            if (_input.IsDown(GetKey("MoveLeft", Keys.A))) dir.X -= 1;
+            if (_input.IsDown(GetKey("MoveRight", Keys.D))) dir.X += 1;
 
             if (dir != Vector2.Zero) dir.Normalize();
 
@@ -99,4 +102,7 @@ public class PlayerMovementSystem : GameSystem
 
         return "idle_down";
     }
+
+    private Keys GetKey(string action, Keys fallback)
+        => _keys?.GetKey(action) ?? fallback;
 }

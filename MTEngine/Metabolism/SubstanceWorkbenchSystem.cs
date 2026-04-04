@@ -95,9 +95,19 @@ public class SubstanceWorkbenchSystem : GameSystem
             Height = 28
         });
         closeButton.OnClick += () => _transferWindow?.Close();
+        window.OnClosed += ClearContext;
 
         _ui.RegisterWindow(window);
         _transferWindow = window;
+    }
+
+    public override void Update(float deltaTime)
+    {
+        if (_transferWindow?.IsOpen != true)
+            return;
+
+        if (!IsWorkbenchContextValid())
+            _transferWindow.Close();
     }
 
     private void RebuildTransferRows()
@@ -182,5 +192,38 @@ public class SubstanceWorkbenchSystem : GameSystem
         };
 
         return button;
+    }
+
+    private bool IsWorkbenchContextValid()
+    {
+        if (_actor == null || !_actor.Active || _source == null || _target == null)
+            return false;
+
+        return IsReservoirAccessible(_source) && IsReservoirAccessible(_target);
+    }
+
+    private bool IsReservoirAccessible(ISubstanceReservoir reservoir)
+    {
+        if (reservoir is Component component)
+        {
+            var owner = component.Owner;
+            if (owner == null || !owner.Active)
+                return false;
+
+            var item = owner.GetComponent<Items.ItemComponent>();
+            if (item == null)
+                return true;
+
+            return item.ContainedIn == _actor;
+        }
+
+        return true;
+    }
+
+    private void ClearContext()
+    {
+        _actor = null;
+        _source = null;
+        _target = null;
     }
 }
