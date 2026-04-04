@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using MTEngine.Metabolism;
 using MTEngine.Rendering;
 
 namespace MTEngine.Core;
@@ -17,6 +18,7 @@ public class TilePrototype
 {
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
+    public string? DirectoryPath { get; set; }
     public bool Solid { get; set; }
     public bool Transparent { get; set; } = true;
     public string Color { get; set; } = "#ffffff";
@@ -31,6 +33,7 @@ public class PrototypeManager
 {
     private readonly Dictionary<string, TilePrototype> _tiles = new();
     private readonly Dictionary<string, EntityPrototype> _entities = new();
+    private readonly Dictionary<string, SubstancePrototype> _substances = new();
 
     public void LoadFromDirectory(string rootDirectory)
     {
@@ -58,6 +61,7 @@ public class PrototypeManager
                     {
                         Id = id,
                         Name = node["name"]?.GetValue<string>() ?? id,
+                        DirectoryPath = Path.GetDirectoryName(file),
                         Solid = node["solid"]?.GetValue<bool>() ?? false,
                         Transparent = node["transparent"]?.GetValue<bool>() ?? true,
                         Color = node["color"]?.GetValue<string>() ?? "#ffffff",
@@ -103,6 +107,14 @@ public class PrototypeManager
                     _entities[id] = entityProto;
                     Console.WriteLine($"[PrototypeManager] Loaded entity: {id}");
                 }
+                else if (category == "substance")
+                {
+                    var substanceProto = SubstancePrototype.LoadFromFile(file);
+                    if (substanceProto == null) continue;
+
+                    _substances[id] = substanceProto;
+                    Console.WriteLine($"[PrototypeManager] Loaded substance: {id}");
+                }
             }
             catch (Exception e)
             {
@@ -112,6 +124,7 @@ public class PrototypeManager
 
         Console.WriteLine($"[PrototypeManager] Total tiles: {_tiles.Count}");
         Console.WriteLine($"[PrototypeManager] Total entities: {_entities.Count}");
+        Console.WriteLine($"[PrototypeManager] Total substances: {_substances.Count}");
     }
 
     public TilePrototype? GetTile(string id)
@@ -120,8 +133,13 @@ public class PrototypeManager
     public EntityPrototype? GetEntity(string id)
         => _entities.TryGetValue(id, out var p) ? p : null;
 
+    public SubstancePrototype? GetSubstance(string id)
+        => _substances.TryGetValue(id, out var p) ? p : null;
+
     public IEnumerable<TilePrototype> GetAllTiles() => _tiles.Values;
     public IEnumerable<EntityPrototype> GetAllEntities() => _entities.Values;
+    public IEnumerable<SubstancePrototype> GetAllSubstances() => _substances.Values;
     public bool TileExists(string id) => _tiles.ContainsKey(id);
     public bool EntityExists(string id) => _entities.ContainsKey(id);
+    public bool SubstanceExists(string id) => _substances.ContainsKey(id);
 }

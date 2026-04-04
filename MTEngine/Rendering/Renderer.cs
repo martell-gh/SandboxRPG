@@ -37,6 +37,8 @@ public class Renderer : GameSystem
 
         foreach (var entry in renderables)
         {
+            DrawLiquidContents(entry.Entity, entry.Transform, entry.Sprite);
+
             _spriteBatch.Draw(
                 texture: entry.Sprite.Texture!,
                 position: entry.Transform.Position,
@@ -130,6 +132,29 @@ public class Renderer : GameSystem
                 layerDepth: 0f
             );
         }
+    }
+
+    private void DrawLiquidContents(Entity entity, TransformComponent transform, SpriteComponent ownerSprite)
+    {
+        var liquid = entity.GetComponent<Metabolism.LiquidContainerComponent>();
+        var fillTexture = liquid?.GetFillTexture();
+        if (liquid == null || fillTexture == null)
+            return;
+
+        var sourceRect = new Rectangle(0, 0, fillTexture.Width, fillTexture.Height);
+        var origin = new Vector2(fillTexture.Width / 2f, fillTexture.Height / 2f);
+
+        _spriteBatch!.Draw(
+            texture: fillTexture,
+            position: transform.Position,
+            sourceRectangle: sourceRect,
+            color: liquid.GetFillColor(),
+            rotation: transform.Rotation,
+            origin: origin,
+            scale: transform.Scale,
+            effects: SpriteEffects.None,
+            layerDepth: 0f
+        );
     }
 
     private void BreakWearable(Entity entity)

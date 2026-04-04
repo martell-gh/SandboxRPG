@@ -1,0 +1,27 @@
+{
+  "id": "toilet",
+  "name": "Toilet",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "collider": {
+      "width": 24,
+      "height": 24,
+      "offsetX": -12,
+      "offsetY": -12
+    },
+    "interactable": {
+      "name": "Toilet",
+      "range": 72
+    },
+    "toilet": {}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "fructose",
+  "name": "Фруктоза",
+  "category": "substance",
+  "color": "#E8D94AFF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 4,
+  "clearanceTime": 40,
+  "smells": ["сладко"],
+  "preparationHint": "Простой сахар, часто извлекается из фруктов.",
+  "responseProfiles": [
+    {
+      "id": "fructose_spark",
+      "name": "Сахарный всплеск",
+      "minAmount": 6,
+      "maxAmount": 25,
+      "effects": [
+        { "id": "fructose_speed", "type": "speedMultiplier", "magnitude": 0.05 },
+        { "id": "fructose_popup", "type": "popup", "message": "Сладость быстро расходится по телу.", "color": "#E8D94AFF" }
+      ]
+    }
+  ]
+}

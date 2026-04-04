@@ -1,0 +1,39 @@
+{
+  "id": "substance_book_vol_1",
+  "name": "Substances Vol. I",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Substances Vol. I",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["book", "knowledge"]
+    },
+    "knowledgeBook": {
+      "bookId": "substances_vol_1",
+      "title": "Вещества. Том I",
+      "category": "substances",
+      "substances": [
+        "taurine",
+        "khryashchitin",
+        "babijonin"
+      ],
+      "recipes": [
+        {
+          "id": "babijonin_recipe",
+          "name": "Бабиджонин",
+          "description": "Смешать таурин и хрящитин в одной таре."
+        }
+      ]
+    }
+  }
+}

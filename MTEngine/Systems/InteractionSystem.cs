@@ -10,6 +10,7 @@ using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 using MTEngine.Items;
+using MTEngine.Metabolism;
 using MTEngine.Rendering;
 
 namespace MTEngine.Systems;
@@ -41,6 +42,7 @@ public class InteractionSystem : GameSystem
     private Texture2D? _handSlotTexture;
     private Texture2D? _handSlotBlockedTexture;
     private readonly Dictionary<string, Texture2D?> _equipmentSlotTextures = new();
+    private readonly Dictionary<string, SpriteMaskData> _spriteMaskCache = new();
 
     // Menu state
     private bool _menuOpen;
@@ -49,6 +51,7 @@ public class InteractionSystem : GameSystem
     private InteractionContext? _activeContext;
     private List<InteractionEntry> _menuActions = new();
     private int _hoveredIndex = -1;
+    private Entity? _hoveredWorldEntity;
     private Entity? _openStorageEntity;
     private Entity? _storageActor;
     private Entity? _draggedItem;
@@ -82,6 +85,35 @@ public class InteractionSystem : GameSystem
     {
         public required Rectangle Rect { get; init; }
         public required EquipmentSlot Slot { get; init; }
+    }
+
+    private readonly struct FloatBounds
+    {
+        public FloatBounds(float x, float y, float width, float height)
+        {
+            X = x;
+            Y = y;
+            Width = width;
+            Height = height;
+        }
+
+        public float X { get; }
+        public float Y { get; }
+        public float Width { get; }
+        public float Height { get; }
+        public float Left => X;
+        public float Top => Y;
+        public float Right => X + Width;
+        public float Bottom => Y + Height;
+
+        public bool Contains(Vector2 point)
+            => point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
+    }
+
+    private sealed class SpriteMaskData
+    {
+        public required Rectangle OpaqueBounds { get; init; }
+        public required Point[] EdgePixels { get; init; }
     }
 
     public void SetFont(SpriteFont font) => _font = font;
@@ -125,6 +157,7 @@ public class InteractionSystem : GameSystem
         var equipment = player?.GetComponent<EquipmentComponent>();
         var mousePos = new Vector2(_input.MousePosition.X, _input.MousePosition.Y);
         var worldPos = _camera.ScreenToWorld(mousePos);
+        _hoveredWorldEntity = FindHoveredInteractable(worldPos, player);
 
         if (Keyboard.GetState().IsKeyDown(Keys.Escape) && _menuOpen)
         {
@@ -217,13 +250,28 @@ public class InteractionSystem : GameSystem
     private List<InteractionEntry> CollectActions(InteractionContext ctx)
     {
         var entries = new List<InteractionEntry>();
+        var dedupe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var component in ctx.Target.GetAllComponents())
         {
             if (component is IInteractionSource source)
             {
                 foreach (var entry in source.GetInteractions(ctx))
-                    entries.Add(entry);
+                    if (dedupe.Add(entry.Id))
+                        entries.Add(entry);
+            }
+        }
+
+        if (ctx.Actor != ctx.Target)
+        {
+            foreach (var component in ctx.Actor.GetAllComponents())
+            {
+                if (component is not IInteractionSource source)
+                    continue;
+
+                foreach (var entry in source.GetInteractions(ctx))
+                    if (dedupe.Add(entry.Id))
+                        entries.Add(entry);
             }
         }
 
@@ -237,31 +285,31 @@ public class InteractionSystem : GameSystem
         var player = GetPrimaryActor();
         if (player == null) return;
 
-        var playerTf = player.GetComponent<TransformComponent>();
-        if (playerTf == null) return;
+        var best = FindHoveredInteractable(worldPos, player);
 
-        Entity? best = null;
-        float bestMouseDist = float.MaxValue;
-
-        foreach (var entity in World.GetEntitiesWith<TransformComponent>())
+        // If nothing is under the cursor, try self-interaction
+        if (best == null)
         {
-            if (entity == player) continue;
-            if (!CanEntityBeInteractedWith(entity)) continue;
-
-            var tf = entity.GetComponent<TransformComponent>()!;
-
-            float pDist = Vector2.Distance(playerTf.Position, tf.Position);
-            if (pDist > GetInteractRange(entity)) continue;
-
-            float mDist = Vector2.Distance(worldPos, tf.Position);
-            if (mDist < bestMouseDist)
+            var selfCtx = new InteractionContext
             {
-                bestMouseDist = mDist;
-                best = entity;
-            }
-        }
+                Actor = player,
+                Target = player,
+                World = World
+            };
 
-        if (best == null) return;
+            var selfActions = CollectActions(selfCtx);
+            if (selfActions.Count == 0) return;
+
+            _targetEntity = player;
+            _activeContext = selfCtx;
+            _menuActions = selfActions;
+            _menuScreenPos = screenPos;
+            _menuOpen = true;
+            _hoveredIndex = -1;
+
+            Console.WriteLine($"[Interaction] Self-interaction ({selfActions.Count} actions)");
+            return;
+        }
 
         var ctx = new InteractionContext
         {
@@ -282,6 +330,163 @@ public class InteractionSystem : GameSystem
 
         var name = GetInteractName(best);
         Console.WriteLine($"[Interaction] Opened: {name} ({actions.Count} actions)");
+    }
+
+    private Entity? FindHoveredInteractable(Vector2 worldPos, Entity? actor)
+    {
+        if (actor == null)
+            return null;
+
+        var actorTf = actor.GetComponent<TransformComponent>();
+        if (actorTf == null)
+            return null;
+
+        Entity? best = null;
+        float bestLayer = float.MinValue;
+        float bestSortY = float.MinValue;
+
+        foreach (var entity in World.GetEntitiesWith<TransformComponent>())
+        {
+            if (entity == actor) continue;
+            if (!CanEntityBeInteractedWith(entity)) continue;
+
+            var tf = entity.GetComponent<TransformComponent>()!;
+            if (Vector2.Distance(actorTf.Position, tf.Position) > GetInteractRange(entity))
+                continue;
+
+            if (!TryGetInteractionBounds(entity, out var bounds) || !bounds.Contains(worldPos))
+                continue;
+
+            var sprite = entity.GetComponent<SpriteComponent>();
+            var layer = sprite?.LayerDepth ?? 0f;
+            var sortY = GetInteractionSortY(entity);
+            if (best == null || layer > bestLayer || (Math.Abs(layer - bestLayer) < 0.0001f && sortY > bestSortY))
+            {
+                best = entity;
+                bestLayer = layer;
+                bestSortY = sortY;
+            }
+        }
+
+        return best;
+    }
+
+    private static float GetInteractionSortY(Entity entity)
+    {
+        var tf = entity.GetComponent<TransformComponent>();
+        var sprite = entity.GetComponent<SpriteComponent>();
+        if (tf == null || sprite == null || !sprite.YSort)
+            return tf?.Position.Y ?? 0f;
+
+        var sourceHeight = sprite.SourceRect?.Height ?? sprite.Height;
+        return tf.Position.Y + (sourceHeight * tf.Scale.Y * 0.5f) + sprite.SortOffsetY;
+    }
+
+    private bool TryGetInteractionBounds(Entity entity, out FloatBounds bounds)
+    {
+        bounds = default;
+
+        var tf = entity.GetComponent<TransformComponent>();
+        if (tf == null)
+            return false;
+
+        var sprite = entity.GetComponent<SpriteComponent>();
+        if (sprite != null)
+        {
+            var localBounds = GetSpriteMaskData(sprite).OpaqueBounds;
+            var width = localBounds.Width * Math.Abs(tf.Scale.X);
+            var height = localBounds.Height * Math.Abs(tf.Scale.Y);
+            if (width <= 0f || height <= 0f)
+                return false;
+
+            var left = tf.Position.X + (localBounds.X - sprite.Origin.X) * tf.Scale.X;
+            var top = tf.Position.Y + (localBounds.Y - sprite.Origin.Y) * tf.Scale.Y;
+            bounds = new FloatBounds(left, top, width, height);
+            return true;
+        }
+
+        const float fallbackSize = 32f;
+        bounds = new FloatBounds(tf.Position.X - fallbackSize / 2f, tf.Position.Y - fallbackSize / 2f, fallbackSize, fallbackSize);
+        return true;
+    }
+
+    private SpriteMaskData GetSpriteMaskData(SpriteComponent sprite)
+    {
+        var source = sprite.SourceRect ?? new Rectangle(0, 0, sprite.Width, sprite.Height);
+        if (sprite.Texture == null || source.Width <= 0 || source.Height <= 0)
+        {
+            return new SpriteMaskData
+            {
+                OpaqueBounds = new Rectangle(0, 0, Math.Max(1, source.Width), Math.Max(1, source.Height)),
+                EdgePixels = Array.Empty<Point>()
+            };
+        }
+
+        var cacheKey = $"{sprite.Texture.GetHashCode()}:{source.X}:{source.Y}:{source.Width}:{source.Height}";
+        if (_spriteMaskCache.TryGetValue(cacheKey, out var cached))
+            return cached;
+
+        try
+        {
+            var pixels = new Color[source.Width * source.Height];
+            sprite.Texture.GetData(0, source, pixels, 0, pixels.Length);
+
+            var minX = source.Width;
+            var minY = source.Height;
+            var maxX = -1;
+            var maxY = -1;
+            var edgePixels = new List<Point>();
+
+            for (int y = 0; y < source.Height; y++)
+            {
+                for (int x = 0; x < source.Width; x++)
+                {
+                    var color = pixels[y * source.Width + x];
+                    if (color.A <= 10)
+                        continue;
+
+                    if (x < minX) minX = x;
+                    if (y < minY) minY = y;
+                    if (x > maxX) maxX = x;
+                    if (y > maxY) maxY = y;
+
+                    if (IsEdgePixel(pixels, source.Width, source.Height, x, y))
+                        edgePixels.Add(new Point(x, y));
+                }
+            }
+
+            var mask = new SpriteMaskData
+            {
+                OpaqueBounds = maxX >= minX && maxY >= minY
+                    ? new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1)
+                    : new Rectangle(0, 0, source.Width, source.Height),
+                EdgePixels = edgePixels.ToArray()
+            };
+
+            _spriteMaskCache[cacheKey] = mask;
+            return mask;
+        }
+        catch
+        {
+            var fallback = new SpriteMaskData
+            {
+                OpaqueBounds = new Rectangle(0, 0, source.Width, source.Height),
+                EdgePixels = Array.Empty<Point>()
+            };
+            _spriteMaskCache[cacheKey] = fallback;
+            return fallback;
+        }
+    }
+
+    private static bool IsEdgePixel(Color[] pixels, int width, int height, int x, int y)
+    {
+        static bool IsTransparent(Color[] data, int w, int h, int px, int py)
+            => px < 0 || py < 0 || px >= w || py >= h || data[py * w + px].A <= 10;
+
+        return IsTransparent(pixels, width, height, x - 1, y)
+            || IsTransparent(pixels, width, height, x + 1, y)
+            || IsTransparent(pixels, width, height, x, y - 1)
+            || IsTransparent(pixels, width, height, x, y + 1);
     }
 
     private void TryUseActiveItem(Entity actor, HandsComponent hands)
@@ -507,9 +712,12 @@ public class InteractionSystem : GameSystem
         var actor = GetPrimaryActor();
         var hands = actor?.GetComponent<HandsComponent>();
         var equipment = actor?.GetComponent<EquipmentComponent>();
-        if (!_menuOpen && hands == null && equipment == null && _openStorageEntity == null) return;
+        if (!_menuOpen && hands == null && equipment == null && _openStorageEntity == null && _hoveredWorldEntity == null) return;
 
         _sb.Begin();
+
+        if (_hoveredWorldEntity != null)
+            DrawHoveredEntityOutline(_hoveredWorldEntity);
 
         if (_menuOpen)
         {
@@ -525,10 +733,90 @@ public class InteractionSystem : GameSystem
         if (hands != null || equipment != null)
             DrawEquipmentBar(hands, equipment);
 
+        if (_draggedItem == null && _input != null)
+            DrawHoveredSlotTooltip(new Vector2(_input.MousePosition.X, _input.MousePosition.Y), hands, equipment);
+
         if (_draggedItem != null && _input != null)
             DrawDraggedItem(new Vector2(_input.MousePosition.X, _input.MousePosition.Y));
 
         _sb.End();
+    }
+
+    private void DrawHoveredEntityOutline(Entity entity)
+    {
+        if (_camera == null)
+            return;
+
+        var tf = entity.GetComponent<TransformComponent>();
+        var sprite = entity.GetComponent<SpriteComponent>();
+        if (tf == null || sprite == null)
+        {
+            if (!TryGetInteractionBounds(entity, out var worldBounds))
+                return;
+
+            var topLeft = _camera.WorldToScreen(new Vector2(worldBounds.Left, worldBounds.Top));
+            var bottomRight = _camera.WorldToScreen(new Vector2(worldBounds.Right, worldBounds.Bottom));
+            var x = (int)MathF.Round(Math.Min(topLeft.X, bottomRight.X));
+            var y = (int)MathF.Round(Math.Min(topLeft.Y, bottomRight.Y));
+            var width = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.X - topLeft.X)));
+            var height = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.Y - topLeft.Y)));
+            DrawOutlineRect(new Rectangle(x - 1, y - 1, width + 2, height + 2));
+            return;
+        }
+
+        var mask = GetSpriteMaskData(sprite);
+        if (mask.EdgePixels.Length == 0)
+        {
+            if (!TryGetInteractionBounds(entity, out var worldBounds))
+                return;
+
+            var topLeft = _camera.WorldToScreen(new Vector2(worldBounds.Left, worldBounds.Top));
+            var bottomRight = _camera.WorldToScreen(new Vector2(worldBounds.Right, worldBounds.Bottom));
+            var x = (int)MathF.Round(Math.Min(topLeft.X, bottomRight.X));
+            var y = (int)MathF.Round(Math.Min(topLeft.Y, bottomRight.Y));
+            var width = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.X - topLeft.X)));
+            var height = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.Y - topLeft.Y)));
+            DrawOutlineRect(new Rectangle(x - 1, y - 1, width + 2, height + 2));
+            return;
+        }
+
+        var pixelWidth = Math.Max(1, (int)MathF.Ceiling(Math.Abs(tf.Scale.X) * _camera.Zoom));
+        var pixelHeight = Math.Max(1, (int)MathF.Ceiling(Math.Abs(tf.Scale.Y) * _camera.Zoom));
+        var outlineColor = new Color(255, 220, 80);
+        var glowColor = outlineColor * 0.30f;
+
+        foreach (var edge in mask.EdgePixels)
+        {
+            var worldTopLeft = new Vector2(
+                tf.Position.X + (edge.X - sprite.Origin.X) * tf.Scale.X,
+                tf.Position.Y + (edge.Y - sprite.Origin.Y) * tf.Scale.Y);
+            var screenTopLeft = _camera.WorldToScreen(worldTopLeft);
+
+            var rect = new Rectangle(
+                (int)MathF.Round(screenTopLeft.X),
+                (int)MathF.Round(screenTopLeft.Y),
+                pixelWidth,
+                pixelHeight);
+
+            _sb!.Draw(_pixel!, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), glowColor);
+            _sb.Draw(_pixel, rect, outlineColor);
+        }
+    }
+
+    private void DrawOutlineRect(Rectangle rect)
+    {
+        var outlineColor = new Color(255, 220, 80);
+        var glowColor = outlineColor * 0.30f;
+
+        _sb!.Draw(_pixel!, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, 1), glowColor);
+        _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Bottom, rect.Width + 2, 1), glowColor);
+        _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Y, 1, rect.Height), glowColor);
+        _sb.Draw(_pixel, new Rectangle(rect.Right, rect.Y, 1, rect.Height), glowColor);
+
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), outlineColor);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), outlineColor);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), outlineColor);
+        _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), outlineColor);
     }
 
     private void DrawInteractionMenu()
@@ -623,6 +911,81 @@ public class InteractionSystem : GameSystem
         var rect = new Rectangle(mouse.X + 14, mouse.Y - 6, 14, 14);
         DrawEntityIcon(hands.ActiveItem, rect, 0.45f);
     }
+
+    private void DrawHoveredSlotTooltip(Vector2 mousePos, HandsComponent? hands, EquipmentComponent? equipment)
+    {
+        var hoveredItem = GetHoveredSlotItem(mousePos, hands, equipment);
+        if (hoveredItem == null)
+            return;
+
+        var text = SanitizeTooltipText(GetSlotTooltipText(hoveredItem));
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+
+        var size = _font!.MeasureString(text);
+        var rect = new Rectangle(
+            (int)mousePos.X + 16,
+            (int)mousePos.Y - 8,
+            (int)size.X + 12,
+            (int)size.Y + 8);
+
+        if (_gd != null)
+        {
+            if (rect.Right > _gd.Viewport.Width)
+                rect.X = Math.Max(0, (int)mousePos.X - rect.Width - 16);
+            if (rect.Bottom > _gd.Viewport.Height)
+                rect.Y = Math.Max(0, _gd.Viewport.Height - rect.Height - 4);
+        }
+
+        _sb!.Draw(_pixel!, rect, Color.Black * 0.82f);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), new Color(120, 150, 120));
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), new Color(120, 150, 120));
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), new Color(120, 150, 120));
+        _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), new Color(120, 150, 120));
+        _sb.DrawString(_font, text, new Vector2(rect.X + 6, rect.Y + 4), Color.White);
+    }
+
+    private Entity? GetHoveredSlotItem(Vector2 mousePos, HandsComponent? hands, EquipmentComponent? equipment)
+    {
+        if (hands != null)
+        {
+            foreach (var slot in BuildHandSlots(hands))
+            {
+                if (slot.Rect.Contains((int)mousePos.X, (int)mousePos.Y) && slot.Hand.HeldItem != null)
+                    return slot.Hand.HeldItem;
+            }
+        }
+
+        if (equipment != null)
+        {
+            foreach (var slot in BuildEquipmentSlots(equipment))
+            {
+                if (slot.Rect.Contains((int)mousePos.X, (int)mousePos.Y) && slot.Slot.Item != null)
+                    return slot.Slot.Item;
+            }
+        }
+
+        return null;
+    }
+
+    private static string GetSlotTooltipText(Entity itemEntity)
+    {
+        var liquid = itemEntity.GetComponent<LiquidContainerComponent>();
+        if (liquid != null)
+            return $"{liquid.ContainerName} - {liquid.CurrentVolume:0.#}/{liquid.Capacity:0.#} мл";
+
+        var item = itemEntity.GetComponent<ItemComponent>();
+        if (!string.IsNullOrWhiteSpace(item?.ItemName))
+            return item.ItemName;
+
+        return itemEntity.Name;
+    }
+
+    private static string SanitizeTooltipText(string text)
+        => text
+            .Replace('—', '-')
+            .Replace('–', '-')
+            .Replace('…', '.');
 
     private void DrawStorageWindow()
     {
@@ -1049,6 +1412,13 @@ public class InteractionSystem : GameSystem
 
     private void DrawEntityIcon(Entity entity, Rectangle rect, float alpha = 1f)
     {
+        var liquid = entity.GetComponent<LiquidContainerComponent>();
+        var fillTexture = liquid?.GetFillTexture();
+        if (fillTexture != null)
+        {
+            _sb!.Draw(fillTexture, rect, liquid!.GetFillColor() * alpha);
+        }
+
         var wearable = entity.GetComponent<WearableComponent>();
         if (wearable?.IconTexture != null)
         {

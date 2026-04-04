@@ -3,7 +3,7 @@ namespace MTEngine.Core;
 public class GameClock
 {
     private float _totalSeconds;
-    public float TimeScale { get; set; } = 60f; // 1 реальная секунда = 60 игровых
+    public float TimeScale { get; set; } = 72f; // 1 игровые сутки = 20 реальных минут
 
     public GameClock(float startHour = 8f)
     {

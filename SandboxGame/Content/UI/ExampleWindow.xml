@@ -1,0 +1,20 @@
+<Window Id="example" Title="Status" Width="280" Height="220" Closable="true" Draggable="true">
+  <Panel Direction="Vertical" Padding="6" Gap="6">
+    <Label Name="header" Text="Player Status" Color="#00FF00" />
+    <Separator />
+    <Panel Direction="Horizontal" Gap="8">
+      <Label Text="HP:" Width="30" Color="#CCCCCC" />
+      <ProgressBar Name="hpBar" Height="16" FillColor="#CC3333" Value="80" MaxValue="100" />
+    </Panel>
+    <Panel Direction="Horizontal" Gap="8">
+      <Label Text="SP:" Width="30" Color="#CCCCCC" />
+      <ProgressBar Name="spBar" Height="16" FillColor="#3366CC" Value="45" MaxValue="60" />
+    </Panel>
+    <Separator />
+    <Label Name="info" Text="No effects active." Color="#888888" />
+    <Panel Direction="Horizontal" Gap="6">
+      <Button Name="btnHeal" Text="Heal" Width="80" Height="24" />
+      <Button Name="btnRest" Text="Rest" Width="80" Height="24" />
+    </Panel>
+  </Panel>
+</Window>

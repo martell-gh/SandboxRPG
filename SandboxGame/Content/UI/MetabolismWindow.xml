@@ -1,0 +1,30 @@
+<Window Id="metabolism" Title="Metabolism" Width="300" Height="320" Closable="true" Draggable="true">
+  <Panel Direction="Vertical" Padding="6" Gap="5">
+    <Panel Direction="Horizontal" Gap="6">
+      <Label Text="Health:" Width="60" Color="#CCCCCC" />
+      <ProgressBar Name="healthBar" Height="16" FillColor="#55AA55" ShowText="true" TextFormat="{0:0}/{1:0}" />
+    </Panel>
+    <Separator />
+    <Panel Direction="Horizontal" Gap="6">
+      <Label Text="Hunger:" Width="60" Color="#CCCCCC" />
+      <ProgressBar Name="hungerBar" Height="16" FillColor="#CC8833" ShowText="true" TextFormat="{0:0}/{1:0}" />
+    </Panel>
+    <Panel Direction="Horizontal" Gap="6">
+      <Label Text="Thirst:" Width="60" Color="#CCCCCC" />
+      <ProgressBar Name="thirstBar" Height="16" FillColor="#3388CC" ShowText="true" TextFormat="{0:0}/{1:0}" />
+    </Panel>
+    <Separator />
+    <Panel Direction="Horizontal" Gap="6">
+      <Label Text="Bladder:" Width="60" Color="#CCCCCC" />
+      <ProgressBar Name="bladderBar" Height="16" FillColor="#CCCC33" ShowText="true" TextFormat="{0:0}%" />
+    </Panel>
+    <Panel Direction="Horizontal" Gap="6">
+      <Label Text="Bowel:" Width="60" Color="#CCCCCC" />
+      <ProgressBar Name="bowelBar" Height="16" FillColor="#886633" ShowText="true" TextFormat="{0:0}%" />
+    </Panel>
+    <Separator />
+    <Label Name="statusLabel" Text="Status: Normal" Color="#88CC88" />
+    <Label Name="digestLabel" Text="" Height="120" Color="#888888" />
+    <Label Name="speedLabel" Text="" Color="#888888" />
+  </Panel>
+</Window>

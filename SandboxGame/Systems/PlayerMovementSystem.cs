@@ -51,6 +51,16 @@ public class PlayerMovementSystem : GameSystem
             var velocity = entity.GetComponent<VelocityComponent>()!;
             var sprite = entity.GetComponent<SpriteComponent>();
             var equipment = entity.GetComponent<EquipmentComponent>();
+            var health = entity.GetComponent<HealthComponent>();
+
+            if (health?.IsDead == true)
+            {
+                velocity.Velocity = Vector2.Zero;
+                _camera.Follow(transform.Position);
+                if (sprite != null)
+                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
+                continue;
+            }
 
             var dir = Vector2.Zero;
 
@@ -62,6 +72,7 @@ public class PlayerMovementSystem : GameSystem
             if (dir != Vector2.Zero) dir.Normalize();
 
             var speedMultiplier = equipment?.GetMoveSpeedMultiplier() ?? 1f;
+            velocity.Velocity = dir * velocity.Speed * speedMultiplier;
             transform.Position += dir * velocity.Speed * speedMultiplier * deltaTime;
             _camera.Follow(transform.Position);
 

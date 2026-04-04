@@ -1,0 +1,42 @@
+{
+  "id": "khryashchitin",
+  "name": "Хрящитин",
+  "category": "substance",
+  "color": "#D94A4AFF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 4,
+  "clearanceTime": 70,
+  "smells": ["кисло", "металлически"],
+  "preparationHint": "Получают из плотных красных органических масс.",
+  "responseProfiles": [
+    {
+      "id": "khryashchitin_taste",
+      "name": "Едкое послевкусие",
+      "minAmount": 5,
+      "maxAmount": 18,
+      "effects": [
+        { "id": "khryashchitin_popup", "type": "popup", "message": "Во рту остаётся кислый металлический след.", "color": "#F4A261FF" }
+      ]
+    },
+    {
+      "id": "khryashchitin_nausea",
+      "name": "Тошнота",
+      "minAmount": 18,
+      "maxAmount": 40,
+      "effects": [
+        { "id": "khryashchitin_hunger", "type": "needDeltaOverTime", "need": "hunger", "magnitude": -18, "duration": 15 },
+        { "id": "khryashchitin_popup_2", "type": "popup", "message": "Желудок сжимается от хрящитина.", "color": "#D94A4AFF" }
+      ]
+    },
+    {
+      "id": "khryashchitin_frenzy",
+      "name": "Кровавый всплеск",
+      "minAmount": 40,
+      "effects": [
+        { "id": "khryashchitin_frenzy_speed", "type": "speedMultiplier", "magnitude": 0.12 },
+        { "id": "khryashchitin_frenzy_bladder", "type": "needDeltaOverTime", "need": "bladder", "magnitude": 15, "duration": 15 }
+      ]
+    }
+  ]
+}

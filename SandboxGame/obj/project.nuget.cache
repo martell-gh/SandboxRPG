@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MbAQ4/irtMY=",
+  "dgSpecHash": "MSIiTFhJrqA=",
   "success": true,
-  "projectFilePath": "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/SandboxGame.csproj",
+  "projectFilePath": "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/SandboxGame.csproj",
   "expectedPackageFiles": [
     "/Users/more_tel/.nuget/packages/monogame.content.builder.task/3.8.4.1/monogame.content.builder.task.3.8.4.1.nupkg.sha512",
     "/Users/more_tel/.nuget/packages/monogame.framework.desktopgl/3.8.4.1/monogame.framework.desktopgl.3.8.4.1.nupkg.sha512",

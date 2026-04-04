@@ -1,0 +1,15 @@
+{
+  "id": "spring_water",
+  "name": "Вода",
+  "category": "substance",
+  "color": "#7BC6F5FF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 2,
+  "clearanceTime": 20,
+  "smells": ["свежо"],
+  "preparationHint": "Чистая питьевая вода.",
+  "effects": [
+    { "id": "spring_popup", "type": "popup", "message": "Вода приятно освежает.", "color": "#7BC6F5FF" }
+  ]
+}

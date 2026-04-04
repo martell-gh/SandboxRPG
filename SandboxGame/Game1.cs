@@ -24,20 +24,24 @@ public class Game1 : GameEngine
 
         InteractionSystem.SetFont(font);
         PopupTextSystem.SetFont(font);
+        UIManager.SetFont(font);
 
-        Prototypes.LoadFromDirectory(GamePaths.Tiles);
-        Prototypes.LoadFromDirectory(GamePaths.Entities);
+        // Forward text input to UIManager for TextInput elements
+        Window.TextInput += (_, e) => UIManager.OnTextInput(e.Character);
+
+        Prototypes.LoadFromDirectory(GamePaths.Prototypes);
 
         var mapManager = new MapManager(GamePaths.Maps, Prototypes);
         ServiceLocator.Register(mapManager);
         _mapEntitySpawner = new MapEntitySpawner(Prototypes, EntityFactory, World, EventBus);
 
         World.AddSystem(new PlayerMovementSystem());
+        World.AddSystem(new MetabolismUI());
         _commands = new ConsoleCommands(this, mapManager, TileMapRenderer);
 
         // Игрок из прототипа
         var playerProto = EntityPrototype.LoadFromFile(
-            Path.Combine(GamePaths.Entities, "Player/proto.json"));
+            Path.Combine(GamePaths.Entities, "Player", "proto.json"));
 
         if (playerProto != null)
         {

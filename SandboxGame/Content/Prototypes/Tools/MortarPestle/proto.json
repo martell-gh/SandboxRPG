@@ -1,0 +1,26 @@
+{
+  "id": "mortar_pestle",
+  "name": "Mortar & Pestle",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Mortar & Pestle",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["tool", "mortar"]
+    },
+    "mortar": {
+      "name": "Толкушка",
+      "capacity": 120
+    }
+  }
+}

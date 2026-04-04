@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,6 +18,13 @@ public enum PaletteMode
 
 public class TilePalette
 {
+    private sealed class PaletteEntry<T>
+    {
+        public bool IsHeader { get; init; }
+        public string Header { get; init; } = "";
+        public T? Item { get; init; }
+    }
+
     private readonly PrototypeManager _prototypes;
     private readonly AssetManager _assets;
     private readonly SpriteFont _font;
@@ -29,13 +37,17 @@ public class TilePalette
 
     private List<TilePrototype> _tiles = new();
     private List<EntityPrototype> _entities = new();
+    private List<PaletteEntry<TilePrototype>> _tileEntries = new();
+    private List<PaletteEntry<EntityPrototype>> _entityEntries = new();
     private Texture2D _pixel;
+    private int _scrollOffset;
 
     private const int PaletteWidth = 280;
     private const int HeaderHeight = 28;
     private const int TabHeight = 28;
     private const int SelectedBlockHeight = 52;
     private const int HintHeight = 22;
+    private const int CategoryHeaderHeight = 24;
     private const int TileRowHeight = 40;
     private const int TileIconSize = 24;
     private const int Padding = 10;
@@ -48,6 +60,8 @@ public class TilePalette
         _graphics = graphics;
         _tiles = prototypes.GetAllTiles().ToList();
         _entities = prototypes.GetAllEntities().ToList();
+        _tileEntries = BuildGroupedEntries(_tiles, GetTileCategory);
+        _entityEntries = BuildGroupedEntries(_entities, GetEntityCategory);
 
         if (_tiles.Count > 0)
             SelectedTileId = _tiles[0].Id;
@@ -61,44 +75,33 @@ public class TilePalette
         Console.WriteLine($"[TilePalette] Loaded {_tiles.Count} tiles");
     }
 
-    public void Update(MouseState mouse, MouseState prev)
+    public void Update(MouseState mouse, MouseState prev, int scrollDelta)
     {
+        Bounds = new Rectangle(0, 0, PaletteWidth, _graphics.Viewport.Height);
+
+        if (scrollDelta != 0 && Bounds.Contains(mouse.X, mouse.Y))
+        {
+            _scrollOffset -= Math.Sign(scrollDelta) * TileRowHeight;
+            _scrollOffset = Math.Clamp(_scrollOffset, 0, GetMaxScrollOffset());
+        }
+
         if (mouse.LeftButton == ButtonState.Pressed && prev.LeftButton == ButtonState.Released)
         {
             if (GetTabRect(PaletteMode.Tiles).Contains(mouse.X, mouse.Y))
             {
                 Mode = PaletteMode.Tiles;
+                _scrollOffset = 0;
                 return;
             }
 
             if (GetTabRect(PaletteMode.Entities).Contains(mouse.X, mouse.Y))
             {
                 Mode = PaletteMode.Entities;
+                _scrollOffset = 0;
                 return;
             }
 
-            if (Mode == PaletteMode.Tiles)
-            {
-                for (int i = 0; i < _tiles.Count; i++)
-                {
-                    if (GetRowRect(i).Contains(mouse.X, mouse.Y))
-                    {
-                        SelectedTileId = _tiles[i].Id;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < _entities.Count; i++)
-                {
-                    if (GetRowRect(i).Contains(mouse.X, mouse.Y))
-                    {
-                        SelectedEntityId = _entities[i].Id;
-                        break;
-                    }
-                }
-            }
+            HandleSelectionClick(mouse);
         }
     }
 
@@ -166,6 +169,9 @@ public class TilePalette
         spriteBatch.Draw(_pixel, new Rectangle(0, y, PaletteWidth, 1), Color.DarkGreen * 0.3f);
         y += 2;
 
+        var listViewport = new Rectangle(0, y, PaletteWidth, Bounds.Height - y);
+        spriteBatch.Draw(_pixel, listViewport, Color.Black * 0.16f);
+
         if (Mode == PaletteMode.Tiles && _tiles.Count == 0)
         {
             spriteBatch.DrawString(_font, "No tiles!", new Vector2(Padding, y + 10), Color.Red);
@@ -178,70 +184,13 @@ public class TilePalette
             return;
         }
 
-        var rowCount = Mode == PaletteMode.Tiles ? _tiles.Count : _entities.Count;
-        for (int i = 0; i < rowCount; i++)
+        if (Mode == PaletteMode.Tiles)
         {
-            var rowRect = GetRowRect(i);
-            var isSelected = false;
-            Texture2D tex;
-            Rectangle? src;
-            string name;
-            string subtext;
-
-            if (Mode == PaletteMode.Tiles)
-            {
-                var tile = _tiles[i];
-                isSelected = tile.Id == SelectedTileId;
-                tex = GetTileTexture(tile);
-                src = GetTileSourceRect(tile);
-                name = tile.Name;
-                subtext = tile.Solid ? "solid" : "pass";
-            }
-            else
-            {
-                var entity = _entities[i];
-                isSelected = entity.Id == SelectedEntityId;
-                tex = GetEntityTexture(entity);
-                src = GetEntitySourceRect(entity);
-                name = entity.Name;
-                subtext = entity.Id;
-            }
-
-            if (isSelected)
-                spriteBatch.Draw(_pixel, rowRect, Color.DarkGreen * 0.45f);
-
-            var iconRect = new Rectangle(
-                rowRect.X + Padding,
-                rowRect.Y + (TileRowHeight - TileIconSize) / 2,
-                TileIconSize, TileIconSize
-            );
-
-            spriteBatch.Draw(tex, iconRect, src, Color.White);
-
-            if (isSelected)
-            {
-                spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Y - 1, iconRect.Width + 2, 1), Color.White);
-                spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Bottom, iconRect.Width + 2, 1), Color.White);
-                spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Y - 1, 1, iconRect.Height + 2), Color.White);
-                spriteBatch.Draw(_pixel, new Rectangle(iconRect.Right, iconRect.Y - 1, 1, iconRect.Height + 2), Color.White);
-            }
-
-            // название
-            var textX = iconRect.Right + 8;
-            var textY = rowRect.Y + 8;
-            spriteBatch.DrawString(_font, name, new Vector2(textX, textY),
-                isSelected ? Color.White : Color.LightGray);
-
-            spriteBatch.DrawString(_font,
-                subtext,
-                new Vector2(textX, textY + 16),
-                Mode == PaletteMode.Tiles && subtext == "solid"
-                    ? new Color(200, 120, 0)
-                    : new Color(80, 120, 80));
-
-            spriteBatch.Draw(_pixel,
-                new Rectangle(0, rowRect.Bottom - 1, PaletteWidth, 1),
-                Color.White * 0.05f);
+            DrawTileEntries(spriteBatch, y, listViewport);
+        }
+        else
+        {
+            DrawEntityEntries(spriteBatch, y, listViewport);
         }
     }
 
@@ -292,10 +241,211 @@ public class TilePalette
 
     private Rectangle? GetEntitySourceRect(EntityPrototype entity) => entity.PreviewSourceRect;
 
-    private Rectangle GetRowRect(int index)
+    private void DrawTileEntries(SpriteBatch spriteBatch, int startY, Rectangle viewport)
     {
-        int startY = HeaderHeight + TabHeight + SelectedBlockHeight + HintHeight + 2;
-        return new Rectangle(0, startY + index * TileRowHeight, PaletteWidth, TileRowHeight);
+        var drawY = startY - _scrollOffset;
+        foreach (var entry in _tileEntries)
+        {
+            var height = entry.IsHeader ? CategoryHeaderHeight : TileRowHeight;
+            var rowRect = new Rectangle(0, drawY, PaletteWidth, height);
+            drawY += height;
+
+            if (rowRect.Bottom < viewport.Top || rowRect.Top > viewport.Bottom)
+                continue;
+
+            if (entry.IsHeader)
+            {
+                DrawHeader(spriteBatch, rowRect, entry.Header);
+                continue;
+            }
+
+            var tile = entry.Item!;
+            DrawItemRow(
+                spriteBatch,
+                rowRect,
+                tile.Id == SelectedTileId,
+                GetTileTexture(tile),
+                GetTileSourceRect(tile),
+                tile.Name,
+                tile.Solid ? "solid" : "pass");
+        }
+    }
+
+    private void DrawEntityEntries(SpriteBatch spriteBatch, int startY, Rectangle viewport)
+    {
+        var drawY = startY - _scrollOffset;
+        foreach (var entry in _entityEntries)
+        {
+            var height = entry.IsHeader ? CategoryHeaderHeight : TileRowHeight;
+            var rowRect = new Rectangle(0, drawY, PaletteWidth, height);
+            drawY += height;
+
+            if (rowRect.Bottom < viewport.Top || rowRect.Top > viewport.Bottom)
+                continue;
+
+            if (entry.IsHeader)
+            {
+                DrawHeader(spriteBatch, rowRect, entry.Header);
+                continue;
+            }
+
+            var entity = entry.Item!;
+            DrawItemRow(
+                spriteBatch,
+                rowRect,
+                entity.Id == SelectedEntityId,
+                GetEntityTexture(entity),
+                GetEntitySourceRect(entity),
+                entity.Name,
+                entity.Id);
+        }
+    }
+
+    private void DrawHeader(SpriteBatch spriteBatch, Rectangle rect, string label)
+    {
+        spriteBatch.Draw(_pixel, rect, Color.DarkOliveGreen * 0.45f);
+        spriteBatch.Draw(_pixel, new Rectangle(0, rect.Bottom - 1, PaletteWidth, 1), Color.DarkGreen * 0.5f);
+        spriteBatch.DrawString(_font, label.ToUpperInvariant(), new Vector2(Padding, rect.Y + 4), Color.YellowGreen);
+    }
+
+    private void DrawItemRow(SpriteBatch spriteBatch, Rectangle rowRect, bool isSelected, Texture2D tex, Rectangle? src, string name, string subtext)
+    {
+        if (isSelected)
+            spriteBatch.Draw(_pixel, rowRect, Color.DarkGreen * 0.45f);
+
+        var iconRect = new Rectangle(
+            rowRect.X + Padding,
+            rowRect.Y + (TileRowHeight - TileIconSize) / 2,
+            TileIconSize,
+            TileIconSize);
+
+        spriteBatch.Draw(tex, iconRect, src, Color.White);
+
+        if (isSelected)
+        {
+            spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Y - 1, iconRect.Width + 2, 1), Color.White);
+            spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Bottom, iconRect.Width + 2, 1), Color.White);
+            spriteBatch.Draw(_pixel, new Rectangle(iconRect.X - 1, iconRect.Y - 1, 1, iconRect.Height + 2), Color.White);
+            spriteBatch.Draw(_pixel, new Rectangle(iconRect.Right, iconRect.Y - 1, 1, iconRect.Height + 2), Color.White);
+        }
+
+        var textX = iconRect.Right + 8;
+        var textY = rowRect.Y + 8;
+        spriteBatch.DrawString(_font, name, new Vector2(textX, textY), isSelected ? Color.White : Color.LightGray);
+        spriteBatch.DrawString(
+            _font,
+            subtext,
+            new Vector2(textX, textY + 16),
+            subtext == "solid" ? new Color(200, 120, 0) : new Color(80, 120, 80));
+
+        spriteBatch.Draw(_pixel, new Rectangle(0, rowRect.Bottom - 1, PaletteWidth, 1), Color.White * 0.05f);
+    }
+
+    private void HandleSelectionClick(MouseState mouse)
+    {
+        var drawY = HeaderHeight + TabHeight + SelectedBlockHeight + HintHeight + 2 - _scrollOffset;
+
+        if (Mode == PaletteMode.Tiles)
+        {
+            foreach (var entry in _tileEntries)
+            {
+                var height = entry.IsHeader ? CategoryHeaderHeight : TileRowHeight;
+                var rect = new Rectangle(0, drawY, PaletteWidth, height);
+                drawY += height;
+
+                if (!entry.IsHeader && rect.Contains(mouse.X, mouse.Y))
+                {
+                    SelectedTileId = entry.Item!.Id;
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        foreach (var entry in _entityEntries)
+        {
+            var height = entry.IsHeader ? CategoryHeaderHeight : TileRowHeight;
+            var rect = new Rectangle(0, drawY, PaletteWidth, height);
+            drawY += height;
+
+            if (!entry.IsHeader && rect.Contains(mouse.X, mouse.Y))
+            {
+                SelectedEntityId = entry.Item!.Id;
+                return;
+            }
+        }
+    }
+
+    private int GetMaxScrollOffset()
+    {
+        var listStart = HeaderHeight + TabHeight + SelectedBlockHeight + HintHeight + 2;
+        var visibleHeight = Math.Max(0, Bounds.Height - listStart);
+        var contentHeight = GetContentHeight();
+        return Math.Max(0, contentHeight - visibleHeight);
+    }
+
+    private int GetContentHeight()
+    {
+        var entries = Mode == PaletteMode.Tiles
+            ? _tileEntries.Sum(e => e.IsHeader ? CategoryHeaderHeight : TileRowHeight)
+            : _entityEntries.Sum(e => e.IsHeader ? CategoryHeaderHeight : TileRowHeight);
+        return entries;
+    }
+
+    private static List<PaletteEntry<T>> BuildGroupedEntries<T>(IEnumerable<T> items, Func<T, string> categorySelector)
+    {
+        var result = new List<PaletteEntry<T>>();
+        foreach (var group in items
+                     .OrderBy(categorySelector)
+                     .ThenBy(GetName)
+                     .GroupBy(categorySelector))
+        {
+            result.Add(new PaletteEntry<T> { IsHeader = true, Header = group.Key });
+            foreach (var item in group.OrderBy(GetName))
+                result.Add(new PaletteEntry<T> { Item = item });
+        }
+
+        return result;
+    }
+
+    private static string GetName<T>(T item)
+        => item switch
+        {
+            TilePrototype tile => tile.Name,
+            EntityPrototype entity => entity.Name,
+            _ => item?.ToString() ?? string.Empty
+        };
+
+    private static string GetTileCategory(TilePrototype tile)
+    {
+        if (!string.IsNullOrWhiteSpace(tile.Tileset))
+            return tile.Tileset!;
+
+        if (string.IsNullOrWhiteSpace(tile.DirectoryPath))
+            return "General";
+
+        var relative = Path.GetRelativePath(ContentPaths.TilesRoot, tile.DirectoryPath);
+        var parts = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return parts.Length > 1 ? ToTitle(parts[0]) : "General";
+    }
+
+    private static string GetEntityCategory(EntityPrototype entity)
+    {
+        if (string.IsNullOrWhiteSpace(entity.DirectoryPath))
+            return "Misc";
+
+        var relative = Path.GetRelativePath(ContentPaths.PrototypesRoot, entity.DirectoryPath);
+        var parts = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return parts.Length > 0 ? ToTitle(parts[0]) : "Misc";
+    }
+
+    private static string ToTitle(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return "Misc";
+
+        return raw.Replace('_', ' ').Replace('-', ' ');
     }
 
     private void DrawTab(SpriteBatch spriteBatch, PaletteMode mode, string label)

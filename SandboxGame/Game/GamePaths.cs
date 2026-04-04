@@ -1,12 +1,14 @@
-using System.IO;
+using MTEngine.Core;
 
 public static class GamePaths
 {
-    public static readonly string Content = "SandboxGame/Content";
-    public static readonly string Maps = "SandboxGame/Maps";
-
-    public static string Tiles => Path.Combine(Content, "Tiles");
-    public static string Entities => Path.Combine(Content, "Entities");
-    public static string Textures => Path.Combine(Content, "Textures");
-    public static string Ui => Path.Combine(Textures, "UI");
+    public static string Content => ContentPaths.ContentRoot;
+    public static string Maps => ContentPaths.MapsRoot;
+    public static string Prototypes => ContentPaths.PrototypesRoot;
+    public static string Tiles => ContentPaths.TilesRoot;
+    public static string Entities => ContentPaths.ActorsRoot;
+    public static string Substances => ContentPaths.SubstancesRoot;
+    public static string Textures => ContentPaths.TexturesRoot;
+    public static string Ui => ContentPaths.UiRoot;
+    public static string UIWindows => ContentPaths.UiWindowsRoot;
 }

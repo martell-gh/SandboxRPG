@@ -1,0 +1,42 @@
+{
+  "id": "babijonin",
+  "name": "Бабиджонин",
+  "category": "substance",
+  "color": "#D08155FF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 6,
+  "clearanceTime": 80,
+  "smells": ["терпко", "землисто"],
+  "preparationHint": "Получается смешиванием таурина и хрящитина.",
+  "responseProfiles": [
+    {
+      "id": "babijonin_comfort",
+      "name": "Тёплый прилив",
+      "minAmount": 8,
+      "maxAmount": 25,
+      "effects": [
+        { "id": "babijonin_comfort_speed", "type": "speedMultiplier", "magnitude": 0.1 }
+      ]
+    },
+    {
+      "id": "babijonin_vision",
+      "name": "Искажение",
+      "minAmount": 25,
+      "maxAmount": 45,
+      "effects": [
+        { "id": "babijonin_vision_popup", "type": "popup", "message": "Края мира становятся вязкими.", "color": "#D08155FF" },
+        { "id": "babijonin_vision_thirst", "type": "needDeltaOverTime", "need": "thirst", "magnitude": -20, "duration": 16 }
+      ]
+    },
+    {
+      "id": "babijonin_apotheosis",
+      "name": "Апофеоз",
+      "minAmount": 45,
+      "effects": [
+        { "id": "babijonin_apotheosis_speed", "type": "speedMultiplier", "magnitude": 0.35 },
+        { "id": "babijonin_apotheosis_popup", "type": "popup", "message": "На миг тело ощущается неуязвимым.", "color": "#FFD166FF" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "glass_cup",
+  "name": "Glass Cup",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Glass Cup",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["container", "glass", "cup"]
+    },
+    "liquidContainer": {
+      "name": "Glass Cup",
+      "capacity": 100,
+      "transparent": true,
+      "showContents": true,
+      "fillSprite25": "fill25.png",
+      "fillSprite50": "fill50.png",
+      "fillSprite75": "fill75.png",
+      "fillSprite100": "fill100.png",
+      "contents": [
+        { "id": "taurine", "amount": 30 }
+      ]
+    }
+  }
+}

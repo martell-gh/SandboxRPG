@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "e6eqeRk3mVc=",
+  "dgSpecHash": "m6PfulskGs4=",
   "success": true,
-  "projectFilePath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
+  "projectFilePath": "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj",
   "expectedPackageFiles": [
     "/Users/more_tel/.nuget/packages/monogame.content.builder.task/3.8.4.1/monogame.content.builder.task.3.8.4.1.nupkg.sha512",
     "/Users/more_tel/.nuget/packages/monogame.framework.desktopgl/3.8.4.1/monogame.framework.desktopgl.3.8.4.1.nupkg.sha512",

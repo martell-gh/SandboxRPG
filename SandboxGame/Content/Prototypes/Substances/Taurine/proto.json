@@ -1,0 +1,68 @@
+{
+  "id": "taurine",
+  "name": "Taurine",
+  "category": "substance",
+  "color": "#F2D44AFF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 5,
+  "clearanceTime": 90,
+  "smells": ["сладко", "резко"],
+  "preparationHint": "Часто встречается в тонизирующих напитках и вытяжках.",
+  "responseProfiles": [
+    {
+      "id": "taurine_trace",
+      "name": "Лёгкий стимул",
+      "minAmount": 5,
+      "maxAmount": 20,
+      "effects": [
+        { "id": "taurine_trace_speed", "type": "speedMultiplier", "magnitude": 0.08 }
+      ]
+    },
+    {
+      "id": "taurine_boost",
+      "name": "Разгон",
+      "minAmount": 20,
+      "maxAmount": 45,
+      "effects": [
+        { "id": "taurine_boost_speed", "type": "speedMultiplier", "magnitude": 0.2 },
+        { "id": "taurine_boost_popup", "type": "popup", "message": "Таурин разгоняет кровь.", "color": "#F2D44AFF" }
+      ]
+    },
+    {
+      "id": "taurine_overdose",
+      "name": "Перегруз",
+      "minAmount": 45,
+      "maxAmount": 80,
+      "effects": [
+        { "id": "taurine_overdose_speed", "type": "speedMultiplier", "magnitude": -0.18 },
+        { "id": "taurine_overdose_thirst", "type": "needDeltaOverTime", "need": "thirst", "magnitude": -28, "duration": 20 },
+        { "id": "taurine_overdose_popup", "type": "popup", "message": "Сердце колотится слишком быстро...", "color": "#FF8C42FF" }
+      ]
+    },
+    {
+      "id": "taurine_beyond",
+      "name": "Срыв",
+      "minAmount": 80,
+      "effects": [
+        { "id": "taurine_beyond_speed", "type": "speedMultiplier", "magnitude": -0.45 },
+        { "id": "taurine_beyond_hunger", "type": "needDeltaOverTime", "need": "hunger", "magnitude": -25, "duration": 12 },
+        { "id": "taurine_beyond_popup", "type": "popup", "message": "Организм не выдерживает дозу таурина!", "color": "#FF4D4DFF" }
+      ]
+    }
+  ],
+  "recipes": [
+    {
+      "id": "babijonin_recipe",
+      "name": "Бабиджонин",
+      "description": "Таурин + хрящитин дают бабиджонин.",
+      "ingredients": [
+        { "substanceId": "taurine", "amount": 10 },
+        { "substanceId": "khryashchitin", "amount": 10 }
+      ],
+      "results": [
+        { "id": "babijonin", "amount": 20 }
+      ]
+    }
+  ]
+}

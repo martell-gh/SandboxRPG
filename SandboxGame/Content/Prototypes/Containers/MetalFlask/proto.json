@@ -1,0 +1,38 @@
+{
+  "id": "metal_flask",
+  "name": "Metal Flask",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Metal Flask",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["container", "flask"]
+    },
+    "liquidContainer": {
+      "name": "Metal Flask",
+      "capacity": 120,
+      "transparent": false,
+      "showContents": false,
+      "fillSprite25": "fill25.png",
+      "fillSprite50": "fill50.png",
+      "fillSprite75": "fill75.png",
+      "fillSprite100": "fill100.png",
+      "contents": [
+        { "id": "spring_water", "amount": 60 }
+      ],
+      "hydration": 45,
+      "bladderLoad": 18,
+      "digestTime": 6
+    }
+  }
+}

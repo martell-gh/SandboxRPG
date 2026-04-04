@@ -1,0 +1,51 @@
+{
+  "id": "player",
+  "name": "Player",
+  "category": "entity",
+  "components": {
+    "light": {
+      "color": "#FF0000"
+    },
+    "transform": { "x": 0, "y": 0 },
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "collider": {
+      "width": 20,
+      "height": 20,
+      "offsetX": -10,
+      "offsetY": -10
+    },
+    "hands": {
+      "count": 2,
+      "names": "Left,Right"
+    },
+    "equipment": {
+      "slots": "torso,pants,shoes,back",
+      "names": "Torso,Pants,Shoes,Back"
+    },
+    "knowledgeMemory": {},
+    "health": {
+      "health": 100,
+      "maxHealth": 100
+    },
+    "velocity": { "speed": 100 },
+    "metabolism": {
+      "hunger": 85,
+      "thirst": 90,
+      "hungerDecay": 0.17,
+      "thirstDecay": 0.42,
+      "bladderFill": 0.15,
+      "bowelFill": 0.08,
+      "starvationDamage": 0.35,
+      "dehydrationDamage": 0.75
+    }
+  },
+  "animations": "animations.json"
+}

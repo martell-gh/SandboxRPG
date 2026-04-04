@@ -1,0 +1,40 @@
+{
+  "id": "bread",
+  "name": "Bread",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Bread",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["food", "organic"]
+    },
+    "substanceSource": {
+      "yieldMultiplier": 1.0,
+      "substances": [
+        { "id": "starch", "amount": 16 },
+        { "id": "gluten", "amount": 8 }
+      ]
+    },
+    "consumable": {
+      "nutrition": 40,
+      "hydration": 5,
+      "bladderLoad": 3,
+      "bowelLoad": 25,
+      "digestTime": 40,
+      "type": "Food",
+      "substances": [
+        { "id": "starch", "amount": 16 }
+      ]
+    }
+  }
+}

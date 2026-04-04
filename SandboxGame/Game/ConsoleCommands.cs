@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Metabolism;
 using MTEngine.Systems;
 using MTEngine.World;
 
@@ -41,6 +42,15 @@ public class ConsoleCommands
                 DevConsole.Log("  settime <0-24>         - set time of day");
                 DevConsole.Log("  timescale <x>          - speed of time");
                 DevConsole.Log("  lighting <on|off>      - toggle lighting");
+                DevConsole.Log("  spawn <protoId>        - spawn entity near player");
+                DevConsole.Log("  hunger [value]         - get/set hunger (0-100)");
+                DevConsole.Log("  thirst [value]         - get/set thirst (0-100)");
+                DevConsole.Log("  bladder [value]        - get/set bladder (0-100)");
+                DevConsole.Log("  bowel [value]          - get/set bowel (0-100)");
+                DevConsole.Log("  feed                   - max hunger+thirst");
+                DevConsole.Log("  starve                 - zero hunger+thirst");
+                DevConsole.Log("  relieve                - empty bladder+bowel");
+                DevConsole.Log("  metab                  - show all metabolism");
                 DevConsole.Log("  clear                  - clear console");
                 break;
             case "comps":
@@ -123,6 +133,56 @@ public class ConsoleCommands
                 }
                 break;
 
+            case "spawn":
+                if (parts.Length < 2) { DevConsole.Log("Usage: spawn <protoId>"); break; }
+                SpawnEntity(parts[1]);
+                break;
+
+            case "hunger":
+                MetabSetValue(parts, "hunger"); break;
+            case "thirst":
+                MetabSetValue(parts, "thirst"); break;
+            case "bladder":
+                MetabSetValue(parts, "bladder"); break;
+            case "bowel":
+                MetabSetValue(parts, "bowel"); break;
+
+            case "feed":
+                if (GetPlayerMetab() is var (_, fm1))
+                { fm1.Hunger = 100; fm1.Thirst = 100; DevConsole.Log("Fed & hydrated."); }
+                break;
+
+            case "starve":
+                if (GetPlayerMetab() is var (_, sm1))
+                { sm1.Hunger = 0; sm1.Thirst = 0; DevConsole.Log("Starving & dehydrated."); }
+                break;
+
+            case "relieve":
+                if (GetPlayerMetab() is var (_, rm))
+                { rm.Bladder = 0; rm.Bowel = 0; DevConsole.Log("Bladder & bowel emptied."); }
+                break;
+
+            case "metab":
+                if (GetPlayerMetab() is var (_, mm))
+                {
+                    DevConsole.Log($"  Hunger:  {mm.Hunger:0.0}/100  ({mm.HungerStatus})");
+                    DevConsole.Log($"  Thirst:  {mm.Thirst:0.0}/100  ({mm.ThirstStatus})");
+                    DevConsole.Log($"  Bladder: {mm.Bladder:0.0}/100  ({mm.BladderStatus})");
+                    DevConsole.Log($"  Bowel:   {mm.Bowel:0.0}/100  ({mm.BowelStatus})");
+                    DevConsole.Log($"  Speed:   {mm.SpeedModifier * 100:0}%");
+                    if (mm.DigestingItems.Count > 0)
+                    {
+                        foreach (var d in mm.DigestingItems)
+                            DevConsole.Log($"  Digesting: {d.Name} ({d.Progress * 100:0}%)");
+                    }
+                    if (mm.SubstanceConcentrations.Count > 0)
+                    {
+                        foreach (var concentration in mm.SubstanceConcentrations.Values.OrderBy(v => v.Name))
+                            DevConsole.Log($"  Substance: {concentration.Name} ({concentration.Amount:0.##})");
+                    }
+                }
+                break;
+
             case "clear":
                 DevConsole.Clear();
                 break;
@@ -166,6 +226,81 @@ public class ConsoleCommands
         var tileSize = _mapManager.CurrentMap?.TileSize ?? 32;
         t.Position = new Vector2(spawn.X * tileSize, spawn.Y * tileSize);
         _engine.Camera.Position = t.Position;
+    }
+
+    private (Entity, MetabolismComponent)? GetPlayerMetab()
+    {
+        var player = _engine.World
+            .GetEntitiesWith<PlayerTagComponent, MetabolismComponent>()
+            .FirstOrDefault();
+        if (player == null) { DevConsole.Log("Player has no metabolism."); return null; }
+        return (player, player.GetComponent<MetabolismComponent>()!);
+    }
+
+    private void SpawnEntity(string protoId)
+    {
+        var proto = _engine.Prototypes.GetEntity(protoId);
+        if (proto == null)
+        {
+            DevConsole.Log($"Prototype not found: {protoId}");
+            return;
+        }
+
+        var player = _engine.World
+            .GetEntitiesWith<TransformComponent, PlayerTagComponent>()
+            .FirstOrDefault();
+        if (player == null)
+        {
+            DevConsole.Log("Player not found.");
+            return;
+        }
+
+        var playerTransform = player.GetComponent<TransformComponent>()!;
+        var spawnPos = playerTransform.Position + new Vector2(40, 0);
+        var entity = _engine.EntityFactory.CreateFromPrototype(proto, spawnPos);
+        if (entity == null)
+        {
+            DevConsole.Log($"Failed to spawn: {protoId}");
+            return;
+        }
+
+        DevConsole.Log($"Spawned: {protoId}");
+    }
+
+    private void MetabSetValue(string[] parts, string field)
+    {
+        if (GetPlayerMetab() is not var (_, m)) return;
+
+        if (parts.Length < 2)
+        {
+            var val = field switch
+            {
+                "hunger" => m.Hunger, "thirst" => m.Thirst,
+                "bladder" => m.Bladder, "bowel" => m.Bowel,
+                _ => 0f
+            };
+            var status = field switch
+            {
+                "hunger" => m.HungerStatus, "thirst" => m.ThirstStatus,
+                "bladder" => m.BladderStatus, "bowel" => m.BowelStatus,
+                _ => NeedStatus.Normal
+            };
+            DevConsole.Log($"{field}: {val:0.0}/100 ({status})");
+            return;
+        }
+
+        if (!float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
+        { DevConsole.Log($"Usage: {field} <0-100>"); return; }
+
+        v = Math.Clamp(v, 0f, 100f);
+        switch (field)
+        {
+            case "hunger": m.Hunger = v; break;
+            case "thirst": m.Thirst = v; break;
+            case "bladder": m.Bladder = v; break;
+            case "bowel": m.Bowel = v; break;
+        }
+        DevConsole.Log($"{field} = {v:0.0}");
     }
 
     private static IEnumerable<PropertyInfo> GetDisplayProperties(Type type)

@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/SandboxGame.csproj": {}
+    "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/SandboxGame.csproj": {}
   },
   "projects": {
     "/Users/more_tel/Desktop/SandboxRPG/MTEngine/MTEngine.csproj": {
@@ -72,14 +72,14 @@
         }
       }
     },
-    "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/SandboxGame.csproj": {
+    "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/SandboxGame.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/SandboxGame.csproj",
+        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/SandboxGame.csproj",
         "projectName": "SandboxGame",
-        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/SandboxGame.csproj",
+        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/SandboxGame.csproj",
         "packagesPath": "/Users/more_tel/.nuget/packages/",
-        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/SandboxGame/obj/",
+        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/sandboxgame/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/more_tel/.nuget/NuGet/NuGet.Config"

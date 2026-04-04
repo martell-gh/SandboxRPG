@@ -1,0 +1,34 @@
+{
+  "id": "water_bottle",
+  "name": "Water Bottle",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Water Bottle",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["drink", "water"]
+    },
+    "consumable": {
+      "nutrition": 0,
+      "hydration": 40,
+      "bladderLoad": 25,
+      "bowelLoad": 2,
+      "digestTime": 10,
+      "type": "Drink",
+      "eatVerb": "Выпить",
+      "substances": [
+        { "id": "spring_water", "amount": 25 }
+      ]
+    }
+  }
+}

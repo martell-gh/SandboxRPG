@@ -49,7 +49,7 @@ public class EditorGame : Game
             PreferredBackBufferWidth = 1280,
             PreferredBackBufferHeight = 720
         };
-        Content.RootDirectory = "SandboxGame/Content";
+        Content.RootDirectory = ContentPaths.ContentRoot;
         IsMouseVisible = true;
         Window.Title = "MTEditor — Map Editor";
     }
@@ -72,9 +72,8 @@ public class EditorGame : Game
         ServiceLocator.Register(_prototypes);
         ServiceLocator.Register(_camera);
 
-        _prototypes.LoadFromDirectory("SandboxGame/Content/Tiles");
-        _prototypes.LoadFromDirectory("SandboxGame/Content/Entities");
-        _mapManager = new MapManager("SandboxGame/Maps", _prototypes);
+        _prototypes.LoadFromDirectory(ContentPaths.AbsolutePrototypesRoot);
+        _mapManager = new MapManager(ContentPaths.AbsoluteMapsRoot, _prototypes);
 
         NewMap();
 
@@ -161,13 +160,21 @@ public class EditorGame : Game
 
         // зум
         var scrollDelta = mouse.ScrollWheelValue - _prevMouse.ScrollWheelValue;
-        if (scrollDelta > 0) _camera.Zoom = Math.Min(8f, _camera.Zoom + 0.25f);
-        if (scrollDelta < 0) _camera.Zoom = Math.Max(0.5f, _camera.Zoom - 0.25f);
-
-        // инструменты — не кликаем по UI
         var inPalette = _palette.Bounds.Contains(mouse.X, mouse.Y);
         var inHud = _hud.Bounds.Contains(mouse.X, mouse.Y);
 
+        if (inPalette)
+        {
+            _palette.Update(mouse, _prevMouse, scrollDelta);
+        }
+        else
+        {
+            if (scrollDelta > 0) _camera.Zoom = Math.Min(8f, _camera.Zoom + 0.25f);
+            if (scrollDelta < 0) _camera.Zoom = Math.Max(0.5f, _camera.Zoom - 0.25f);
+            _palette.Update(mouse, _prevMouse, 0);
+        }
+
+        // инструменты — не кликаем по UI
         if (!inPalette && !inHud)
         {
             var worldPos = _camera.ScreenToWorld(new Vector2(mouse.X, mouse.Y));
@@ -179,7 +186,6 @@ public class EditorGame : Game
                 _spawnTool.Update(mouse, _prevMouse, worldPos);
         }
 
-        _palette.Update(mouse, _prevMouse);
         _hud.Update(mouse, _prevMouse);
 
     EndUpdate:

@@ -195,11 +195,6 @@
   ],
   "entities": [
     {
-      "x": 23,
-      "y": 23,
-      "protoId": "greatsword"
-    },
-    {
       "x": 24,
       "y": 21,
       "protoId": "chest"
@@ -211,42 +206,67 @@
     },
     {
       "x": 22,
-      "y": 23,
+      "y": 21,
       "protoId": "apple"
     },
     {
-      "x": 24,
-      "y": 24,
+      "x": 21,
+      "y": 21,
+      "protoId": "bread"
+    },
+    {
+      "x": 20,
+      "y": 21,
+      "protoId": "water_bottle"
+    },
+    {
+      "x": 23,
+      "y": 22,
       "protoId": "heavy_armor"
     },
     {
-      "x": 25,
-      "y": 25,
+      "x": 22,
+      "y": 22,
+      "protoId": "leather_boots"
+    },
+    {
+      "x": 21,
+      "y": 22,
       "protoId": "tinted_shirt"
     },
     {
-      "x": 26,
-      "y": 25,
-      "protoId": "leather_patch"
+      "x": 20,
+      "y": 22,
+      "protoId": "work_pants"
     },
     {
-      "x": 24,
-      "y": 25,
-      "protoId": "metal_plate"
+      "x": 23,
+      "y": 24,
+      "protoId": "crimson_vial"
+    },
+    {
+      "x": 22,
+      "y": 24,
+      "protoId": "glass_cup"
+    },
+    {
+      "x": 21,
+      "y": 24,
+      "protoId": "metal_flask"
+    },
+    {
+      "x": 26,
+      "y": 24,
+      "protoId": "toilet"
     },
     {
       "x": 23,
       "y": 25,
-      "protoId": "leather_boots"
+      "protoId": "mortar_pestle"
     },
     {
-      "x": 22,
-      "y": 25,
-      "protoId": "cloth_bolt"
-    },
-    {
-      "x": 22,
-      "y": 26,
+      "x": 18,
+      "y": 19,
       "protoId": "work_pants"
     }
   ]
