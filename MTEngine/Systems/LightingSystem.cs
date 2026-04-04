@@ -11,7 +11,7 @@ namespace MTEngine.Systems;
 
 public class LightingSystem : GameSystem
 {
-    private const float ShadowFeatherWidth = 18f;
+    private const float ShadowFeatherWidth = 14f;
 
     public override void Draw() { }
 
@@ -23,6 +23,7 @@ public class LightingSystem : GameSystem
     private BasicEffect? _shadowEffect;
     private readonly List<VertexPositionColor> _shadowVertices = new();
     private readonly List<VertexPositionColor> _shadowFeatherVertices = new();
+    private readonly List<OccluderEdgeCollector.Edge> _edges = new();
     private VertexPositionColor[] _vertexBuffer = Array.Empty<VertexPositionColor>();
     private VertexPositionColor[] _featherBuffer = Array.Empty<VertexPositionColor>();
 
@@ -39,8 +40,6 @@ public class LightingSystem : GameSystem
         AlphaDestinationBlend = Blend.Zero
     };
 
-    // Шаг A: строим lightmap в отдельный RT
-    // Вызывается ДО переключения на backbuffer
     public void BuildLightMap(GraphicsDevice gd)
     {
         if (!IsEnabled) return;
@@ -52,6 +51,7 @@ public class LightingSystem : GameSystem
         gd.SetRenderTarget(_lightRT);
         gd.Clear(AmbientColor);
 
+        // Draw light circles additively
         _sb.Begin(
             sortMode: SpriteSortMode.Deferred,
             blendState: BlendState.Additive,
@@ -62,11 +62,8 @@ public class LightingSystem : GameSystem
         foreach (var entity in World.GetEntities())
         {
             var lt = entity.GetComponent<LightComponent>();
-            if (lt == null || !lt.Enabled)
-                continue;
-
-            if (!TryGetLightPosition(entity, out var position))
-                continue;
+            if (lt == null || !lt.Enabled) continue;
+            if (!TryGetLightPosition(entity, out var position)) continue;
 
             float r = lt.Radius;
             var dest = new Rectangle(
@@ -77,18 +74,16 @@ public class LightingSystem : GameSystem
         }
 
         _sb.End();
+
+        // Cut light with shadows from occluder edges
         DrawLightOcclusion(gd);
-        // НЕ переключаем на null здесь — это сделает GameEngine
     }
 
-    // Шаг B: накладываем lightmap на backbuffer (multiply)
-    // Вызывается когда уже на backbuffer и сцена уже нарисована
     public void ApplyLightMap(GraphicsDevice gd)
     {
         if (!IsEnabled || _lightRT == null) return;
 
         _sb ??= ServiceLocator.Get<SpriteBatch>();
-
         _sb.Begin(blendState: MultiplyBlend, samplerState: SamplerState.PointClamp);
         _sb.Draw(_lightRT, gd.Viewport.Bounds, Color.White);
         _sb.End();
@@ -109,17 +104,18 @@ public class LightingSystem : GameSystem
     {
         _camera ??= ServiceLocator.Get<Camera>();
         _tileMapRenderer ??= World.GetSystem<TileMapRenderer>();
-        if (_camera == null || _tileMapRenderer?.TileMap == null)
-            return;
+        if (_camera == null || _tileMapRenderer?.TileMap == null) return;
 
         var map = _tileMapRenderer.TileMap;
         var viewport = gd.Viewport;
         var topLeft = _camera.ScreenToWorld(Vector2.Zero);
         var bottomRight = _camera.ScreenToWorld(new Vector2(viewport.Width, viewport.Height));
-        var startX = Math.Max(0, (int)MathF.Floor(topLeft.X / map.TileSize) - 2);
-        var startY = Math.Max(0, (int)MathF.Floor(topLeft.Y / map.TileSize) - 2);
-        var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 2);
-        var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 2);
+
+        // Expand scan area so shadows from off-screen walls are visible
+        var startX = Math.Max(0, (int)MathF.Floor(topLeft.X / map.TileSize) - 3);
+        var startY = Math.Max(0, (int)MathF.Floor(topLeft.Y / map.TileSize) - 3);
+        var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 3);
+        var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 3);
         var shadowLength = MathF.Max(map.Width, map.Height) * map.TileSize * 2f;
 
         _shadowEffect ??= BuildShadowEffect(gd);
@@ -127,55 +123,36 @@ public class LightingSystem : GameSystem
         _shadowEffect.Projection = Matrix.CreateOrthographicOffCenter(
             0f, viewport.Width, viewport.Height, 0f, 0f, 1f);
 
-        var ambientShadowColor = AmbientColor;
-        var ambientFeatherOuter = new Color(ambientShadowColor.R, ambientShadowColor.G, ambientShadowColor.B, (byte)0);
+        var ambientColor = AmbientColor;
+        var featherOuter = new Color(ambientColor.R, ambientColor.G, ambientColor.B, (byte)0);
 
         foreach (var entity in World.GetEntities())
         {
             var light = entity.GetComponent<LightComponent>();
-            if (light == null || !light.Enabled)
-                continue;
+            if (light == null || !light.Enabled) continue;
+            if (!TryGetLightPosition(entity, out var lightPos)) continue;
 
-            if (!TryGetLightPosition(entity, out var lightPosition))
-                continue;
+            var lightTile = map.WorldToTile(lightPos);
+            if (!map.IsInBounds(lightTile.X, lightTile.Y)) continue;
 
-            var lightTile = map.WorldToTile(lightPosition);
-            if (!map.IsInBounds(lightTile.X, lightTile.Y))
-                continue;
+            // Collect silhouette edges facing this light
+            OccluderEdgeCollector.Collect(map, lightPos, startX, startY, endX, endY, _edges);
 
             _shadowVertices.Clear();
             _shadowFeatherVertices.Clear();
 
-            for (var y = startY; y <= endY; y++)
+            foreach (var edge in _edges)
             {
-                var x = startX;
-                while (x <= endX)
-                {
-                    if (!map.IsOpaque(x, y) || !map.HasLineOfSight(lightTile, new Point(x, y)))
-                    {
-                        x++;
-                        continue;
-                    }
-
-                    var runStart = x;
-                    while (x + 1 <= endX && map.IsOpaque(x + 1, y)
-                           && map.HasLineOfSight(lightTile, new Point(x + 1, y)))
-                        x++;
-
-                    TileShadowGeometry.AppendShadowRect(
-                        _shadowVertices,
-                        _shadowFeatherVertices,
-                        lightPosition,
-                        runStart * map.TileSize, y * map.TileSize,
-                        (x + 1) * map.TileSize, (y + 1) * map.TileSize,
-                        shadowLength,
-                        ShadowFeatherWidth,
-                        ambientShadowColor,
-                        ambientShadowColor,
-                        ambientFeatherOuter);
-
-                    x++;
-                }
+                TileShadowGeometry.AppendEdgeShadow(
+                    _shadowVertices,
+                    null,
+                    lightPos,
+                    edge.A, edge.B,
+                    shadowLength,
+                    0f,
+                    ambientColor,
+                    default,
+                    default);
             }
 
             DrawShadowVertices(gd);
@@ -238,13 +215,13 @@ public class LightingSystem : GameSystem
         float center = size / 2f;
 
         for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-            {
-                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
-                float t = 1f - MathHelper.Clamp(dist / center, 0f, 1f);
-                t = t * t;
-                pixels[y * size + x] = Color.White * t;
-            }
+        for (int x = 0; x < size; x++)
+        {
+            float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+            float t = 1f - MathHelper.Clamp(dist / center, 0f, 1f);
+            t = t * t;
+            pixels[y * size + x] = Color.White * t;
+        }
 
         tex.SetData(pixels);
         return tex;
@@ -272,12 +249,10 @@ public class LightingSystem : GameSystem
 
         var item = entity.GetComponent<ItemComponent>();
         var container = item?.ContainedIn;
-        if (container == null)
-            return false;
+        if (container == null) return false;
 
         var carrierTf = container.GetComponent<TransformComponent>();
-        if (carrierTf == null)
-            return false;
+        if (carrierTf == null) return false;
 
         if (container.HasComponent<HandsComponent>() || container.HasComponent<EquipmentComponent>())
         {

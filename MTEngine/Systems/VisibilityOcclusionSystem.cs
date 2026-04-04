@@ -21,6 +21,7 @@ public class VisibilityOcclusionSystem : GameSystem
     private PrototypeManager? _prototypes;
     private readonly List<VertexPositionColor> _mainVertices = new();
     private readonly List<VertexPositionColor> _featherVertices = new();
+    private readonly List<OccluderEdgeCollector.Edge> _edges = new();
     private VertexPositionColor[] _mainBuffer = Array.Empty<VertexPositionColor>();
     private VertexPositionColor[] _featherBuffer = Array.Empty<VertexPositionColor>();
 
@@ -53,59 +54,43 @@ public class VisibilityOcclusionSystem : GameSystem
                 if (playerTransform != null) break;
             }
         }
-        if (playerTransform == null)
-            return;
+        if (playerTransform == null) return;
 
         var map = _tileMapRenderer.TileMap;
-        var playerTile = map.WorldToTile(playerTransform.Position);
-        if (!map.IsInBounds(playerTile.X, playerTile.Y))
-            return;
+        var playerPos = playerTransform.Position;
+        var playerTile = map.WorldToTile(playerPos);
+        if (!map.IsInBounds(playerTile.X, playerTile.Y)) return;
 
         var viewport = _graphicsDevice.Viewport;
         var topLeft = _camera.ScreenToWorld(Vector2.Zero);
         var bottomRight = _camera.ScreenToWorld(new Vector2(viewport.Width, viewport.Height));
 
-        var startX = Math.Max(0, (int)MathF.Floor(topLeft.X / map.TileSize) - 2);
-        var startY = Math.Max(0, (int)MathF.Floor(topLeft.Y / map.TileSize) - 2);
-        var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 2);
-        var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 2);
+        var startX = Math.Max(0, (int)MathF.Floor(topLeft.X / map.TileSize) - 3);
+        var startY = Math.Max(0, (int)MathF.Floor(topLeft.Y / map.TileSize) - 3);
+        var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 3);
+        var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 3);
         var shadowLength = MathF.Max(map.Width, map.Height) * map.TileSize * 2f;
+
+        // Collect silhouette edges facing the player
+        OccluderEdgeCollector.Collect(map, playerPos, startX, startY, endX, endY, _edges);
 
         _mainVertices.Clear();
         _featherVertices.Clear();
 
         var featherInner = OcclusionColor * 0.28f;
 
-        for (var y = startY; y <= endY; y++)
+        foreach (var edge in _edges)
         {
-            var x = startX;
-            while (x <= endX)
-            {
-                if (!map.IsOpaque(x, y) || !map.HasLineOfSight(playerTile, new Point(x, y)))
-                {
-                    x++;
-                    continue;
-                }
-
-                var runStart = x;
-                while (x + 1 <= endX && map.IsOpaque(x + 1, y)
-                       && map.HasLineOfSight(playerTile, new Point(x + 1, y)))
-                    x++;
-
-                TileShadowGeometry.AppendShadowRect(
-                    _mainVertices,
-                    _featherVertices,
-                    playerTransform.Position,
-                    runStart * map.TileSize, y * map.TileSize,
-                    (x + 1) * map.TileSize, (y + 1) * map.TileSize,
-                    shadowLength,
-                    FeatherWidth,
-                    OcclusionColor,
-                    featherInner,
-                    Color.Transparent);
-
-                x++;
-            }
+            TileShadowGeometry.AppendEdgeShadow(
+                _mainVertices,
+                _featherVertices,
+                playerPos,
+                edge.A, edge.B,
+                shadowLength,
+                FeatherWidth,
+                OcclusionColor,
+                featherInner,
+                Color.Transparent);
         }
 
         if (_mainVertices.Count == 0 && _featherVertices.Count == 0)
@@ -150,6 +135,7 @@ public class VisibilityOcclusionSystem : GameSystem
         _graphicsDevice.RasterizerState = previousRasterizer;
         _graphicsDevice.DepthStencilState = previousDepth;
 
+        // Redraw visible opaque tiles on top so walls aren't hidden by their own shadows
         RedrawVisibleOpaqueTiles(map, playerTile, new Rectangle(
             (int)topLeft.X - map.TileSize,
             (int)topLeft.Y - map.TileSize,
@@ -214,7 +200,7 @@ public class VisibilityOcclusionSystem : GameSystem
         samples[6] = new Vector2(centerX, bottom);
         samples[7] = new Vector2(right, bottom);
 
-        for (int i = 0; i < 8; i++)
+        for (var i = 0; i < samples.Length; i++)
         {
             if (map.HasWorldLineOfSight(originWorld, samples[i]))
                 return true;
