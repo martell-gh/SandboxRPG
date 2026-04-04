@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Items;
 using MTEngine.UI;
 
 namespace MTEngine.Metabolism;
@@ -12,6 +14,7 @@ public class SubstanceWorkbenchSystem : GameSystem
     public override DrawLayer DrawLayer => DrawLayer.Overlay;
 
     private UIManager _ui = null!;
+    private InputManager _input = null!;
     private XmlWindow? _transferWindow;
     private UILabel? _sourceLabel;
     private UILabel? _targetLabel;
@@ -21,10 +24,14 @@ public class SubstanceWorkbenchSystem : GameSystem
     private Entity? _actor;
     private ISubstanceReservoir? _source;
     private LiquidContainerComponent? _target;
+    private bool _sourceMustStayHeld;
+    private bool _targetMustStayHeld;
+    private float _openGraceTimer;
 
     public override void OnInitialize()
     {
         _ui = ServiceLocator.Get<UIManager>();
+        _input = ServiceLocator.Get<InputManager>();
     }
 
     public void OpenTransferWindow(Entity actor, ISubstanceReservoir source, LiquidContainerComponent target)
@@ -34,10 +41,13 @@ public class SubstanceWorkbenchSystem : GameSystem
         _actor = actor;
         _source = source;
         _target = target;
+        _sourceMustStayHeld = IsHeldByActor(source, actor);
+        _targetMustStayHeld = IsHeldByActor(target, actor);
+        _openGraceTimer = 0.2f;
         if (_rowsPanel != null)
             _rowsPanel.ScrollOffset = 0;
         RebuildTransferRows();
-        _transferWindow!.Open(new Point(760, 80));
+        _transferWindow!.Open(GetSafeOpenPosition());
     }
 
     private void EnsureWindow()
@@ -105,6 +115,12 @@ public class SubstanceWorkbenchSystem : GameSystem
     {
         if (_transferWindow?.IsOpen != true)
             return;
+
+        if (_openGraceTimer > 0f)
+        {
+            _openGraceTimer = Math.Max(0f, _openGraceTimer - deltaTime);
+            return;
+        }
 
         if (!IsWorkbenchContextValid())
             _transferWindow.Close();
@@ -207,14 +223,24 @@ public class SubstanceWorkbenchSystem : GameSystem
         if (reservoir is Component component)
         {
             var owner = component.Owner;
-            if (owner == null || !owner.Active)
+            if (owner == null)
                 return false;
 
-            var item = owner.GetComponent<Items.ItemComponent>();
-            if (item == null)
-                return true;
+            var mustStayHeld = ReferenceEquals(reservoir, _source)
+                ? _sourceMustStayHeld
+                : ReferenceEquals(reservoir, _target)
+                    ? _targetMustStayHeld
+                    : false;
 
-            return item.ContainedIn == _actor;
+            if (mustStayHeld)
+                return IsHeldByActor(reservoir, _actor);
+
+            if (!owner.Active)
+                return false;
+
+            return mustStayHeld
+                ? IsHeldByActor(reservoir, _actor)
+                : IsNearActor(owner, _actor);
         }
 
         return true;
@@ -225,5 +251,75 @@ public class SubstanceWorkbenchSystem : GameSystem
         _actor = null;
         _source = null;
         _target = null;
+        _sourceMustStayHeld = false;
+        _targetMustStayHeld = false;
+        _openGraceTimer = 0f;
+    }
+
+    private Point GetSafeOpenPosition()
+    {
+        var mouse = _input.MousePosition;
+        var x = mouse.X + 28;
+        var y = mouse.Y + 20;
+
+        if (!ServiceLocator.Has<Microsoft.Xna.Framework.Graphics.GraphicsDevice>())
+            return new Point(x, y);
+
+        var viewport = ServiceLocator.Get<Microsoft.Xna.Framework.Graphics.GraphicsDevice>().Viewport;
+        x = Math.Clamp(x, 8, Math.Max(8, viewport.Width - 470 - 8));
+        y = Math.Clamp(y, 8, Math.Max(8, viewport.Height - 420 - 8));
+
+        var predictedWindow = new Rectangle(x, y, 470, 420);
+        var closeRect = new Rectangle(
+            predictedWindow.Right - XmlWindow.CloseButtonSize - 6,
+            predictedWindow.Y + 5,
+            XmlWindow.CloseButtonSize,
+            XmlWindow.CloseButtonSize);
+
+        if (closeRect.Contains(mouse))
+        {
+            x = Math.Clamp(mouse.X - predictedWindow.Width - 24, 8, Math.Max(8, viewport.Width - predictedWindow.Width - 8));
+            predictedWindow.X = x;
+            closeRect = new Rectangle(
+                predictedWindow.Right - XmlWindow.CloseButtonSize - 6,
+                predictedWindow.Y + 5,
+                XmlWindow.CloseButtonSize,
+                XmlWindow.CloseButtonSize);
+
+            if (closeRect.Contains(mouse))
+                y = Math.Clamp(mouse.Y + 36, 8, Math.Max(8, viewport.Height - predictedWindow.Height - 8));
+        }
+
+        return new Point(x, y);
+    }
+
+    private static bool IsHeldByActor(ISubstanceReservoir reservoir, Entity? actor)
+    {
+        if (actor == null || reservoir is not Component component)
+            return false;
+
+        var item = component.Owner?.GetComponent<ItemComponent>();
+        return item?.ContainedIn == actor;
+    }
+
+    private static bool IsNearActor(Entity owner, Entity? actor)
+    {
+        if (actor == null)
+            return false;
+
+        var item = owner.GetComponent<ItemComponent>();
+        if (item?.ContainedIn == actor)
+            return true;
+
+        if (item?.ContainedIn != null)
+            return false;
+
+        var actorTf = actor.GetComponent<TransformComponent>();
+        var targetTf = owner.GetComponent<TransformComponent>();
+        if (actorTf == null || targetTf == null)
+            return owner.Active;
+
+        var maxRange = owner.GetComponent<InteractableComponent>()?.InteractRange ?? 64f;
+        return owner.Active && Vector2.Distance(actorTf.Position, targetTf.Position) <= maxRange;
     }
 }

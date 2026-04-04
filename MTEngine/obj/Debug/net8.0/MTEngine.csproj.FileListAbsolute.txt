@@ -11,3 +11,12 @@
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/MTEngine.pdb
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/ref/MTEngine.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEngine/obj/Debug/net8.0/MTEngine.sourcelink.json
+/tmp/mteditor-verify/MTEngine.deps.json
+/tmp/mteditor-verify/MTEngine.dll
+/tmp/mteditor-verify/MTEngine.pdb
+/tmp/sandboxgame-verify/MTEngine.deps.json
+/tmp/sandboxgame-verify/MTEngine.dll
+/tmp/sandboxgame-verify/MTEngine.pdb
+/tmp/mtengine-verify/MTEngine.deps.json
+/tmp/mtengine-verify/MTEngine.dll
+/tmp/mtengine-verify/MTEngine.pdb

@@ -32,13 +32,16 @@ public class TileData
 public class MapEntityData
 {
     [JsonPropertyName("x")]
-    public int X { get; set; }
+    public float X { get; set; }
 
     [JsonPropertyName("y")]
-    public int Y { get; set; }
+    public float Y { get; set; }
 
     [JsonPropertyName("protoId")]
     public string ProtoId { get; set; } = "";
+
+    [JsonPropertyName("worldSpace")]
+    public bool WorldSpace { get; set; }
 }
 
 public class MapData

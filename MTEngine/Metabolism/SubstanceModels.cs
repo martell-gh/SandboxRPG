@@ -57,17 +57,6 @@ public class SubstancePrototype
         };
     }
 
-    public SubstanceLoreEntry ToLoreEntry()
-    {
-        return new SubstanceLoreEntry
-        {
-            Id = Id,
-            Name = Name,
-            Preparation = PreparationHint ?? "",
-            Smell = Smells.Count == 0 ? "" : string.Join(", ", Smells)
-        };
-    }
-
     public static SubstancePrototype? LoadFromFile(string path)
     {
         if (!File.Exists(path))
@@ -155,17 +144,19 @@ public static class SubstanceResolver
             return result;
 
         foreach (var group in doses
-                     .Where(dose => dose.Amount > 0.001f || dose.EffectiveVolume > 0.001f)
+                     .Where(dose => dose.Amount > 0.001f || dose.Volume > 0.001f)
                      .GroupBy(dose => dose.Id, StringComparer.OrdinalIgnoreCase))
         {
             var first = group.First().CloneScaled(1f);
-            first.Amount = group.Sum(dose => dose.Amount);
-            first.Volume = group.Sum(dose => dose.EffectiveVolume);
-            first.Nutrition = group.Sum(dose => dose.Nutrition);
-            first.Hydration = group.Sum(dose => dose.Hydration);
-            first.BladderLoad = group.Sum(dose => dose.BladderLoad);
-            first.BowelLoad = group.Sum(dose => dose.BowelLoad);
-            result.Add(first);
+            first.Amount = Math.Max(0f, group.Sum(dose => dose.Amount));
+            first.Volume = Math.Max(0f, group.Sum(dose => dose.Volume));
+            first.Nutrition = Math.Max(0f, group.Sum(dose => dose.Nutrition));
+            first.Hydration = Math.Max(0f, group.Sum(dose => dose.Hydration));
+            first.BladderLoad = Math.Max(0f, group.Sum(dose => dose.BladderLoad));
+            first.BowelLoad = Math.Max(0f, group.Sum(dose => dose.BowelLoad));
+
+            if (first.Amount > 0.001f || first.Volume > 0.001f)
+                result.Add(first);
         }
 
         return result;
@@ -191,7 +182,19 @@ public class SubstanceDose
     public List<SubstanceResponseProfile> ResponseProfiles { get; set; } = new();
     public List<SubstanceRecipeDefinition> Recipes { get; set; } = new();
 
-    public float EffectiveVolume => Volume > 0f ? Volume : Math.Max(Amount, 0.01f);
+    public float EffectiveVolume
+    {
+        get
+        {
+            if (Volume > 0.001f)
+                return Volume;
+
+            if (Amount > 0.001f)
+                return Amount;
+
+            return 0f;
+        }
+    }
 
     public SubstanceDose CloneScaled(float factor)
     {
@@ -380,21 +383,6 @@ public class SubstanceRequirement
             Amount = Amount
         };
     }
-}
-
-public class SubstanceLoreEntry
-{
-    public string Id { get; set; } = "";
-    public string Name { get; set; } = "";
-    public string Preparation { get; set; } = "";
-    public string Smell { get; set; } = "";
-}
-
-public class KnownRecipeEntry
-{
-    public string Id { get; set; } = "";
-    public string Name { get; set; } = "";
-    public string Description { get; set; } = "";
 }
 
 public class SubstanceEffectContext

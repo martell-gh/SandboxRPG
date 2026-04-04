@@ -27,7 +27,6 @@
       "slots": "torso,pants,shoes,back",
       "names": "Torso,Pants,Shoes,Back"
     },
-    "knowledgeMemory": {},
     "health": {
       "health": 100,
       "maxHealth": 100

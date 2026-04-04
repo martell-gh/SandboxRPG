@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {}
+    "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj": {}
   },
   "projects": {
-    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {
+    "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
+        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj",
         "projectName": "MTEditor",
-        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
+        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj",
         "packagesPath": "/Users/more_tel/.nuget/packages/",
-        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/",
+        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/mteditor/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/more_tel/.nuget/NuGet/NuGet.Config"

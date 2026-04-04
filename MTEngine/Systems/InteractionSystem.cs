@@ -835,8 +835,9 @@ public class InteractionSystem : GameSystem
         _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Y + HeaderHeight, menuRect.Width, 1),
             new Color(70, 110, 70));
 
-        _sb.DrawString(_font!, targetName,
-            new Vector2(menuRect.X + 8, menuRect.Y + (HeaderHeight - 14) / 2),
+        DrawFittedMenuText(
+            targetName,
+            new Rectangle(menuRect.X + 8, menuRect.Y + 2, menuRect.Width - 16, HeaderHeight - 4),
             Color.LimeGreen);
 
         for (int i = 0; i < _menuActions.Count; i++)
@@ -847,8 +848,9 @@ public class InteractionSystem : GameSystem
             if (hovered)
                 _sb.Draw(_pixel, itemRect, new Color(55, 85, 55));
 
-            _sb.DrawString(_font!, _menuActions[i].Label,
-                new Vector2(itemRect.X + 10, itemRect.Y + (ItemHeight - 14) / 2),
+            DrawFittedMenuText(
+                _menuActions[i].Label,
+                new Rectangle(itemRect.X + 10, itemRect.Y + 2, itemRect.Width - 20, ItemHeight - 4),
                 hovered ? Color.White : new Color(200, 200, 200));
 
             if (i < _menuActions.Count - 1)
@@ -860,6 +862,24 @@ public class InteractionSystem : GameSystem
         _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Bottom, menuRect.Width, 1), new Color(70, 110, 70));
         _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Y, 1, menuRect.Height + 1), new Color(70, 110, 70));
         _sb.Draw(_pixel, new Rectangle(menuRect.Right, menuRect.Y, 1, menuRect.Height + 1), new Color(70, 110, 70));
+    }
+
+    private void DrawFittedMenuText(string text, Rectangle bounds, Color color)
+    {
+        if (_sb == null || _font == null || string.IsNullOrWhiteSpace(text))
+            return;
+
+        var size = _font.MeasureString(text);
+        if (size.X <= 0 || size.Y <= 0)
+            return;
+
+        var scale = MathF.Min(1f, bounds.Width / size.X);
+        var scaledHeight = size.Y * scale;
+        var pos = new Vector2(
+            bounds.X,
+            bounds.Y + MathF.Max(0f, (bounds.Height - scaledHeight) / 2f));
+
+        _sb.DrawString(_font, text, pos, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
     }
 
     private void DrawEquipmentBar(HandsComponent? hands, EquipmentComponent? equipment)

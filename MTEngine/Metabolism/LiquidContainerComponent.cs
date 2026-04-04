@@ -68,7 +68,7 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
     private Texture2D? _fill75;
     private Texture2D? _fill100;
 
-    public float CurrentVolume => Contents.Sum(dose => dose.EffectiveVolume);
+    public float CurrentVolume => Math.Max(0f, Contents.Sum(dose => Math.Max(0f, dose.EffectiveVolume)));
     public float FreeCapacity => Math.Max(0f, Capacity - CurrentVolume);
     public bool HasContents => CurrentVolume > 0.01f || Hydration > 0.01f || Nutrition > 0.01f;
     public string DisplayName => ContainerName;
@@ -382,6 +382,8 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
 
     public Texture2D? GetFillTexture()
     {
+        NormalizeContents();
+
         if (!Transparent || !ShowContents || CurrentVolume <= 0.01f || Capacity <= 0.01f)
             return null;
 

@@ -35,14 +35,27 @@ public class MapEntitySpawner
                 continue;
             }
 
-            var position = new Vector2(
-                (entry.X + 0.5f) * eventData.Map.TileSize,
-                (entry.Y + 0.5f) * eventData.Map.TileSize
-            );
+            var position = GetEntryWorldPosition(entry, eventData.Map);
 
             var entity = _entityFactory.CreateFromPrototype(proto, position);
             if (entity != null)
                 entity.AddComponent(new MapEntityTagComponent());
         }
+    }
+
+    private static Vector2 GetEntryWorldPosition(MapEntityData entry, MapData map)
+    {
+        if (entry.WorldSpace)
+            return new Vector2(entry.X, entry.Y);
+
+        // Backward compatibility: old maps stored entity coordinates in tile space.
+        if (entry.X >= 0 && entry.Y >= 0 && entry.X <= map.Width && entry.Y <= map.Height)
+        {
+            return new Vector2(
+                (entry.X + 0.5f) * map.TileSize,
+                (entry.Y + 0.5f) * map.TileSize);
+        }
+
+        return new Vector2(entry.X, entry.Y);
     }
 }

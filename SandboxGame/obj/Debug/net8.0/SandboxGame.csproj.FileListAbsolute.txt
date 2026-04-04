@@ -39,3 +39,9 @@
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/bin/Debug/net8.0/System.Text.Json.dll
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
 /Users/more_tel/Desktop/SandboxRPG/SandboxGame/obj/Debug/net8.0/SandboxGame.sourcelink.json
+/tmp/sandboxgame-verify/Content/DefaultFont.xnb
+/tmp/sandboxgame-verify/SandboxGame
+/tmp/sandboxgame-verify/SandboxGame.deps.json
+/tmp/sandboxgame-verify/SandboxGame.runtimeconfig.json
+/tmp/sandboxgame-verify/SandboxGame.dll
+/tmp/sandboxgame-verify/SandboxGame.pdb

@@ -37,7 +37,6 @@ public class GameSettings : IKeyBindingSource
         ["DevMode"] = Keys.F3,
         ["Console"] = Keys.OemTilde,
         ["InspectContainer"] = Keys.P,
-        ["InspectMemory"] = Keys.O,
         ["Fullscreen"] = Keys.F11,
     };
 
@@ -55,7 +54,6 @@ public class GameSettings : IKeyBindingSource
         ["DevMode"] = "Режим разработчика",
         ["Console"] = "Консоль разработчика",
         ["InspectContainer"] = "Показать состав тары",
-        ["InspectMemory"] = "Показать справочник памяти",
         ["Fullscreen"] = "Полный экран",
     };
 

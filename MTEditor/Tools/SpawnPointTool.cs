@@ -116,24 +116,25 @@ public class SpawnPointTool
 
     public void DrawUI(SpriteBatch spriteBatch, SpriteFont font)
     {
-        // панель инструмента спавна — сверху справа
-        var rect = new Rectangle(170, 5, 300, 80);
+        var viewport = _graphics.Viewport;
+        var rect = new Rectangle(viewport.Width - 320, viewport.Height - 110, 300, 80);
         spriteBatch.Draw(_pixel!, rect, Color.Black * 0.8f);
-        spriteBatch.DrawString(font, "SPAWN POINT TOOL [2]", new Vector2(175, 8), Color.LimeGreen);
-        spriteBatch.DrawString(font, "Spawn ID:", new Vector2(175, 25), Color.White);
+        spriteBatch.DrawString(font, "SPAWN POINT TOOL [2]", new Vector2(rect.X + 5, rect.Y + 3), Color.LimeGreen);
+        spriteBatch.DrawString(font, "Spawn ID:", new Vector2(rect.X + 5, rect.Y + 20), Color.White);
 
-        // поле ввода
         var inputRect = GetInputRect();
         spriteBatch.Draw(_pixel!, inputRect, _typingId ? Color.DarkGreen * 0.8f : Color.Gray * 0.4f);
         spriteBatch.DrawString(font, InputId + (_typingId ? "_" : ""), new Vector2(inputRect.X + 3, inputRect.Y + 3), Color.White);
 
-        spriteBatch.DrawString(font, "LClick=place  RClick=delete", new Vector2(175, 60), Color.Gray);
-
-        // список спавнеров
-        spriteBatch.DrawString(font, $"Spawns: {string.Join(", ", _map.SpawnPoints.Select(s => s.Id))}", new Vector2(480, 8), Color.Cyan);
+        spriteBatch.DrawString(font, "LClick=place  RClick=delete", new Vector2(rect.X + 5, rect.Y + 55), Color.Gray);
+        spriteBatch.DrawString(font, $"Spawns: {string.Join(", ", _map.SpawnPoints.Select(s => s.Id))}", new Vector2(rect.X + rect.Width + 12, rect.Y + 3), Color.Cyan);
     }
 
-    private Rectangle GetInputRect() => new Rectangle(245, 22, 150, 20);
+    private Rectangle GetInputRect()
+    {
+        var viewport = _graphics.Viewport;
+        return new Rectangle(viewport.Width - 245, viewport.Height - 88, 150, 20);
+    }
 
     private static char KeyToChar(Keys key, bool shift)
     {

@@ -31,9 +31,6 @@ public class SubstanceDebugSystem : GameSystem
 
         if (_input.IsPressed(GetKey("InspectContainer", Keys.P)))
             PrintHeldContainer(player);
-
-        if (_input.IsPressed(GetKey("InspectMemory", Keys.O)))
-            PrintKnowledgeMemory(player);
     }
 
     private static void PrintHeldContainer(Entity player)
@@ -56,22 +53,6 @@ public class SubstanceDebugSystem : GameSystem
             Systems.PopupTextSystem.Show(player, "Толкушка выведена в консоль", Color.LightCyan, lifetime: 1.5f);
         }
     }
-
-    private static void PrintKnowledgeMemory(Entity player)
-    {
-        var memory = player.GetComponent<KnowledgeMemoryComponent>();
-        if (memory == null)
-        {
-            Console.WriteLine("[Memory] Справочник памяти пуст.");
-            Systems.PopupTextSystem.Show(player, "Память пуста", Color.LightGray, lifetime: 1.5f);
-            return;
-        }
-
-        var text = memory.DescribeSubstanceCatalog();
-        Console.WriteLine($"[Memory]\n{text}");
-        Systems.PopupTextSystem.Show(player, "Справочник выведен в консоль", Color.LightGreen, lifetime: 1.5f);
-    }
-
     private Keys GetKey(string action, Keys fallback)
         => _keys?.GetKey(action) ?? fallback;
 }

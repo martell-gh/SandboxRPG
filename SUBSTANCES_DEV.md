@@ -6,7 +6,7 @@
 
 То есть:
 - в `SandboxGame/Content/Prototypes/Substances/.../proto.json` лежит сам прототип вещества
-- в еде, напитках, таре, сырье, рецептах и книгах лежат только ссылки на вещество
+- в еде, напитках, таре, сырье и рецептах лежат только ссылки на вещество
 
 Это обязательная модель данных текущей системы.
 
@@ -54,7 +54,6 @@ MTEngine/Metabolism/
 ├── LiquidContainerComponent.cs
 ├── SubstanceSourceComponent.cs
 ├── MortarComponent.cs
-├── KnowledgeBookComponent.cs
 ├── MetabolismComponent.cs
 └── MetabolismSystem.cs
 ```
@@ -86,10 +85,6 @@ MTEngine/Metabolism/
 `MortarComponent.cs`
 - хранит извлечённые вещества
 - передаёт их в тару
-
-`KnowledgeBookComponent.cs`
-- хранит ids веществ и ids рецептов из книги
-- подтягивает описания вещества из реестра
 
 `MetabolismSystem.cs`
 - считает текущее количество вещества в теле
@@ -201,20 +196,6 @@ MTEngine/Metabolism/
   { "id": "babijonin", "amount": 20 }
 ]
 ```
-
-### В книгах
-
-```json
-"knowledgeBook": {
-  "substances": [
-    "taurine",
-    "khryashchitin",
-    "babijonin"
-  ]
-}
-```
-
----
 
 ## Как добавить новое вещество
 
@@ -632,39 +613,6 @@ public sealed class SlowMultiplierSubstanceEffect : ISubstanceEffectHandler
 - `ingredients` смотрят на ids веществ
 - `results` тоже ссылаются на ids веществ
 - при срабатывании результат создаётся через отдельный прототип вещества
-
----
-
-## Как писать книги
-
-Книга должна хранить ids веществ, а не копию их описаний.
-
-Пример:
-
-```json
-"knowledgeBook": {
-  "bookId": "substances_vol_1",
-  "title": "Вещества. Том I",
-  "category": "substances",
-  "substances": [
-    "taurine",
-    "khryashchitin",
-    "babijonin"
-  ],
-  "recipes": [
-    {
-      "id": "babijonin_recipe",
-      "name": "Бабиджонин",
-      "description": "Смешать таурин и хрящитин в одной таре."
-    }
-  ]
-}
-```
-
-При чтении:
-- книга подтянет имя, запах и способ получения из прототипа вещества
-
----
 
 ## Как добавить новый тип эффекта
 
