@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["food", "organic"]
     },
+    "info": {
+      "description": "Ломоть ржаного хлеба. Основа рациона простого люда. Сытный и питательный."
+    },
     "substanceSource": {
       "yieldMultiplier": 1.0,
       "substances": [

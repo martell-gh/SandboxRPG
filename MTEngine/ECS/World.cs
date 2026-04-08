@@ -35,6 +35,8 @@ public class World
     public T? GetSystem<T>() where T : GameSystem
         => _systems.OfType<T>().FirstOrDefault();
 
+    public IEnumerable<GameSystem> GetSystems() => _systems;
+
     public void Update(float deltaTime)
     {
         foreach (var e in _toAdd) _entities.Add(e);

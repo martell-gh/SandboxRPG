@@ -18,6 +18,9 @@
       "offsetX": -12,
       "offsetY": -12
     },
+    "info": {
+      "description": "Отхожее место. Простое, но необходимое удобство."
+    },
     "interactable": {
       "name": "Toilet",
       "range": 72

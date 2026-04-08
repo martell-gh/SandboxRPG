@@ -1,10 +1,12 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MTEngine.Core;
+using SandboxGame.Save;
 using SandboxGame.Settings;
 
 namespace SandboxGame.UI;
@@ -21,7 +23,11 @@ public enum MenuScreen
     None,
     Main,
     Pause,
-    Settings
+    Settings,
+    SaveSlots,
+    LoadSlots,
+    SaveNamePrompt,
+    Confirm
 }
 
 public enum SettingsSection
@@ -46,6 +52,10 @@ public class MenuSystem
     private Texture2D _mainMenuBackground = null!;
     private GraphicsDevice _gd = null!;
 
+    private MenuDefinition? _mainMenuDef;
+    private MenuDefinition? _pauseMenuDef;
+    private readonly Dictionary<string, Action> _actionMap = new();
+
     private readonly List<MenuItem> _menuItems = new();
     private readonly List<MenuItem> _settingsNavItems = new();
     private readonly List<MenuItem> _settingsContentItems = new();
@@ -63,15 +73,35 @@ public class MenuSystem
     private KeyboardState _prevKb;
     private Rectangle _lastSettingsNavRect;
     private Rectangle _lastSettingsContentRect;
+    private string _overlayTitle = "";
+    private string _overlayDescription = "";
+    private string _overlayNavHeader = "Actions";
+    private string _overlayNavDescription = "";
+    private string _saveNameInput = "";
+    private int _pendingSaveSlotIndex;
+    private bool _saveNamePromptIsRename;
+    private bool _confirmAsModal;
+    private Action? _confirmAccept;
+    private Action? _confirmCancel;
+
+    private const float MinUiScale = 0.75f;
+    private const float MaxUiScale = 2f;
+    private const float UiScaleStep = 0.05f;
 
     public GameState GameState { get; set; } = GameState.MainMenu;
     public MenuScreen CurrentScreen { get; private set; } = MenuScreen.Main;
+    public Func<IReadOnlyList<SaveSlotSummary>>? SaveSlotProvider { get; set; }
+    public Func<int, string>? SaveNameSuggestionProvider { get; set; }
 
     public event Action? OnStartGame;
     public event Action? OnLoadRiver;
     public event Action? OnExitGame;
     public event Action? OnResumeGame;
     public event Action? OnReturnToMainMenu;
+    public event Action<int, string>? OnSaveSlotConfirmed;
+    public event Action<int, string>? OnRenameSlotRequested;
+    public event Action<int>? OnDeleteSlotRequested;
+    public event Action<int>? OnLoadSlotSelected;
 
     public bool IsBlockingInput => GameState != GameState.Playing || CurrentScreen != MenuScreen.None;
 
@@ -88,6 +118,48 @@ public class MenuSystem
         _pixel = new Texture2D(gd, 1, 1);
         _pixel.SetData(new[] { Color.White });
         _mainMenuBackground = _pixel;
+        LoadMenuDefinitions();
+    }
+
+    private void LoadMenuDefinitions()
+    {
+        var uiDir = ContentPaths.ResolveDirectory(Path.Combine(ContentPaths.ContentRoot, "UI"));
+
+        var mainPath = Path.Combine(uiDir, "MainMenu.xml");
+        if (File.Exists(mainPath))
+            _mainMenuDef = MenuDefinition.LoadFromFile(mainPath);
+
+        var pausePath = Path.Combine(uiDir, "PauseMenu.xml");
+        if (File.Exists(pausePath))
+            _pauseMenuDef = MenuDefinition.LoadFromFile(pausePath);
+
+        // маппинг строковых action -> делегатов
+        _actionMap["start_game"] = () => OnStartGame?.Invoke();
+        _actionMap["load_river"] = () => OnLoadRiver?.Invoke();
+        _actionMap["open_load"] = OpenLoadSlots;
+        _actionMap["open_save"] = OpenSaveSlots;
+        _actionMap["open_settings"] = OpenSettings;
+        _actionMap["exit_confirm"] = () => OpenConfirmation(
+            "Подтверждение",
+            "Выйти из игры?",
+            () => OnExitGame?.Invoke());
+        _actionMap["resume"] = () => { CloseMenu(); OnResumeGame?.Invoke(); };
+        _actionMap["main_menu_confirm"] = () => OpenConfirmation(
+            "Подтверждение",
+            "Вернуться в главное меню?",
+            () => OnReturnToMainMenu?.Invoke());
+    }
+
+    private bool EvaluateCondition(string? condition)
+    {
+        if (string.IsNullOrWhiteSpace(condition))
+            return true;
+
+        return condition switch
+        {
+            "dev_mode" => _settings.DevMode,
+            _ => true
+        };
     }
 
     public void OpenPause()
@@ -118,9 +190,49 @@ public class MenuSystem
         GameState = GameState.Playing;
         CurrentScreen = MenuScreen.None;
         _waitingForKey = null;
+        _overlayTitle = "";
+        _overlayDescription = "";
+        _confirmAccept = null;
+        _confirmCancel = null;
+        _confirmAsModal = false;
         _hoveredIndex = -1;
         _hoveredSettingsSectionIndex = -1;
         _hoveredSettingsContentIndex = -1;
+    }
+
+    public void OpenConfirmation(string title, string description, Action onConfirm, Action? onCancel = null)
+    {
+        _returnTo = CurrentScreen;
+        CurrentScreen = MenuScreen.Confirm;
+        _confirmAsModal = false;
+        _overlayTitle = title;
+        _overlayDescription = description;
+        _overlayNavHeader = "Подтверждение";
+        _overlayNavDescription = "Выберите действие.";
+        _confirmAccept = onConfirm;
+        _confirmCancel = onCancel;
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
+    public void OpenModalConfirmation(string title, string description, Action onConfirm, Action? onCancel = null)
+    {
+        _returnTo = MenuScreen.None;
+        GameState = GameState.Playing;
+        CurrentScreen = MenuScreen.Confirm;
+        _confirmAsModal = true;
+        _overlayTitle = title;
+        _overlayDescription = description;
+        _overlayNavHeader = "Подтверждение";
+        _overlayNavDescription = "Выберите действие.";
+        _confirmAccept = onConfirm;
+        _confirmCancel = onCancel;
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
     }
 
     public void Update()
@@ -148,27 +260,60 @@ public class MenuSystem
         _prevKb = kb;
     }
 
+    public void OnTextInput(char c)
+    {
+        if (CurrentScreen != MenuScreen.SaveNamePrompt)
+            return;
+
+        if (c == '\b' || c == '\r' || c == '\n' || c == '\t' || char.IsControl(c))
+            return;
+
+        if (_saveNameInput.Length >= 48)
+            return;
+
+        _saveNameInput += c;
+    }
+
+    private MenuDefinition GetActiveDef()
+    {
+        return CurrentScreen switch
+        {
+            MenuScreen.Main => _mainMenuDef ?? _defaultDef,
+            MenuScreen.Pause => _pauseMenuDef ?? _defaultDef,
+            MenuScreen.Settings or MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.Confirm
+                => (_returnTo == MenuScreen.Main ? _mainMenuDef : _pauseMenuDef) ?? _defaultDef,
+            _ => _defaultDef
+        };
+    }
+
+    private static readonly MenuDefinition _defaultDef = new();
+
     public void Draw(SpriteBatch sb)
     {
         if (CurrentScreen == MenuScreen.None)
             return;
 
-        var vp = _gd.Viewport;
-        var title = CurrentScreen switch
+        var def = GetActiveDef();
+        var uiScale = GetUiScale();
+        if (CurrentScreen == MenuScreen.Confirm && _confirmAsModal)
         {
-            MenuScreen.Main => "SANDBOX RPG",
-            MenuScreen.Pause => "PAUSE",
-            MenuScreen.Settings => "SETTINGS",
-            _ => string.Empty
-        };
+            DrawModalConfirmation(sb, GetScaledViewportBounds(), def, uiScale);
+            return;
+        }
 
-        var pageRect = new Rectangle(72, 72, vp.Width - 144, vp.Height - 144);
-        var navWidth = Math.Min(320, (int)(pageRect.Width * 0.28f));
-        var navRect = new Rectangle(pageRect.X + 24, pageRect.Y + 100, navWidth, pageRect.Height - 148);
+        var lay = def.Layout;
+        var vp = GetScaledViewportBounds();
+        var title = GetScreenTitle(def);
+
+        var m = lay.Margin;
+        var pp = lay.PanelPadding;
+        var pageRect = new Rectangle(m, m, vp.Width - m * 2, vp.Height - m * 2);
+        var navWidth = Math.Min(lay.NavMaxWidth, (int)(pageRect.Width * lay.NavWidthPercent));
+        var navRect = new Rectangle(pageRect.X + pp, pageRect.Y + lay.TitleBottomMargin, navWidth, pageRect.Height - lay.TitleBottomMargin - pp);
         var contentRect = new Rectangle(
-            navRect.Right + 20,
+            navRect.Right + lay.NavContentGap,
             navRect.Y,
-            pageRect.Right - (navRect.Right + 44),
+            pageRect.Right - (navRect.Right + lay.NavContentGap + pp),
             navRect.Height);
 
         if (CurrentScreen == MenuScreen.Settings)
@@ -177,25 +322,83 @@ public class MenuSystem
             _lastSettingsContentRect = contentRect;
         }
 
-        sb.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
+        sb.Begin(
+            blendState: BlendState.AlphaBlend,
+            samplerState: Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
+            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
 
-        DrawBackground(sb, vp.Bounds);
-        DrawPanel(sb, pageRect, new Color(10, 18, 14, 228), new Color(84, 120, 92), 2);
-        DrawPanel(sb, navRect, new Color(18, 28, 22, 240), new Color(72, 108, 80), 2);
-        DrawPanel(sb, contentRect, new Color(16, 24, 20, 240), new Color(72, 108, 80), 2);
+        DrawBackground(sb, vp, def.Background);
+        DrawPanel(sb, pageRect, def.PagePanel.Fill, def.PagePanel.Border, def.PagePanel.BorderThickness);
+        DrawPanel(sb, navRect, def.NavPanel.Fill, def.NavPanel.Border, def.NavPanel.BorderThickness);
+        DrawPanel(sb, contentRect, def.ContentPanel.Fill, def.ContentPanel.Border, def.ContentPanel.BorderThickness);
 
-        var titleSize = _font.MeasureString(title);
-        sb.DrawString(_font, title, new Vector2(pageRect.X + 24, pageRect.Y + 24), Color.White);
-        sb.Draw(_pixel, new Rectangle(pageRect.X + 24, pageRect.Y + 24 + (int)titleSize.Y + 10, pageRect.Width - 48, 2), new Color(84, 120, 92));
+        var tb = def.TitleBar;
+        var titleSafe = SanitizeText(title);
+        var titleSize = _font.MeasureString(titleSafe);
+        sb.DrawString(_font, titleSafe, new Vector2(pageRect.X + tb.OffsetX, pageRect.Y + tb.OffsetY), tb.Color);
+        sb.Draw(_pixel, new Rectangle(pageRect.X + tb.OffsetX, pageRect.Y + tb.OffsetY + (int)titleSize.Y + tb.SeparatorGap, pageRect.Width - tb.OffsetX * 2, tb.SeparatorHeight), tb.SeparatorColor);
 
         if (CurrentScreen == MenuScreen.Settings)
-            DrawSettingsLayout(sb, navRect, contentRect);
+            DrawSettingsLayout(sb, navRect, contentRect, def);
         else
-            DrawStandardLayout(sb, navRect, contentRect);
+            DrawStandardLayout(sb, navRect, contentRect, def);
 
-        var hint = GetHintText();
-        var hintSize = _font.MeasureString(hint);
-        sb.DrawString(_font, hint, new Vector2(pageRect.Right - hintSize.X - 24, pageRect.Bottom - 32), new Color(150, 170, 150));
+        var hintDef = def.Hint;
+        var hint = GetScreenHintText(hintDef);
+        if (!string.IsNullOrEmpty(hint))
+        {
+            var hintSafe = SanitizeText(hint);
+            var hintSize = _font.MeasureString(hintSafe);
+            var hintPos = ResolveHintPosition(pageRect, hintDef, hintSize);
+            sb.DrawString(_font, hintSafe, hintPos, hintDef.Color);
+        }
+
+        sb.End();
+    }
+
+    private void DrawModalConfirmation(SpriteBatch sb, Rectangle viewportRect, MenuDefinition def, float uiScale)
+    {
+        sb.Begin(
+            blendState: BlendState.AlphaBlend,
+            samplerState: Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
+            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+
+        sb.Draw(_pixel, viewportRect, new Color(0, 0, 0, 110));
+
+        var dialogWidth = Math.Min(520, viewportRect.Width - 80);
+        var dialogHeight = 220;
+        var dialogRect = new Rectangle(
+            viewportRect.Center.X - dialogWidth / 2,
+            viewportRect.Center.Y - dialogHeight / 2,
+            dialogWidth,
+            dialogHeight);
+
+        DrawPanel(sb, dialogRect, def.PagePanel.Fill, def.PagePanel.Border, def.PagePanel.BorderThickness);
+        DrawText(sb, _overlayTitle, new Vector2(dialogRect.X + 22, dialogRect.Y + 20), def.TitleBar.Color);
+        DrawMultilineText(sb, _overlayDescription, new Vector2(dialogRect.X + 22, dialogRect.Y + 56), dialogRect.Width - 44, def.ContentPanel.DescriptionColor);
+
+        var itemStyle = def.ItemStyle;
+        var buttonWidth = dialogRect.Width - 44;
+        var buttonHeight = 40;
+        var buttonsY = dialogRect.Bottom - 96;
+
+        for (var i = 0; i < _menuItems.Count; i++)
+        {
+            var bounds = new Rectangle(dialogRect.X + 22, buttonsY + i * (buttonHeight + 8), buttonWidth, buttonHeight);
+            _menuItems[i] = _menuItems[i] with { Bounds = bounds };
+
+            var isSelected = i == _selectedIndex;
+            var isHovered = i == _hoveredIndex;
+            var fill = isSelected ? itemStyle.SelectedFill : isHovered ? itemStyle.HoveredFill : itemStyle.DefaultFill;
+            var border = isSelected ? itemStyle.SelectedBorder : isHovered ? itemStyle.HoveredBorder : itemStyle.DefaultBorder;
+            var textColor = isSelected ? itemStyle.SelectedText : itemStyle.DefaultText;
+
+            DrawPanel(sb, bounds, fill, border, 1);
+            if (isSelected && itemStyle.AccentBarWidth > 0)
+                sb.Draw(_pixel, new Rectangle(bounds.X, bounds.Y, itemStyle.AccentBarWidth, bounds.Height), itemStyle.AccentBarColor);
+
+            DrawText(sb, _menuItems[i].Label, new Vector2(bounds.X + 14, bounds.Y + 10), textColor);
+        }
 
         sb.End();
     }
@@ -211,7 +414,7 @@ public class MenuSystem
         if (IsNewPress(kb, Keys.Down) || IsNewPress(kb, Keys.S))
             _selectedIndex = (_selectedIndex + 1) % _menuItems.Count;
 
-        var hoverPos = new Point(_input.MousePosition.X, _input.MousePosition.Y);
+        var hoverPos = GetScaledMousePosition();
         _hoveredIndex = -1;
         for (int i = 0; i < _menuItems.Count; i++)
         {
@@ -244,22 +447,74 @@ public class MenuSystem
         if (confirm && _selectedIndex >= 0 && _selectedIndex < _menuItems.Count)
             _menuItems[_selectedIndex].Action?.Invoke();
 
+        if ((CurrentScreen == MenuScreen.SaveSlots || CurrentScreen == MenuScreen.LoadSlots) && TryGetSelectedSlotIndex(out var selectedSlotIndex))
+        {
+            if (IsNewPress(kb, Keys.R))
+                OpenRenamePrompt(selectedSlotIndex);
+
+            if (IsNewPress(kb, Keys.Delete) || IsNewPress(kb, Keys.Back))
+                OnDeleteSlotRequested?.Invoke(selectedSlotIndex);
+        }
+
         if (IsNewPress(kb, Keys.Escape) && CurrentScreen == MenuScreen.Pause)
         {
             CloseMenu();
             OnResumeGame?.Invoke();
         }
+        else if (IsNewPress(kb, Keys.Escape) && CurrentScreen == MenuScreen.Confirm)
+        {
+            var action = _confirmCancel;
+            _confirmAccept = null;
+            _confirmCancel = null;
+            CurrentScreen = _returnTo;
+            _confirmAsModal = false;
+            if (CurrentScreen != MenuScreen.None)
+                BuildMenuItems();
+            action?.Invoke();
+        }
+        else if (CurrentScreen == MenuScreen.SaveNamePrompt)
+        {
+            if (IsNewPress(kb, Keys.Back) && _saveNameInput.Length > 0)
+                _saveNameInput = _saveNameInput[..^1];
+
+            if (IsNewPress(kb, Keys.Escape))
+            {
+                CurrentScreen = MenuScreen.SaveSlots;
+                _selectedIndex = Math.Clamp(_pendingSaveSlotIndex - 1, 0, Math.Max(0, _menuItems.Count - 1));
+                BuildMenuItems();
+            }
+        }
+        else if (IsNewPress(kb, Keys.Escape) && (CurrentScreen == MenuScreen.SaveSlots || CurrentScreen == MenuScreen.LoadSlots))
+        {
+            CurrentScreen = _returnTo;
+            BuildMenuItems();
+        }
     }
 
     private void UpdateSettings(KeyboardState kb)
     {
-        if (IsNewPress(kb, Keys.Left) || IsNewPress(kb, Keys.A))
-            _settingsFocus = SettingsFocus.Sidebar;
+        var leftAdjust = IsNewPress(kb, Keys.Left) || IsNewPress(kb, Keys.A);
+        var rightAdjust = IsNewPress(kb, Keys.Right) || IsNewPress(kb, Keys.D);
+        var selectedSlider = GetSelectedSettingsSliderItem();
 
-        if (IsNewPress(kb, Keys.Right) || IsNewPress(kb, Keys.D))
-            _settingsFocus = SettingsFocus.Content;
+        if (_settingsFocus == SettingsFocus.Content && selectedSlider is { IsSlider: true })
+        {
+            if (leftAdjust)
+                AdjustSlider(selectedSlider.Value, -selectedSlider.Value.SliderStep);
 
-        var hoverPos = new Point(_input.MousePosition.X, _input.MousePosition.Y);
+            if (rightAdjust)
+                AdjustSlider(selectedSlider.Value, selectedSlider.Value.SliderStep);
+        }
+        else
+        {
+            if (leftAdjust)
+                _settingsFocus = SettingsFocus.Sidebar;
+
+            if (rightAdjust)
+                _settingsFocus = SettingsFocus.Content;
+        }
+
+        var hoverPos = GetScaledMousePosition();
         _hoveredSettingsSectionIndex = -1;
         _hoveredSettingsContentIndex = -1;
         for (int i = 0; i < _settingsNavItems.Count; i++)
@@ -292,6 +547,12 @@ public class MenuSystem
         {
             _settingsFocus = SettingsFocus.Content;
             ScrollSettingsContent(_input.ScrollDelta > 0 ? -1 : 1);
+        }
+
+        if (_input.LeftDown && TryUpdateHoveredSlider(hoverPos))
+        {
+            _settingsFocus = SettingsFocus.Content;
+            return;
         }
 
         if (_settingsFocus == SettingsFocus.Sidebar && _settingsNavItems.Count > 0)
@@ -411,33 +672,75 @@ public class MenuSystem
         }
     }
 
-    private void DrawStandardLayout(SpriteBatch sb, Rectangle navRect, Rectangle contentRect)
+    private void DrawStandardLayout(SpriteBatch sb, Rectangle navRect, Rectangle contentRect, MenuDefinition def)
     {
-        var heading = CurrentScreen == MenuScreen.Main ? "Main Menu" : "Pause Menu";
+        var nav = def.NavPanel;
+        var cp = def.ContentPanel;
         var description = _menuItems.Count > 0 && _selectedIndex >= 0 && _selectedIndex < _menuItems.Count
             ? _menuItems[_selectedIndex].Description
-            : "Select an option on the left.";
+            : "";
 
-        DrawSectionHeader(sb, navRect, "Navigation", "All primary actions are listed here.");
-        DrawMenuList(sb, _menuItems, navRect, _selectedIndex, _hoveredIndex, 66, 46, 8);
+        var navHeader = CurrentScreen is MenuScreen.Main or MenuScreen.Pause ? nav.Header : _overlayNavHeader;
+        var navDescription = CurrentScreen is MenuScreen.Main or MenuScreen.Pause ? nav.HeaderDescription : _overlayNavDescription;
+        DrawSectionHeader(sb, navRect, navHeader, navDescription, nav.HeaderColor, nav.HeaderDescColor);
+        DrawMenuList(sb, _menuItems, navRect, _selectedIndex, _hoveredIndex, nav.ItemStartY, nav.ItemHeight, nav.ItemGap, def.ItemStyle);
 
-        DrawSectionHeader(sb, contentRect, heading, description ?? string.Empty);
+        var heading = GetContentHeading(def);
+        var contentDescription = GetContentDescription(description);
+        DrawSectionHeader(sb, contentRect, heading, contentDescription, cp.LabelColor, cp.DescriptionColor);
 
-        if (_menuItems.Count > 0 && _selectedIndex >= 0 && _selectedIndex < _menuItems.Count)
+        if (CurrentScreen == MenuScreen.SaveNamePrompt)
+        {
+            DrawSaveNamePrompt(sb, contentRect, cp);
+        }
+        else if (_menuItems.Count > 0 && _selectedIndex >= 0 && _selectedIndex < _menuItems.Count)
         {
             var item = _menuItems[_selectedIndex];
-            var card = new Rectangle(contentRect.X + 28, contentRect.Y + 98, contentRect.Width - 56, 116);
-            DrawPanel(sb, card, new Color(22, 36, 28, 230), new Color(88, 132, 96), 2);
-            DrawText(sb, item.Label, new Vector2(card.X + 20, card.Y + 18), Color.White);
+            var card = new Rectangle(contentRect.X + cp.CardOffsetX, contentRect.Y + cp.CardOffsetY, contentRect.Width - cp.CardOffsetX * 2, cp.CardHeight);
+            DrawPanel(sb, card, cp.CardFill, cp.CardBorder, cp.CardBorderThickness);
+            DrawText(sb, item.Label, new Vector2(card.X + cp.CardPadding, card.Y + 18), cp.LabelColor);
             if (!string.IsNullOrWhiteSpace(item.Description))
-                DrawMultilineText(sb, item.Description!, new Vector2(card.X + 20, card.Y + 52), card.Width - 40, new Color(190, 208, 192));
+                DrawMultilineText(sb, item.Description!, new Vector2(card.X + cp.CardPadding, card.Y + 52), card.Width - cp.CardPadding * 2, cp.DescriptionColor);
         }
     }
 
-    private void DrawSettingsLayout(SpriteBatch sb, Rectangle navRect, Rectangle contentRect)
+    private void DrawSaveNamePrompt(SpriteBatch sb, Rectangle contentRect, MenuContentPanelDef cp)
     {
-        DrawSectionHeader(sb, navRect, "Settings", "Subsections stay visible here all the time.");
-        DrawMenuList(sb, _settingsNavItems, navRect, _selectedSettingsSectionIndex, _hoveredSettingsSectionIndex, 66, 46, 8, _settingsFocus == SettingsFocus.Sidebar);
+        var card = new Rectangle(
+            contentRect.X + cp.CardOffsetX,
+            contentRect.Y + cp.CardOffsetY,
+            contentRect.Width - cp.CardOffsetX * 2,
+            cp.CardHeight + 36);
+
+        DrawPanel(sb, card, cp.CardFill, cp.CardBorder, cp.CardBorderThickness);
+        DrawText(sb, "Имя сохранения", new Vector2(card.X + cp.CardPadding, card.Y + 18), cp.LabelColor);
+        DrawMultilineText(
+            sb,
+            "Введите понятное имя слота. Его можно менять при каждом сохранении.",
+            new Vector2(card.X + cp.CardPadding, card.Y + 52),
+            card.Width - cp.CardPadding * 2,
+            cp.DescriptionColor);
+
+        var inputRect = new Rectangle(card.X + cp.CardPadding, card.Y + 106, card.Width - cp.CardPadding * 2, 40);
+        DrawPanel(sb, inputRect, new Color(15, 24, 20, 220), cp.CardBorder, 1);
+
+        var displayName = string.IsNullOrWhiteSpace(_saveNameInput) ? "Введите имя..." : _saveNameInput;
+        var textColor = string.IsNullOrWhiteSpace(_saveNameInput) ? new Color(132, 156, 138) : cp.LabelColor;
+        DrawText(sb, displayName, new Vector2(inputRect.X + 12, inputRect.Y + 10), textColor);
+
+        if ((DateTime.UtcNow.Millisecond / 500) % 2 == 0)
+        {
+            var cursorX = inputRect.X + 12 + (int)_font.MeasureString(SanitizeText(_saveNameInput)).X;
+            sb.Draw(_pixel, new Rectangle(cursorX, inputRect.Y + 8, 1, inputRect.Height - 16), cp.LabelColor);
+        }
+    }
+
+    private void DrawSettingsLayout(SpriteBatch sb, Rectangle navRect, Rectangle contentRect, MenuDefinition def)
+    {
+        var nav = def.NavPanel;
+        var content = def.ContentPanel;
+        DrawSectionHeader(sb, navRect, "Settings", "Subsections stay visible here all the time.", nav.HeaderColor, nav.HeaderDescColor);
+        DrawMenuList(sb, _settingsNavItems, navRect, _selectedSettingsSectionIndex, _hoveredSettingsSectionIndex, nav.ItemStartY, nav.ItemHeight, nav.ItemGap, def.ItemStyle, _settingsFocus == SettingsFocus.Sidebar);
 
         var section = GetCurrentSettingsSection();
         var heading = section switch
@@ -458,8 +761,8 @@ public class MenuSystem
             _ => string.Empty
         };
 
-        DrawSectionHeader(sb, contentRect, heading, description);
-        DrawMenuList(sb, _settingsContentItems, contentRect, _selectedSettingsContentIndex, _hoveredSettingsContentIndex, 98, 34, 6, _settingsFocus == SettingsFocus.Content, _settingsContentScroll);
+        DrawSectionHeader(sb, contentRect, heading, description, content.LabelColor, content.DescriptionColor);
+        DrawMenuList(sb, _settingsContentItems, contentRect, _selectedSettingsContentIndex, _hoveredSettingsContentIndex, content.CardOffsetY, 46, 6, def.ItemStyle, _settingsFocus == SettingsFocus.Content, _settingsContentScroll);
     }
 
     private void DrawMenuList(
@@ -471,6 +774,7 @@ public class MenuSystem
         int startOffsetY,
         int itemHeight,
         int gap,
+        MenuItemStyleDef style,
         bool accentSelection = true,
         int scrollOffset = 0)
     {
@@ -495,15 +799,15 @@ public class MenuSystem
             var isSelected = i == selectedIndex;
             var isHovered = i == hoveredIndex;
             var bg = isSelected
-                ? accentSelection ? new Color(56, 92, 66, 240) : new Color(40, 62, 48, 220)
-                : isHovered ? new Color(36, 54, 42, 228)
-                : new Color(25, 37, 30, 220);
-            var border = isSelected ? new Color(118, 176, 128) : isHovered ? new Color(96, 138, 104) : new Color(62, 92, 70);
-            var textColor = isSelected ? Color.White : new Color(196, 208, 198);
+                ? style.SelectedFill
+                : isHovered ? style.HoveredFill
+                : style.DefaultFill;
+            var border = isSelected ? style.SelectedBorder : isHovered ? style.HoveredBorder : style.DefaultBorder;
+            var textColor = isSelected ? style.SelectedText : style.DefaultText;
 
             DrawPanel(sb, bounds, bg, border, 1);
-            if (isSelected)
-                sb.Draw(_pixel, new Rectangle(bounds.X, bounds.Y, 4, bounds.Height), new Color(180, 222, 128));
+            if (isSelected && accentSelection && style.AccentBarWidth > 0)
+                sb.Draw(_pixel, new Rectangle(bounds.X, bounds.Y, style.AccentBarWidth, bounds.Height), style.AccentBarColor);
 
             DrawText(sb, item.Label, new Vector2(bounds.X + 14, bounds.Y + 9), textColor);
             if (!string.IsNullOrWhiteSpace(item.Value))
@@ -514,6 +818,9 @@ public class MenuSystem
                 sb.DrawString(_font, safeValue, new Vector2(bounds.Right - valueSize.X - 14, bounds.Y + 9), valueColor);
             }
 
+            if (item.IsSlider)
+                DrawSlider(sb, item);
+
             y += itemHeight + gap;
         }
 
@@ -521,24 +828,25 @@ public class MenuSystem
             DrawScrollBar(sb, panelRect, startOffsetY, visibleHeight, startIndex, maxVisible, items.Count);
     }
 
-    private void DrawSectionHeader(SpriteBatch sb, Rectangle panelRect, string title, string description)
+    private void DrawSectionHeader(SpriteBatch sb, Rectangle panelRect, string title, string description, Color titleColor, Color descriptionColor)
     {
-        DrawText(sb, title, new Vector2(panelRect.X + 18, panelRect.Y + 18), Color.White);
+        DrawText(sb, title, new Vector2(panelRect.X + 18, panelRect.Y + 18), titleColor);
         if (!string.IsNullOrWhiteSpace(description))
-            DrawMultilineText(sb, description, new Vector2(panelRect.X + 18, panelRect.Y + 46), panelRect.Width - 36, new Color(150, 172, 156));
+            DrawMultilineText(sb, description, new Vector2(panelRect.X + 18, panelRect.Y + 46), panelRect.Width - 36, descriptionColor);
     }
 
-    private void DrawBackground(SpriteBatch sb, Rectangle bounds)
+    private void DrawBackground(SpriteBatch sb, Rectangle bounds, MenuBackgroundDef background)
     {
-        if (CurrentScreen == MenuScreen.Main)
+        if (background.Type.Equals("solid", StringComparison.OrdinalIgnoreCase))
         {
-            sb.Draw(_mainMenuBackground, bounds, Color.Black);
+            sb.Draw(_mainMenuBackground, bounds, background.Color);
             return;
         }
 
-        sb.Draw(_pixel, bounds, new Color(4, 8, 6, 250));
-        var topGlow = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height / 3);
-        sb.Draw(_pixel, topGlow, new Color(22, 40, 28, 58));
+        sb.Draw(_pixel, bounds, background.Color);
+        var glowHeight = Math.Max(1, (int)(bounds.Height * MathHelper.Clamp(background.GlowHeightPercent, 0f, 1f)));
+        var topGlow = new Rectangle(bounds.X, bounds.Y, bounds.Width, glowHeight);
+        sb.Draw(_pixel, topGlow, background.GlowColor);
     }
 
     private void DrawPanel(SpriteBatch sb, Rectangle rect, Color fill, Color border, int borderThickness)
@@ -596,56 +904,125 @@ public class MenuSystem
     {
         _menuItems.Clear();
 
-        switch (CurrentScreen)
+        if (CurrentScreen == MenuScreen.Confirm)
         {
-            case MenuScreen.Main:
-                _menuItems.Add(new MenuItem(
-                    "Начать игру",
-                    Description: "Base game start hook. Right now this option is a placeholder and does not launch a map yet.",
-                    Action: () => OnStartGame?.Invoke()));
-                if (_settings.DevMode)
+            _menuItems.Add(new MenuItem(
+                "Да",
+                Description: _overlayDescription,
+                Action: () =>
                 {
-                    _menuItems.Add(new MenuItem(
-                        "Река разработчика",
-                        Description: "Loads the river developer map immediately for quick testing.",
-                        Action: () => OnLoadRiver?.Invoke()));
-                }
-                _menuItems.Add(new MenuItem(
-                    "Настройки",
-                    Description: "Open gameplay options, developer mode and all current key bindings.",
-                    Action: OpenSettings));
-                _menuItems.Add(new MenuItem(
-                    "Выход",
-                    Description: "Close the game application.",
-                    Action: () => OnExitGame?.Invoke()));
-                break;
+                    var action = _confirmAccept;
+                    _confirmAccept = null;
+                    _confirmCancel = null;
+                    CurrentScreen = _returnTo;
+                    _confirmAsModal = false;
+                    if (CurrentScreen != MenuScreen.None)
+                        BuildMenuItems();
+                    action?.Invoke();
+                }));
+            _menuItems.Add(new MenuItem(
+                "Нет",
+                Description: "Отменить действие и вернуться назад.",
+                Action: () =>
+                {
+                    var action = _confirmCancel;
+                    _confirmAccept = null;
+                    _confirmCancel = null;
+                    CurrentScreen = _returnTo;
+                    _confirmAsModal = false;
+                    if (CurrentScreen != MenuScreen.None)
+                        BuildMenuItems();
+                    action?.Invoke();
+                }));
+            return;
+        }
 
-            case MenuScreen.Pause:
+        if (CurrentScreen == MenuScreen.SaveNamePrompt)
+        {
+            _menuItems.Add(new MenuItem(
+                _saveNamePromptIsRename ? "Переименовать" : "Сохранить",
+                Description: _saveNamePromptIsRename
+                    ? "Применить новое имя к выбранному слоту."
+                    : "Записать текущий мир в выбранный слот.",
+                Action: () =>
+                {
+                    var finalName = string.IsNullOrWhiteSpace(_saveNameInput)
+                        ? $"Слот {_pendingSaveSlotIndex}"
+                        : _saveNameInput.Trim();
+                    if (_saveNamePromptIsRename)
+                        OnRenameSlotRequested?.Invoke(_pendingSaveSlotIndex, finalName);
+                    else
+                        OnSaveSlotConfirmed?.Invoke(_pendingSaveSlotIndex, finalName);
+                }));
+            _menuItems.Add(new MenuItem(
+                "Назад",
+                Description: "Вернуться к выбору слота без сохранения.",
+                Action: () =>
+                {
+                    CurrentScreen = MenuScreen.SaveSlots;
+                    _selectedIndex = Math.Clamp(_pendingSaveSlotIndex - 1, 0, Math.Max(0, _menuItems.Count - 1));
+                    BuildMenuItems();
+                }));
+            return;
+        }
+
+        if (CurrentScreen == MenuScreen.SaveSlots || CurrentScreen == MenuScreen.LoadSlots)
+        {
+            var summaries = SaveSlotProvider?.Invoke() ?? Array.Empty<SaveSlotSummary>();
+            foreach (var summary in summaries)
+            {
+                var slotIndex = summary.SlotIndex;
+                var canLoad = CurrentScreen != MenuScreen.LoadSlots || summary.HasData;
                 _menuItems.Add(new MenuItem(
-                    "Продолжить",
-                    Description: "Return to the game without changing the current scene.",
-                    Action: () =>
-                    {
-                        CloseMenu();
-                        OnResumeGame?.Invoke();
-                    }));
+                    summary.Title,
+                    Description: summary.Description,
+                    Value: summary.HasData ? "USED" : "EMPTY",
+                    Tag: slotIndex.ToString(),
+                    Action: canLoad
+                        ? () =>
+                        {
+                            if (CurrentScreen == MenuScreen.SaveSlots)
+                                OpenSaveNamePrompt(slotIndex);
+                            else
+                                OnLoadSlotSelected?.Invoke(slotIndex);
+                        }
+                        : null));
+            }
+
+            _menuItems.Add(new MenuItem(
+                "Назад",
+                Description: "Вернуться в предыдущее меню.",
+                Action: () =>
+                {
+                    CurrentScreen = _returnTo;
+                    BuildMenuItems();
+                }));
+
+            if (_selectedIndex >= _menuItems.Count)
+                _selectedIndex = 0;
+            return;
+        }
+
+        var def = CurrentScreen switch
+        {
+            MenuScreen.Main => _mainMenuDef,
+            MenuScreen.Pause => _pauseMenuDef,
+            _ => null
+        };
+
+        if (def != null)
+        {
+            foreach (var item in def.Items)
+            {
+                if (!EvaluateCondition(item.Condition))
+                    continue;
+
+                _actionMap.TryGetValue(item.Action, out var action);
                 _menuItems.Add(new MenuItem(
-                    "Настройки",
-                    Description: "Change settings without leaving the current session.",
-                    Action: OpenSettings));
-                _menuItems.Add(new MenuItem(
-                    "Главное меню",
-                    Description: "Leave the current play state and return to the main menu shell.",
-                    Action: () =>
-                    {
-                        OpenMainMenu();
-                        OnReturnToMainMenu?.Invoke();
-                    }));
-                _menuItems.Add(new MenuItem(
-                    "Выход",
-                    Description: "Quit the game.",
-                    Action: () => OnExitGame?.Invoke()));
-                break;
+                    item.Label,
+                    Description: item.Description,
+                    Action: action));
+            }
         }
 
         if (_selectedIndex >= _menuItems.Count)
@@ -668,6 +1045,96 @@ public class MenuSystem
         RebuildSettingsContent();
     }
 
+    private void OpenSaveSlots()
+    {
+        _returnTo = CurrentScreen;
+        CurrentScreen = MenuScreen.SaveSlots;
+        _overlayTitle = "Сохранение";
+        _overlayDescription = "Выберите слот для сохранения текущего мира.";
+        _overlayNavHeader = "Слоты";
+        _overlayNavDescription = "Сохранение перезапишет выбранный слот.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
+    public void ReturnToSaveSlots(int selectedSlotIndex)
+    {
+        CurrentScreen = MenuScreen.SaveSlots;
+        _saveNamePromptIsRename = false;
+        _confirmAsModal = false;
+        _overlayTitle = "Сохранение";
+        _overlayDescription = "Выберите слот для сохранения текущего мира.";
+        _overlayNavHeader = "Слоты";
+        _overlayNavDescription = "Сохранение перезапишет выбранный слот.";
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+        _selectedIndex = Math.Clamp(selectedSlotIndex - 1, 0, Math.Max(0, _menuItems.Count - 1));
+    }
+
+    public void ReturnToLoadSlots(int selectedSlotIndex)
+    {
+        CurrentScreen = MenuScreen.LoadSlots;
+        _saveNamePromptIsRename = false;
+        _confirmAsModal = false;
+        _overlayTitle = "Загрузка";
+        _overlayDescription = "Выберите слот сохранения.";
+        _overlayNavHeader = "Слоты";
+        _overlayNavDescription = "Можно загрузить любой заполненный слот.";
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+        _selectedIndex = Math.Clamp(selectedSlotIndex - 1, 0, Math.Max(0, _menuItems.Count - 1));
+    }
+
+    private void OpenSaveNamePrompt(int slotIndex)
+    {
+        _pendingSaveSlotIndex = slotIndex;
+        _saveNamePromptIsRename = false;
+        _saveNameInput = SaveNameSuggestionProvider?.Invoke(slotIndex)?.Trim() ?? $"Слот {slotIndex}";
+        CurrentScreen = MenuScreen.SaveNamePrompt;
+        _overlayTitle = "Имя сохранения";
+        _overlayDescription = "Настройте имя, под которым слот будет виден в списке.";
+        _overlayNavHeader = $"Слот {slotIndex}";
+        _overlayNavDescription = "Введите имя и подтвердите сохранение.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
+    public void OpenRenamePrompt(int slotIndex)
+    {
+        _pendingSaveSlotIndex = slotIndex;
+        _saveNamePromptIsRename = true;
+        _saveNameInput = SaveNameSuggestionProvider?.Invoke(slotIndex)?.Trim() ?? $"Слот {slotIndex}";
+        CurrentScreen = MenuScreen.SaveNamePrompt;
+        _overlayTitle = "Переименование";
+        _overlayDescription = "Введите новое имя для сохранения.";
+        _overlayNavHeader = $"Слот {slotIndex}";
+        _overlayNavDescription = "Переименование меняет только отображаемое имя слота.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
+    private void OpenLoadSlots()
+    {
+        _returnTo = CurrentScreen;
+        CurrentScreen = MenuScreen.LoadSlots;
+        _overlayTitle = "Загрузка";
+        _overlayDescription = "Выберите слот сохранения.";
+        _overlayNavHeader = "Слоты";
+        _overlayNavDescription = "Можно загрузить любой заполненный слот.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
     private void BuildSettingsNavigation()
     {
         _settingsNavItems.Clear();
@@ -684,6 +1151,21 @@ public class MenuSystem
         {
             case SettingsSection.General:
                 _settingsContentScroll = 0;
+                _settingsContentItems.Add(new MenuItem(
+                    "Масштаб интерфейса",
+                    Value: $"{GetUiScale():0.00}x",
+                    Description: "Общий масштаб меню, HUD и окон интерфейса.",
+                    IsSlider: true,
+                    SliderValue: GetUiScale(),
+                    SliderMin: MinUiScale,
+                    SliderMax: MaxUiScale,
+                    SliderStep: UiScaleStep,
+                    SliderChanged: value =>
+                    {
+                        _settings.UiScale = Math.Clamp(value, MinUiScale, MaxUiScale);
+                        _settings.Save();
+                        RebuildSettingsContent();
+                    }));
                 _settingsContentItems.Add(new MenuItem(
                     "Режим разработчика",
                     Value: _settings.DevMode ? "ON" : "OFF",
@@ -745,15 +1227,71 @@ public class MenuSystem
     private SettingsSection GetCurrentSettingsSection()
         => (SettingsSection)Math.Clamp(_selectedSettingsSectionIndex, 0, _settingsNavItems.Count - 1);
 
-    private string GetHintText()
+    private string GetScreenTitle(MenuDefinition def)
     {
         return CurrentScreen switch
         {
-            MenuScreen.Main => "W/S move  Enter select",
-            MenuScreen.Pause => "W/S move  Enter select  Esc resume",
-            MenuScreen.Settings when _waitingForKey != null => "Press any key  Esc cancel",
-            MenuScreen.Settings => "W/S move  A/D switch pane  Enter apply  Esc back",
-            _ => string.Empty
+            MenuScreen.Settings => "SETTINGS",
+            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm => _overlayTitle,
+            _ => def.Title
+        };
+    }
+
+    private string GetContentHeading(MenuDefinition def)
+    {
+        return CurrentScreen switch
+        {
+            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm => _overlayTitle,
+            _ => def.Title
+        };
+    }
+
+    private string GetContentDescription(string? selectedDescription)
+    {
+        if (CurrentScreen is MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm)
+            return string.IsNullOrWhiteSpace(selectedDescription) ? _overlayDescription : selectedDescription;
+
+        return selectedDescription ?? string.Empty;
+    }
+
+    private string GetSettingsHintText()
+    {
+        return _waitingForKey != null
+            ? "Press any key  Esc cancel"
+            : "W/S move  A/D switch pane  Enter apply  Esc back";
+    }
+
+    private string GetScreenHintText(MenuHintDef hintDef)
+    {
+        return CurrentScreen switch
+        {
+            MenuScreen.Settings => GetSettingsHintText(),
+            MenuScreen.SaveSlots => "W/S move  Enter save  R rename  Del delete  Esc back",
+            MenuScreen.LoadSlots => "W/S move  Enter load  R rename  Del delete  Esc back",
+            MenuScreen.SaveNamePrompt => "Type name  Enter save  Backspace erase  Esc back",
+            MenuScreen.Confirm => "W/S move  Enter confirm  Esc cancel",
+            _ => hintDef.Text
+        };
+    }
+
+    private bool TryGetSelectedSlotIndex(out int slotIndex)
+    {
+        slotIndex = 0;
+        if (_selectedIndex < 0 || _selectedIndex >= _menuItems.Count)
+            return false;
+
+        var tag = _menuItems[_selectedIndex].Tag;
+        return int.TryParse(tag, out slotIndex);
+    }
+
+    private Vector2 ResolveHintPosition(Rectangle pageRect, MenuHintDef hintDef, Vector2 hintSize)
+    {
+        return hintDef.Align.ToLowerInvariant() switch
+        {
+            "left-top" => new Vector2(pageRect.X + hintDef.OffsetX, pageRect.Y + hintDef.OffsetY),
+            "left-bottom" => new Vector2(pageRect.X + hintDef.OffsetX, pageRect.Bottom - hintDef.OffsetY),
+            "right-top" => new Vector2(pageRect.Right - hintSize.X - hintDef.OffsetX, pageRect.Y + hintDef.OffsetY),
+            _ => new Vector2(pageRect.Right - hintSize.X - hintDef.OffsetX, pageRect.Bottom - hintDef.OffsetY)
         };
     }
 
@@ -810,11 +1348,122 @@ public class MenuSystem
         _settingsContentScroll = Math.Max(0, _settingsContentScroll);
     }
 
+    private float GetUiScale()
+        => Math.Clamp(_settings.UiScale, MinUiScale, MaxUiScale);
+
+    private Rectangle GetScaledViewportBounds()
+    {
+        var scale = GetUiScale();
+        return new Rectangle(
+            0,
+            0,
+            Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / scale)),
+            Math.Max(1, (int)MathF.Round(_gd.Viewport.Height / scale)));
+    }
+
+    private Point GetScaledMousePosition()
+    {
+        var scale = GetUiScale();
+        return new Point(
+            (int)MathF.Round(_input.MousePosition.X / scale),
+            (int)MathF.Round(_input.MousePosition.Y / scale));
+    }
+
+    private MenuItem? GetSelectedSettingsSliderItem()
+    {
+        if (_selectedSettingsContentIndex < 0 || _selectedSettingsContentIndex >= _settingsContentItems.Count)
+            return null;
+
+        var item = _settingsContentItems[_selectedSettingsContentIndex];
+        return item.IsSlider ? item : null;
+    }
+
+    private bool TryUpdateHoveredSlider(Point hoverPos)
+    {
+        for (var i = 0; i < _settingsContentItems.Count; i++)
+        {
+            var item = _settingsContentItems[i];
+            if (!item.IsSlider)
+                continue;
+
+            var sliderRect = GetSliderRect(item.Bounds);
+            if (!sliderRect.Contains(hoverPos))
+                continue;
+
+            _selectedSettingsContentIndex = i;
+            _hoveredSettingsContentIndex = i;
+            ApplySliderValueFromPosition(item, hoverPos.X);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void AdjustSlider(MenuItem item, float delta)
+    {
+        if (!item.IsSlider || item.SliderChanged == null)
+            return;
+
+        var next = Math.Clamp(item.SliderValue + delta, item.SliderMin, item.SliderMax);
+        next = QuantizeSliderValue(next, item.SliderMin, item.SliderStep);
+        item.SliderChanged(next);
+    }
+
+    private void ApplySliderValueFromPosition(MenuItem item, int mouseX)
+    {
+        if (!item.IsSlider || item.SliderChanged == null)
+            return;
+
+        var sliderRect = GetSliderRect(item.Bounds);
+        var ratio = sliderRect.Width <= 1
+            ? 0f
+            : Math.Clamp((mouseX - sliderRect.X) / (float)sliderRect.Width, 0f, 1f);
+        var value = MathHelper.Lerp(item.SliderMin, item.SliderMax, ratio);
+        value = QuantizeSliderValue(value, item.SliderMin, item.SliderStep);
+        item.SliderChanged(value);
+    }
+
+    private static float QuantizeSliderValue(float value, float min, float step)
+    {
+        if (step <= 0f)
+            return value;
+
+        var units = MathF.Round((value - min) / step);
+        return min + units * step;
+    }
+
+    private void DrawSlider(SpriteBatch sb, MenuItem item)
+    {
+        var sliderRect = GetSliderRect(item.Bounds);
+        var trackRect = new Rectangle(sliderRect.X, sliderRect.Center.Y - 2, sliderRect.Width, 4);
+        var ratio = item.SliderMax <= item.SliderMin
+            ? 0f
+            : Math.Clamp((item.SliderValue - item.SliderMin) / (item.SliderMax - item.SliderMin), 0f, 1f);
+        var fillWidth = Math.Max(4, (int)MathF.Round(trackRect.Width * ratio));
+        var knobX = sliderRect.X + (int)MathF.Round((sliderRect.Width - 10) * ratio);
+        var knobRect = new Rectangle(knobX, sliderRect.Y, 10, sliderRect.Height);
+
+        sb.Draw(_pixel, trackRect, new Color(38, 56, 44));
+        sb.Draw(_pixel, new Rectangle(trackRect.X, trackRect.Y, fillWidth, trackRect.Height), new Color(110, 210, 132));
+        sb.Draw(_pixel, knobRect, new Color(214, 236, 216));
+        sb.Draw(_pixel, new Rectangle(knobRect.X, knobRect.Y, knobRect.Width, 1), Color.White * 0.8f);
+        sb.Draw(_pixel, new Rectangle(knobRect.X, knobRect.Bottom - 1, knobRect.Width, 1), Color.Black * 0.55f);
+    }
+
+    private static Rectangle GetSliderRect(Rectangle itemBounds)
+        => new(itemBounds.X + 14, itemBounds.Bottom - 16, Math.Max(40, itemBounds.Width - 130), 10);
+
     private readonly record struct MenuItem(
         string Label,
         string? Value = null,
         string? Description = null,
         string? Tag = null,
         Action? Action = null,
-        Rectangle Bounds = default);
+        Rectangle Bounds = default,
+        bool IsSlider = false,
+        float SliderValue = 0f,
+        float SliderMin = 0f,
+        float SliderMax = 1f,
+        float SliderStep = 0.05f,
+        Action<float>? SliderChanged = null);
 }

@@ -19,6 +19,9 @@
       "slots": 1,
       "tags": ["clothing", "torso", "shirt"]
     },
+    "info": {
+      "description": "Рубаха, окрашенная растительным красителем. Простая, но ноская одежда."
+    },
     "wearable": {
       "slot": "torso",
       "durability": 55,

@@ -12,6 +12,9 @@
       "layerDepth": 0.5
     },
     "transform": { "x": 0, "y": 0 },
+    "info": {
+      "description": "Кусок выделанной кожи. Прочный материал для ремонта снаряжения и изготовления доспехов."
+    },
     "item": {
       "name": "Leather Patch",
       "size": "Small",

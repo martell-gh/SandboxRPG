@@ -1,0 +1,56 @@
+<Menu Id="main" Title="SANDBOX RPG">
+
+  <!-- Layout -->
+  <Layout Margin="72" NavWidthPercent="0.28" NavMaxWidth="320" NavContentGap="20" PanelPadding="24" TitleBottomMargin="100" />
+
+  <!-- Background -->
+  <Background Type="solid" Color="#000000" />
+
+  <!-- Page panel -->
+  <PagePanel Fill="#0A120E_E4" Border="#54785C" BorderThickness="2" />
+
+  <!-- Title bar -->
+  <TitleBar Color="#FFFFFF" SeparatorColor="#54785C" SeparatorHeight="2" OffsetX="24" OffsetY="24" SeparatorGap="10" />
+
+  <!-- Nav panel (left) -->
+  <NavPanel Fill="#121C16_F0" Border="#486C50" BorderThickness="2"
+            Header="Navigation" HeaderDescription="All primary actions are listed here."
+            HeaderColor="#FFFFFF" HeaderDescColor="#96AC9C"
+            ItemHeight="46" ItemGap="8" ItemStartY="66" />
+
+  <!-- Content panel (right) -->
+  <ContentPanel Fill="#101814_F0" Border="#486C50" BorderThickness="2"
+                CardFill="#16241C_E6" CardBorder="#588460" CardBorderThickness="2"
+                CardOffsetX="28" CardOffsetY="98" CardHeight="116" CardPadding="20"
+                LabelColor="#FFFFFF" DescriptionColor="#BED0C0" />
+
+  <!-- Item appearance -->
+  <ItemStyle SelectedFill="#385C42_F0" HoveredFill="#24362A_E4" DefaultFill="#19251E_DC"
+             SelectedBorder="#76B080" HoveredBorder="#608A68" DefaultBorder="#3E5C46"
+             SelectedText="#FFFFFF" DefaultText="#C4D0C6"
+             AccentBarWidth="4" AccentBarColor="#B4DE80" />
+
+  <!-- Hint bar -->
+  <Hint Text="W/S move  Enter select" Color="#96AA96" OffsetX="24" OffsetY="32" Align="right-bottom" />
+
+  <!-- Menu items -->
+  <Items>
+    <Item Label="Начать игру"
+          Description="Запускает новую игру с начальной локации."
+          Action="start_game" />
+    <Item Label="Загрузить"
+          Description="Открывает список слотов сохранения."
+          Action="open_load" />
+    <Item Label="Река разработчика"
+          Description="Загружает карту river для быстрого тестирования."
+          Action="load_river"
+          Condition="dev_mode" />
+    <Item Label="Настройки"
+          Description="Настройки игры, управление и режим разработчика."
+          Action="open_settings" />
+    <Item Label="Выход"
+          Description="Закрыть приложение."
+          Action="exit_confirm" />
+  </Items>
+
+</Menu>

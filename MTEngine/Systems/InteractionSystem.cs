@@ -12,6 +12,7 @@ using MTEngine.Interactions;
 using MTEngine.Items;
 using MTEngine.Metabolism;
 using MTEngine.Rendering;
+using MTEngine.Wounds;
 
 namespace MTEngine.Systems;
 
@@ -44,13 +45,14 @@ public class InteractionSystem : GameSystem
     private Texture2D? _handSlotBlockedTexture;
     private readonly Dictionary<string, Texture2D?> _equipmentSlotTextures = new();
     private readonly Dictionary<string, SpriteMaskData> _spriteMaskCache = new();
+    private readonly Dictionary<string, Texture2D> _statusIconTextures = new();
 
     // Menu state
     private bool _menuOpen;
     private Vector2 _menuScreenPos;
     private Entity? _targetEntity;
     private InteractionContext? _activeContext;
-    private List<InteractionEntry> _menuActions = new();
+    private List<MenuActionState> _menuActions = new();
     private int _hoveredIndex = -1;
     private Entity? _hoveredWorldEntity;
     private Entity? _openStorageEntity;
@@ -62,6 +64,7 @@ public class InteractionSystem : GameSystem
     private Point? _storageWindowPosition;
     private bool _draggingStorageWindow;
     private Point _storageDragOffset;
+    private DelayedInteractionState? _activeDelayedInteraction;
 
     private const int MenuWidth = 200;
     private const int HeaderHeight = 26;
@@ -86,6 +89,23 @@ public class InteractionSystem : GameSystem
     {
         public required Rectangle Rect { get; init; }
         public required EquipmentSlot Slot { get; init; }
+    }
+
+    private sealed class MenuActionState
+    {
+        public required InteractionEntry Entry { get; init; }
+        public required InteractionContext Context { get; init; }
+    }
+
+    private sealed class DelayedInteractionState
+    {
+        public required InteractionEntry Entry { get; init; }
+        public required InteractionContext Context { get; init; }
+        public required Entity Actor { get; init; }
+        public required Vector2 StartPosition { get; init; }
+        public required float Duration { get; init; }
+        public required string ProgressLabel { get; init; }
+        public float Elapsed { get; set; }
     }
 
     private readonly struct FloatBounds
@@ -114,7 +134,20 @@ public class InteractionSystem : GameSystem
     private sealed class SpriteMaskData
     {
         public required Rectangle OpaqueBounds { get; init; }
+        public required Point[] OpaquePixels { get; init; }
         public required Point[] EdgePixels { get; init; }
+    }
+
+    private sealed class CombinedOutlineData
+    {
+        public required Point[] EdgePixels { get; init; }
+        public required Rectangle Bounds { get; init; }
+    }
+
+    private sealed class StatusEffectIconInfo
+    {
+        public required Rectangle Rect { get; init; }
+        public required StatusEffectDefinition Effect { get; init; }
     }
 
     public void SetFont(SpriteFont font) => _font = font;
@@ -148,6 +181,28 @@ public class InteractionSystem : GameSystem
         }
     }
 
+    private float GetUiScale()
+        => ServiceLocator.Has<IUiScaleSource>()
+            ? Math.Clamp(ServiceLocator.Get<IUiScaleSource>().UiScale, 0.75f, 2f)
+            : 1f;
+
+    private Point GetUiMousePoint()
+    {
+        if (_input == null)
+            return Point.Zero;
+
+        var scale = GetUiScale();
+        return new Point(
+            (int)MathF.Round(_input.MousePosition.X / scale),
+            (int)MathF.Round(_input.MousePosition.Y / scale));
+    }
+
+    private int GetUiViewportWidth()
+        => _gd == null ? 0 : Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / GetUiScale()));
+
+    private int GetUiViewportHeight()
+        => _gd == null ? 0 : Math.Max(1, (int)MathF.Round(_gd.Viewport.Height / GetUiScale()));
+
     public override void Update(float deltaTime)
     {
         if (_input == null || _camera == null) return;
@@ -157,9 +212,12 @@ public class InteractionSystem : GameSystem
         var player = GetPrimaryActor();
         var hands = player?.GetComponent<HandsComponent>();
         var equipment = player?.GetComponent<EquipmentComponent>();
-        var mousePos = new Vector2(_input.MousePosition.X, _input.MousePosition.Y);
-        var worldPos = _camera.ScreenToWorld(mousePos);
+        var rawMousePos = new Vector2(_input.MousePosition.X, _input.MousePosition.Y);
+        var mousePos = new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y);
+        var worldPos = _camera.ScreenToWorld(rawMousePos);
         _hoveredWorldEntity = FindHoveredInteractable(worldPos, player);
+
+        UpdateDelayedInteraction(deltaTime);
 
         if (Keyboard.GetState().IsKeyDown(Keys.Escape) && _menuOpen)
         {
@@ -179,22 +237,31 @@ public class InteractionSystem : GameSystem
             return;
         }
 
+        if (_menuOpen && ShouldCloseWorldMenu(player))
+        {
+            CloseMenu();
+            return;
+        }
+
         if (!_menuOpen && hands != null)
         {
             if (_input.IsPressed(GetKey("SwapHand", Keys.Tab)))
             {
+                InterruptDelayedInteractionForAction();
                 hands.SwapActiveHand();
                 return;
             }
 
             if (_input.IsPressed(GetKey("Drop", Keys.Q)))
             {
+                InterruptDelayedInteractionForAction();
                 hands.TryDropActive();
                 return;
             }
 
             if (_input.IsPressed(GetKey("Use", Keys.E)))
             {
+                InterruptDelayedInteractionForAction();
                 TryUseActiveItem(player!, hands);
                 return;
             }
@@ -202,12 +269,14 @@ public class InteractionSystem : GameSystem
 
         if (_draggedItem == null && _input.LeftClicked)
         {
+            InterruptDelayedInteractionForAction();
             if (TryBeginDrag(mousePos, hands, equipment))
                 return;
         }
 
         if (_draggedItem != null && _input.LeftReleased)
         {
+            InterruptDelayedInteractionForAction();
             CompleteDrag(mousePos, hands, equipment);
             return;
         }
@@ -215,10 +284,16 @@ public class InteractionSystem : GameSystem
         if (equipment != null)
         {
             if (_input.LeftClicked && TryHandleEquipmentLeftClick(mousePos, hands, equipment))
+            {
+                InterruptDelayedInteractionForAction();
                 return;
+            }
 
             if (_input.RightClicked && TryHandleEquipmentRightClick(mousePos, player!, equipment))
+            {
+                InterruptDelayedInteractionForAction();
                 return;
+            }
         }
 
         if (_openStorageEntity != null)
@@ -249,37 +324,72 @@ public class InteractionSystem : GameSystem
     /// <summary>
     /// Collects all InteractionEntry from every IInteractionSource component on the entity.
     /// </summary>
-    private List<InteractionEntry> CollectActions(InteractionContext ctx)
+    private List<MenuActionState> CollectActions(InteractionContext ctx)
     {
-        var entries = new List<InteractionEntry>();
+        var entries = new List<MenuActionState>();
         var dedupe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var component in ctx.Target.GetAllComponents())
-        {
-            if (component is IInteractionSource source)
-            {
-                foreach (var entry in source.GetInteractions(ctx))
-                    if (dedupe.Add(entry.Id))
-                        entries.Add(entry);
-            }
-        }
+        CollectActionsFromEntity(ctx.Target, ctx, entries, dedupe);
 
         if (ctx.Actor != ctx.Target)
         {
-            foreach (var component in ctx.Actor.GetAllComponents())
-            {
-                if (component is not IInteractionSource source)
-                    continue;
-
-                foreach (var entry in source.GetInteractions(ctx))
-                    if (dedupe.Add(entry.Id))
-                        entries.Add(entry);
-            }
+            CollectActionsFromEntity(ctx.Actor, ctx, entries, dedupe);
         }
 
+        var hands = ctx.Actor.GetComponent<HandsComponent>();
+        var activeItem = hands?.ActiveItem;
+        if (activeItem != null)
+            CollectActionsFromHeldItem(activeItem, ctx, entries, dedupe);
+
         // Sort by priority descending (higher priority = closer to top)
-        entries.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+        entries.Sort((a, b) => b.Entry.Priority.CompareTo(a.Entry.Priority));
         return entries;
+    }
+
+    private static void CollectActionsFromEntity(Entity sourceEntity, InteractionContext ctx, List<MenuActionState> entries, HashSet<string> dedupe)
+    {
+        foreach (var component in sourceEntity.GetAllComponents())
+        {
+            if (component is not IInteractionSource source)
+                continue;
+
+            foreach (var entry in source.GetInteractions(ctx))
+            {
+                if (dedupe.Add(entry.Id))
+                    entries.Add(new MenuActionState
+                    {
+                        Entry = entry,
+                        Context = ctx
+                    });
+            }
+        }
+    }
+
+    private static void CollectActionsFromHeldItem(Entity activeItem, InteractionContext ctx, List<MenuActionState> entries, HashSet<string> dedupe)
+    {
+        CollectActionsFromEntity(activeItem, ctx, entries, dedupe);
+
+        if (ctx.Target != ctx.Actor)
+        {
+            var selfCtx = new InteractionContext
+            {
+                Actor = ctx.Actor,
+                Target = ctx.Actor,
+                World = ctx.World
+            };
+            CollectActionsFromEntity(activeItem, selfCtx, entries, dedupe);
+        }
+
+        if (ctx.Target != activeItem)
+        {
+            var itemCtx = new InteractionContext
+            {
+                Actor = ctx.Actor,
+                Target = activeItem,
+                World = ctx.World
+            };
+            CollectActionsFromEntity(activeItem, itemCtx, entries, dedupe);
+        }
     }
 
     private void TryOpenMenu(Vector2 worldPos, Vector2 screenPos)
@@ -289,8 +399,8 @@ public class InteractionSystem : GameSystem
 
         var best = FindHoveredInteractable(worldPos, player);
 
-        // If nothing is under the cursor, try self-interaction
-        if (best == null)
+        // Self-interaction should only happen when the cursor is actually over the actor.
+        if (best == null && IsPointOverEntity(player, worldPos))
         {
             var selfCtx = new InteractionContext
             {
@@ -312,6 +422,9 @@ public class InteractionSystem : GameSystem
             Console.WriteLine($"[Interaction] Self-interaction ({selfActions.Count} actions)");
             return;
         }
+
+        if (best == null)
+            return;
 
         var ctx = new InteractionContext
         {
@@ -349,7 +462,6 @@ public class InteractionSystem : GameSystem
 
         foreach (var entity in World.GetEntitiesWith<TransformComponent>())
         {
-            if (entity == actor) continue;
             if (!CanEntityBeInteractedWith(entity)) continue;
 
             var tf = entity.GetComponent<TransformComponent>()!;
@@ -384,6 +496,9 @@ public class InteractionSystem : GameSystem
         return tf.Position.Y + (sourceHeight * tf.Scale.Y * 0.5f) + sprite.SortOffsetY;
     }
 
+    private bool IsPointOverEntity(Entity entity, Vector2 worldPos)
+        => TryGetInteractionBounds(entity, out var bounds) && bounds.Contains(worldPos);
+
     private bool TryGetInteractionBounds(Entity entity, out FloatBounds bounds)
     {
         bounds = default;
@@ -396,13 +511,57 @@ public class InteractionSystem : GameSystem
         if (sprite != null)
         {
             var localBounds = GetSpriteMaskData(sprite).OpaqueBounds;
+            var left = tf.Position.X + (localBounds.X - sprite.Origin.X) * tf.Scale.X;
+            var top = tf.Position.Y + (localBounds.Y - sprite.Origin.Y) * tf.Scale.Y;
             var width = localBounds.Width * Math.Abs(tf.Scale.X);
             var height = localBounds.Height * Math.Abs(tf.Scale.Y);
+
+            // Расширяем bounds за счёт экипированных предметов
+            var equipment = entity.GetComponent<EquipmentComponent>();
+            if (equipment != null)
+            {
+                float minLeft = left, minTop = top;
+                float maxRight = left + width, maxBottom = top + height;
+
+                foreach (var slot in equipment.Slots)
+                {
+                    var wearable = slot.Item?.GetComponent<WearableComponent>();
+                    if (wearable == null) continue;
+                    var itemSprite = slot.Item?.GetComponent<SpriteComponent>();
+                    var tex = wearable.EquippedTexture ?? itemSprite?.Texture;
+                    if (tex == null) continue;
+
+                    var srcRect = wearable.GetEquippedSourceRect() ?? itemSprite?.SourceRect;
+                    var origin = wearable.EquippedTexture != null
+                        ? wearable.EquippedOrigin
+                        : itemSprite?.Origin ?? sprite.Origin;
+                    var sw = srcRect?.Width ?? tex.Width;
+                    var sh = srcRect?.Height ?? tex.Height;
+
+                    var eqMask = GetMaskDataForTexture(tex, srcRect);
+                    var eqLeft = tf.Position.X + (eqMask.OpaqueBounds.X - origin.X) * tf.Scale.X;
+                    var eqTop = tf.Position.Y + (eqMask.OpaqueBounds.Y - origin.Y) * tf.Scale.Y;
+                    var eqW = eqMask.OpaqueBounds.Width * Math.Abs(tf.Scale.X);
+                    var eqH = eqMask.OpaqueBounds.Height * Math.Abs(tf.Scale.Y);
+
+                    if (eqW > 0f && eqH > 0f)
+                    {
+                        minLeft = Math.Min(minLeft, eqLeft);
+                        minTop = Math.Min(minTop, eqTop);
+                        maxRight = Math.Max(maxRight, eqLeft + eqW);
+                        maxBottom = Math.Max(maxBottom, eqTop + eqH);
+                    }
+                }
+
+                left = minLeft;
+                top = minTop;
+                width = maxRight - minLeft;
+                height = maxBottom - minTop;
+            }
+
             if (width <= 0f || height <= 0f)
                 return false;
 
-            var left = tf.Position.X + (localBounds.X - sprite.Origin.X) * tf.Scale.X;
-            var top = tf.Position.Y + (localBounds.Y - sprite.Origin.Y) * tf.Scale.Y;
             bounds = new FloatBounds(left, top, width, height);
             return true;
         }
@@ -420,6 +579,7 @@ public class InteractionSystem : GameSystem
             return new SpriteMaskData
             {
                 OpaqueBounds = new Rectangle(0, 0, Math.Max(1, source.Width), Math.Max(1, source.Height)),
+                OpaquePixels = Array.Empty<Point>(),
                 EdgePixels = Array.Empty<Point>()
             };
         }
@@ -437,6 +597,7 @@ public class InteractionSystem : GameSystem
             var minY = source.Height;
             var maxX = -1;
             var maxY = -1;
+            var opaquePixels = new List<Point>();
             var edgePixels = new List<Point>();
 
             for (int y = 0; y < source.Height; y++)
@@ -451,6 +612,7 @@ public class InteractionSystem : GameSystem
                     if (y < minY) minY = y;
                     if (x > maxX) maxX = x;
                     if (y > maxY) maxY = y;
+                    opaquePixels.Add(new Point(x, y));
 
                     if (IsEdgePixel(pixels, source.Width, source.Height, x, y))
                         edgePixels.Add(new Point(x, y));
@@ -462,6 +624,7 @@ public class InteractionSystem : GameSystem
                 OpaqueBounds = maxX >= minX && maxY >= minY
                     ? new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1)
                     : new Rectangle(0, 0, source.Width, source.Height),
+                OpaquePixels = opaquePixels.ToArray(),
                 EdgePixels = edgePixels.ToArray()
             };
 
@@ -473,6 +636,58 @@ public class InteractionSystem : GameSystem
             var fallback = new SpriteMaskData
             {
                 OpaqueBounds = new Rectangle(0, 0, source.Width, source.Height),
+                OpaquePixels = Array.Empty<Point>(),
+                EdgePixels = Array.Empty<Point>()
+            };
+            _spriteMaskCache[cacheKey] = fallback;
+            return fallback;
+        }
+    }
+
+    private SpriteMaskData GetMaskDataForTexture(Texture2D texture, Rectangle? sourceRect)
+    {
+        var source = sourceRect ?? new Rectangle(0, 0, texture.Width, texture.Height);
+        var cacheKey = $"{texture.GetHashCode()}:{source.X}:{source.Y}:{source.Width}:{source.Height}";
+        if (_spriteMaskCache.TryGetValue(cacheKey, out var cached))
+            return cached;
+
+        try
+        {
+            var pixels = new Color[source.Width * source.Height];
+            texture.GetData(0, source, pixels, 0, pixels.Length);
+
+            int minX = source.Width, minY = source.Height, maxX = -1, maxY = -1;
+            var opaquePixels = new List<Point>();
+            var edgePixels = new List<Point>();
+
+            for (int y = 0; y < source.Height; y++)
+            for (int x = 0; x < source.Width; x++)
+            {
+                if (pixels[y * source.Width + x].A <= 10) continue;
+                if (x < minX) minX = x; if (y < minY) minY = y;
+                if (x > maxX) maxX = x; if (y > maxY) maxY = y;
+                opaquePixels.Add(new Point(x, y));
+                if (IsEdgePixel(pixels, source.Width, source.Height, x, y))
+                    edgePixels.Add(new Point(x, y));
+            }
+
+            var mask = new SpriteMaskData
+            {
+                OpaqueBounds = maxX >= minX && maxY >= minY
+                    ? new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1)
+                    : new Rectangle(0, 0, source.Width, source.Height),
+                OpaquePixels = opaquePixels.ToArray(),
+                EdgePixels = edgePixels.ToArray()
+            };
+            _spriteMaskCache[cacheKey] = mask;
+            return mask;
+        }
+        catch
+        {
+            var fallback = new SpriteMaskData
+            {
+                OpaqueBounds = new Rectangle(0, 0, source.Width, source.Height),
+                OpaquePixels = Array.Empty<Point>(),
                 EdgePixels = Array.Empty<Point>()
             };
             _spriteMaskCache[cacheKey] = fallback;
@@ -506,20 +721,29 @@ public class InteractionSystem : GameSystem
         var ctx = new InteractionContext
         {
             Actor = actor,
-            Target = activeItem,
+            Target = actor,
             World = World
         };
 
-        var actions = CollectActions(ctx);
+        var actions = CollectActionsFromHeldItem(activeItem, ctx);
         if (actions.Count == 0)
             return;
 
-        _targetEntity = activeItem;
+        _targetEntity = actor;
         _activeContext = ctx;
         _menuActions = actions;
         _menuScreenPos = GetMouseAnchoredMenuPosition();
         _menuOpen = true;
         _hoveredIndex = -1;
+    }
+
+    private static List<MenuActionState> CollectActionsFromHeldItem(Entity activeItem, InteractionContext ctx)
+    {
+        var entries = new List<MenuActionState>();
+        var dedupe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        CollectActionsFromHeldItem(activeItem, ctx, entries, dedupe);
+        entries.Sort((a, b) => b.Entry.Priority.CompareTo(a.Entry.Priority));
+        return entries;
     }
 
     private Entity? GetPrimaryActor()
@@ -540,6 +764,25 @@ public class InteractionSystem : GameSystem
 
     private static float GetInteractRange(Entity entity)
         => entity.GetComponent<InteractableComponent>()?.InteractRange ?? DefaultInteractRange;
+
+    private bool ShouldCloseWorldMenu(Entity? actor)
+    {
+        if (!_menuOpen || actor == null || _targetEntity == null)
+            return false;
+
+        if (_targetEntity == actor)
+            return false;
+
+        var actorTf = actor.GetComponent<TransformComponent>();
+        var targetTf = _targetEntity.GetComponent<TransformComponent>();
+        if (actorTf == null || targetTf == null)
+            return true;
+
+        if (!CanEntityBeInteractedWith(_targetEntity))
+            return true;
+
+        return Vector2.Distance(actorTf.Position, targetTf.Position) > GetInteractRange(_targetEntity);
+    }
 
     private static string GetInteractName(Entity entity)
     {
@@ -595,10 +838,96 @@ public class InteractionSystem : GameSystem
         if (_activeContext == null || index < 0 || index >= _menuActions.Count) return;
 
         var action = _menuActions[index];
-        Console.WriteLine($"[Interaction] Execute: {action.Label}");
-        action.Execute?.Invoke(_activeContext);
+        Console.WriteLine($"[Interaction] Execute: {action.Entry.Label}");
+        if (!TryExecuteInteractionAction(action.Entry, action.Context))
+            return;
 
         CloseMenu();
+    }
+
+    private bool TryExecuteInteractionAction(InteractionEntry action, InteractionContext context)
+    {
+        if (action.InterruptsCurrentAction)
+            InterruptDelayedInteractionForAction();
+
+        if (action.Delay is { Duration: > 0f } delay)
+        {
+            if (_activeDelayedInteraction != null)
+                return false;
+
+            BeginDelayedInteraction(action, context, delay);
+            return true;
+        }
+
+        action.Execute?.Invoke(context);
+        return true;
+    }
+
+    private void BeginDelayedInteraction(InteractionEntry action, InteractionContext context, InteractionDelay delay)
+    {
+        var actorTf = context.Actor.GetComponent<TransformComponent>();
+        _activeDelayedInteraction = new DelayedInteractionState
+        {
+            Entry = action,
+            Context = context,
+            Actor = context.Actor,
+            StartPosition = actorTf?.Position ?? Vector2.Zero,
+            Duration = delay.Duration,
+            ProgressLabel = string.IsNullOrWhiteSpace(delay.ProgressLabel) ? action.Label : delay.ProgressLabel
+        };
+    }
+
+    private void UpdateDelayedInteraction(float deltaTime)
+    {
+        if (_activeDelayedInteraction == null)
+            return;
+
+        var state = _activeDelayedInteraction;
+        var delay = state.Entry.Delay;
+        if (delay == null)
+        {
+            _activeDelayedInteraction = null;
+            return;
+        }
+
+        if (!state.Actor.Active || state.Actor.GetComponent<HealthComponent>()?.IsDead == true)
+        {
+            CancelDelayedInteraction("Прервано");
+            return;
+        }
+
+        if (delay.CancelOnMove)
+        {
+            var tf = state.Actor.GetComponent<TransformComponent>();
+            if (tf == null || Vector2.DistanceSquared(tf.Position, state.StartPosition) > 1f)
+            {
+                CancelDelayedInteraction("Прервано движением");
+                return;
+            }
+        }
+
+        state.Elapsed += deltaTime;
+        if (state.Elapsed < state.Duration)
+            return;
+
+        _activeDelayedInteraction = null;
+        state.Entry.Execute?.Invoke(state.Context);
+    }
+
+    private void InterruptDelayedInteractionForAction()
+    {
+        if (_activeDelayedInteraction?.Entry.Delay?.CancelOnOtherAction == true)
+            CancelDelayedInteraction("Действие прервано");
+    }
+
+    private void CancelDelayedInteraction(string popupText)
+    {
+        if (_activeDelayedInteraction == null)
+            return;
+
+        var actor = _activeDelayedInteraction.Actor;
+        _activeDelayedInteraction = null;
+        PopupTextSystem.Show(actor, popupText, Color.LightGray, lifetime: 1f);
     }
 
     private void CloseMenu()
@@ -684,12 +1013,19 @@ public class InteractionSystem : GameSystem
             if (row.IsStoredItem)
             {
                 if (rightClick)
+                {
+                    InterruptDelayedInteractionForAction();
                     storage.TryRemove(row.Item);
+                }
                 else if (hands != null)
+                {
+                    InterruptDelayedInteractionForAction();
                     storage.TryRemoveToHands(row.Item, hands);
+                }
             }
             else if (!rightClick)
             {
+                InterruptDelayedInteractionForAction();
                 storage.TryInsert(row.Item);
             }
 
@@ -714,12 +1050,22 @@ public class InteractionSystem : GameSystem
         var actor = GetPrimaryActor();
         var hands = actor?.GetComponent<HandsComponent>();
         var equipment = actor?.GetComponent<EquipmentComponent>();
-        if (!_menuOpen && hands == null && equipment == null && _openStorageEntity == null && _hoveredWorldEntity == null) return;
-
-        _sb.Begin();
+        if (!_menuOpen && hands == null && equipment == null && _openStorageEntity == null && _hoveredWorldEntity == null && _activeDelayedInteraction == null) return;
 
         if (_hoveredWorldEntity != null)
+        {
+            _sb.Begin(samplerState: SamplerState.PointClamp);
             DrawHoveredEntityOutline(_hoveredWorldEntity);
+            _sb.End();
+        }
+
+        var uiScale = GetUiScale();
+        var uiSampler = Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp;
+        _sb.Begin(
+            samplerState: uiSampler,
+            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+
+        DrawDelayedInteractionProgress();
 
         if (_menuOpen)
         {
@@ -736,12 +1082,44 @@ public class InteractionSystem : GameSystem
             DrawEquipmentBar(hands, equipment);
 
         if (_draggedItem == null && _input != null)
-            DrawHoveredSlotTooltip(new Vector2(_input.MousePosition.X, _input.MousePosition.Y), hands, equipment);
+            DrawHoveredSlotTooltip(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y), hands, equipment);
+
+        if (_input != null)
+            DrawStatusEffectTooltip(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y));
 
         if (_draggedItem != null && _input != null)
-            DrawDraggedItem(new Vector2(_input.MousePosition.X, _input.MousePosition.Y));
+            DrawDraggedItem(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y));
 
         _sb.End();
+    }
+
+    private void DrawDelayedInteractionProgress()
+    {
+        if (_activeDelayedInteraction == null || _camera == null || _font == null || _pixel == null || _sb == null)
+            return;
+
+        var state = _activeDelayedInteraction;
+        var tf = state.Actor.GetComponent<TransformComponent>();
+        if (tf == null)
+            return;
+
+        var progress = Math.Clamp(state.Elapsed / Math.Max(0.01f, state.Duration), 0f, 1f);
+        var anchor = _camera.WorldToScreen(tf.Position + new Vector2(0f, -34f));
+        var width = 78;
+        var height = 10;
+        var rect = new Rectangle((int)MathF.Round(anchor.X - width / 2f), (int)MathF.Round(anchor.Y), width, height);
+        var fillWidth = Math.Max(0, (int)MathF.Round((width - 2) * progress));
+        var label = state.ProgressLabel;
+        var labelSize = _font.MeasureString(label);
+        var labelPos = new Vector2(rect.Center.X - labelSize.X * 0.5f, rect.Y - labelSize.Y - 4f);
+
+        _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), Color.Black * 0.45f);
+        _sb.Draw(_pixel, rect, new Color(28, 32, 38, 220));
+        if (fillWidth > 0)
+            _sb.Draw(_pixel, new Rectangle(rect.X + 1, rect.Y + 1, fillWidth, rect.Height - 2), new Color(110, 200, 120));
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), new Color(180, 200, 180));
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), new Color(20, 20, 20));
+        _sb.DrawString(_font, label, labelPos, Color.White);
     }
 
     private void DrawHoveredEntityOutline(Entity entity)
@@ -756,42 +1134,124 @@ public class InteractionSystem : GameSystem
             if (!TryGetInteractionBounds(entity, out var worldBounds))
                 return;
 
-            var topLeft = _camera.WorldToScreen(new Vector2(worldBounds.Left, worldBounds.Top));
-            var bottomRight = _camera.WorldToScreen(new Vector2(worldBounds.Right, worldBounds.Bottom));
-            var x = (int)MathF.Round(Math.Min(topLeft.X, bottomRight.X));
-            var y = (int)MathF.Round(Math.Min(topLeft.Y, bottomRight.Y));
-            var width = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.X - topLeft.X)));
-            var height = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.Y - topLeft.Y)));
-            DrawOutlineRect(new Rectangle(x - 1, y - 1, width + 2, height + 2));
+            var fallbackTopLeft = _camera.WorldToScreen(new Vector2(worldBounds.Left, worldBounds.Top));
+            var fallbackBottomRight = _camera.WorldToScreen(new Vector2(worldBounds.Right, worldBounds.Bottom));
+            var fallbackX = (int)MathF.Round(Math.Min(fallbackTopLeft.X, fallbackBottomRight.X));
+            var fallbackY = (int)MathF.Round(Math.Min(fallbackTopLeft.Y, fallbackBottomRight.Y));
+            var fallbackWidth = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBottomRight.X - fallbackTopLeft.X)));
+            var fallbackHeight = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBottomRight.Y - fallbackTopLeft.Y)));
+            DrawOutlineRect(new Rectangle(fallbackX - 1, fallbackY - 1, fallbackWidth + 2, fallbackHeight + 2));
             return;
         }
 
-        var mask = GetSpriteMaskData(sprite);
-        if (mask.EdgePixels.Length == 0)
+        var combinedOutline = BuildCombinedOutlineData(entity, sprite);
+        if (combinedOutline?.EdgePixels.Length > 0)
         {
-            if (!TryGetInteractionBounds(entity, out var worldBounds))
-                return;
-
-            var topLeft = _camera.WorldToScreen(new Vector2(worldBounds.Left, worldBounds.Top));
-            var bottomRight = _camera.WorldToScreen(new Vector2(worldBounds.Right, worldBounds.Bottom));
-            var x = (int)MathF.Round(Math.Min(topLeft.X, bottomRight.X));
-            var y = (int)MathF.Round(Math.Min(topLeft.Y, bottomRight.Y));
-            var width = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.X - topLeft.X)));
-            var height = Math.Max(4, (int)MathF.Round(Math.Abs(bottomRight.Y - topLeft.Y)));
-            DrawOutlineRect(new Rectangle(x - 1, y - 1, width + 2, height + 2));
+            DrawOutlineMask(tf, tf.Scale, combinedOutline);
             return;
         }
 
-        var pixelWidth = Math.Max(1, (int)MathF.Ceiling(Math.Abs(tf.Scale.X) * _camera.Zoom));
-        var pixelHeight = Math.Max(1, (int)MathF.Ceiling(Math.Abs(tf.Scale.Y) * _camera.Zoom));
+        if (!TryGetInteractionBounds(entity, out var fallbackWorldBounds))
+            return;
+
+        var fallbackBoundsTopLeft = _camera.WorldToScreen(new Vector2(fallbackWorldBounds.Left, fallbackWorldBounds.Top));
+        var fallbackBoundsBottomRight = _camera.WorldToScreen(new Vector2(fallbackWorldBounds.Right, fallbackWorldBounds.Bottom));
+        var fallbackBoundsX = (int)MathF.Round(Math.Min(fallbackBoundsTopLeft.X, fallbackBoundsBottomRight.X));
+        var fallbackBoundsY = (int)MathF.Round(Math.Min(fallbackBoundsTopLeft.Y, fallbackBoundsBottomRight.Y));
+        var fallbackBoundsWidth = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBoundsBottomRight.X - fallbackBoundsTopLeft.X)));
+        var fallbackBoundsHeight = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBoundsBottomRight.Y - fallbackBoundsTopLeft.Y)));
+        DrawOutlineRect(new Rectangle(fallbackBoundsX - 1, fallbackBoundsY - 1, fallbackBoundsWidth + 2, fallbackBoundsHeight + 2));
+    }
+
+    private CombinedOutlineData? BuildCombinedOutlineData(Entity entity, SpriteComponent baseSprite)
+    {
+        var layers = new List<(SpriteMaskData Mask, Vector2 Origin)>
+        {
+            (GetSpriteMaskData(baseSprite), baseSprite.Origin)
+        };
+
+        var equipment = entity.GetComponent<EquipmentComponent>();
+        if (equipment != null)
+        {
+            foreach (var slot in equipment.Slots)
+            {
+                var wearable = slot.Item?.GetComponent<WearableComponent>();
+                if (wearable == null)
+                    continue;
+
+                var itemSprite = slot.Item?.GetComponent<SpriteComponent>();
+                var texture = wearable.EquippedTexture ?? itemSprite?.Texture;
+                if (texture == null)
+                    continue;
+
+                var sourceRect = wearable.GetEquippedSourceRect() ?? itemSprite?.SourceRect;
+                var origin = wearable.EquippedTexture != null
+                    ? wearable.EquippedOrigin
+                    : itemSprite?.Origin ?? baseSprite.Origin;
+                layers.Add((GetMaskDataForTexture(texture, sourceRect), origin));
+            }
+        }
+
+        var opaque = new HashSet<Point>();
+        var minX = int.MaxValue;
+        var minY = int.MaxValue;
+        var maxX = int.MinValue;
+        var maxY = int.MinValue;
+
+        foreach (var (mask, origin) in layers)
+        {
+            foreach (var pixel in mask.OpaquePixels)
+            {
+                var localX = (int)MathF.Round(pixel.X - origin.X);
+                var localY = (int)MathF.Round(pixel.Y - origin.Y);
+                var point = new Point(localX, localY);
+                if (!opaque.Add(point))
+                    continue;
+
+                if (localX < minX) minX = localX;
+                if (localY < minY) minY = localY;
+                if (localX > maxX) maxX = localX;
+                if (localY > maxY) maxY = localY;
+            }
+        }
+
+        if (opaque.Count == 0)
+            return null;
+
+        var edges = new List<Point>();
+        foreach (var point in opaque)
+        {
+            if (!opaque.Contains(new Point(point.X - 1, point.Y))
+                || !opaque.Contains(new Point(point.X + 1, point.Y))
+                || !opaque.Contains(new Point(point.X, point.Y - 1))
+                || !opaque.Contains(new Point(point.X, point.Y + 1)))
+            {
+                edges.Add(point);
+            }
+        }
+
+        return new CombinedOutlineData
+        {
+            EdgePixels = edges.ToArray(),
+            Bounds = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1)
+        };
+    }
+
+    private void DrawOutlineMask(TransformComponent tf, Vector2 scale, CombinedOutlineData outline)
+    {
+        if (_camera == null || _sb == null || _pixel == null)
+            return;
+
+        var pixelWidth = Math.Max(1, (int)MathF.Ceiling(Math.Abs(scale.X) * _camera.Zoom));
+        var pixelHeight = Math.Max(1, (int)MathF.Ceiling(Math.Abs(scale.Y) * _camera.Zoom));
         var outlineColor = new Color(255, 220, 80);
         var glowColor = outlineColor * 0.30f;
 
-        foreach (var edge in mask.EdgePixels)
+        foreach (var edge in outline.EdgePixels)
         {
             var worldTopLeft = new Vector2(
-                tf.Position.X + (edge.X - sprite.Origin.X) * tf.Scale.X,
-                tf.Position.Y + (edge.Y - sprite.Origin.Y) * tf.Scale.Y);
+                tf.Position.X + edge.X * scale.X,
+                tf.Position.Y + edge.Y * scale.Y);
             var screenTopLeft = _camera.WorldToScreen(worldTopLeft);
 
             var rect = new Rectangle(
@@ -800,7 +1260,7 @@ public class InteractionSystem : GameSystem
                 pixelWidth,
                 pixelHeight);
 
-            _sb!.Draw(_pixel!, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), glowColor);
+            _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), glowColor);
             _sb.Draw(_pixel, rect, outlineColor);
         }
     }
@@ -849,7 +1309,7 @@ public class InteractionSystem : GameSystem
                 _sb.Draw(_pixel, itemRect, new Color(55, 85, 55));
 
             DrawFittedMenuText(
-                _menuActions[i].Label,
+                _menuActions[i].Entry.Label,
                 new Rectangle(itemRect.X + 10, itemRect.Y + 2, itemRect.Width - 20, ItemHeight - 4),
                 hovered ? Color.White : new Color(200, 200, 200));
 
@@ -886,6 +1346,8 @@ public class InteractionSystem : GameSystem
     {
         if (_gd == null)
             return;
+
+        DrawStatusEffectStrip();
 
         if (hands != null)
         {
@@ -924,12 +1386,226 @@ public class InteractionSystem : GameSystem
         }
     }
 
+    private void DrawStatusEffectStrip()
+    {
+        var actor = GetPrimaryActor();
+        if (actor == null || _sb == null || _pixel == null)
+            return;
+
+        var icons = BuildStatusEffectIcons(actor);
+        if (icons.Count == 0)
+            return;
+
+        foreach (var iconInfo in icons)
+        {
+            var effect = iconInfo.Effect;
+            var rect = iconInfo.Rect;
+            var tint = AssetManager.ParseHexColor(effect.Tint);
+            var icon = GetOrCreateStatusIcon(effect.Id, effect.Pattern, tint);
+
+            _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), Color.Black * 0.55f);
+            _sb.Draw(_pixel, rect, new Color(18, 22, 28, 240));
+            _sb.Draw(icon, rect, Color.White);
+            _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), tint * 0.95f);
+            _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), Color.Black * 0.75f);
+            _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), tint * 0.95f);
+            _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), Color.Black * 0.75f);
+        }
+    }
+
+    private void DrawStatusEffectTooltip(Vector2 mousePos)
+    {
+        if (_sb == null || _font == null || _pixel == null)
+            return;
+
+        var actor = GetPrimaryActor();
+        if (actor == null)
+            return;
+
+        var hovered = BuildStatusEffectIcons(actor)
+            .FirstOrDefault(icon => icon.Rect.Contains((int)mousePos.X, (int)mousePos.Y));
+        if (hovered == null)
+            return;
+
+        var text = $"{hovered.Effect.Label}\n{hovered.Effect.Description}";
+        var wrapped = SanitizeTooltipText(text);
+        var size = _font.MeasureString(wrapped);
+        var rect = new Rectangle(
+            (int)mousePos.X + 16,
+            (int)mousePos.Y - 8,
+            (int)size.X + 12,
+            (int)size.Y + 10);
+
+        if (_gd != null)
+        {
+            if (rect.Right > GetUiViewportWidth())
+                rect.X = Math.Max(0, (int)mousePos.X - rect.Width - 16);
+            if (rect.Bottom > GetUiViewportHeight())
+                rect.Y = Math.Max(0, GetUiViewportHeight() - rect.Height - 4);
+        }
+
+        var tint = AssetManager.ParseHexColor(hovered.Effect.Tint);
+        _sb.Draw(_pixel, rect, Color.Black * 0.88f);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), tint);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), tint * 0.6f);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), tint);
+        _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), tint * 0.6f);
+        _sb.DrawString(_font, wrapped, new Vector2(rect.X + 6, rect.Y + 5), Color.White);
+    }
+
+    private List<StatusEffectIconInfo> BuildStatusEffectIcons(Entity actor)
+    {
+        const int iconSize = 18;
+        const int gap = 4;
+        var effects = BuildStatusEffects(actor);
+        if (effects.Count == 0)
+            return new List<StatusEffectIconInfo>();
+
+        var area = GetStatusEffectAreaRect();
+        var totalWidth = effects.Count * iconSize + Math.Max(0, effects.Count - 1) * gap;
+        var startX = area.Center.X - totalWidth / 2;
+        var y = area.Y;
+        var icons = new List<StatusEffectIconInfo>(effects.Count);
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            icons.Add(new StatusEffectIconInfo
+            {
+                Rect = new Rectangle(startX + i * (iconSize + gap), y, iconSize, iconSize),
+                Effect = effects[i]
+            });
+        }
+
+        return icons;
+    }
+
+    private List<StatusEffectDefinition> BuildStatusEffects(Entity actor)
+    {
+        var effectIds = new List<string>();
+        var metabolism = actor.GetComponent<MetabolismComponent>();
+        var wounds = actor.GetComponent<WoundComponent>();
+
+        if (wounds?.IsBleeding == true)
+            effectIds.Add("bleeding");
+
+        if (wounds is { ExhaustionDamage: > 0.5f })
+            effectIds.Add("exhaustion");
+
+        if (metabolism == null)
+            return ResolveStatusEffects(effectIds);
+
+        if (metabolism.HungerStatus == NeedStatus.Critical)
+            effectIds.Add("starving");
+        else if (metabolism.HungerStatus == NeedStatus.Warning)
+            effectIds.Add("hungry");
+
+        if (metabolism.ThirstStatus == NeedStatus.Critical)
+            effectIds.Add("dehydrated");
+        else if (metabolism.ThirstStatus == NeedStatus.Warning)
+            effectIds.Add("thirsty");
+
+        if (metabolism.BladderStatus == NeedStatus.Critical)
+            effectIds.Add("bladder_critical");
+        else if (metabolism.BladderStatus == NeedStatus.Warning)
+            effectIds.Add("bladder_warning");
+
+        if (metabolism.BowelStatus == NeedStatus.Critical)
+            effectIds.Add("bowel_critical");
+        else if (metabolism.BowelStatus == NeedStatus.Warning)
+            effectIds.Add("bowel_warning");
+
+        if (CanShowNaturalRegen(metabolism, wounds))
+            effectIds.Add("regeneration");
+
+        if (metabolism.SpeedModifier > 1.01f)
+            effectIds.Add("vigor");
+        else if (metabolism.SpeedModifier < 0.99f)
+            effectIds.Add("slowed");
+
+        return ResolveStatusEffects(effectIds);
+    }
+
+    private static List<StatusEffectDefinition> ResolveStatusEffects(IEnumerable<string> effectIds)
+    {
+        return effectIds
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(StatusEffectCatalog.Get)
+            .Where(effect => effect != null)
+            .Cast<StatusEffectDefinition>()
+            .OrderByDescending(effect => effect.Priority)
+            .ToList();
+    }
+
+    private static bool CanShowNaturalRegen(MetabolismComponent metabolism, WoundComponent? wounds)
+    {
+        if (wounds == null || wounds.TotalDamage <= 0.01f || wounds.IsBleeding)
+            return false;
+
+        return metabolism.Hunger >= metabolism.NaturalRegenThreshold
+            && metabolism.Thirst >= metabolism.NaturalRegenThreshold
+            && metabolism.BladderStatus != NeedStatus.Critical
+            && metabolism.BowelStatus != NeedStatus.Critical;
+    }
+
+    private Texture2D GetOrCreateStatusIcon(string id, string pattern, Color tint)
+    {
+        if (_statusIconTextures.TryGetValue(id, out var cached))
+            return cached;
+
+        var texture = CreateStatusIconTexture(pattern, tint);
+        _statusIconTextures[id] = texture;
+        return texture;
+    }
+
+    private Texture2D CreateStatusIconTexture(string pattern, Color tint)
+    {
+        var rows = pattern.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var width = rows.Length == 0 ? 8 : rows[0].Length;
+        var height = Math.Max(1, rows.Length);
+        var texture = new Texture2D(_gd!, width, height);
+        var pixels = new Color[width * height];
+        var shadow = new Color(
+            (byte)Math.Max(0, tint.R / 3),
+            (byte)Math.Max(0, tint.G / 3),
+            (byte)Math.Max(0, tint.B / 3),
+            (byte)255);
+
+        for (int y = 0; y < height; y++)
+        {
+            var row = rows[y];
+            for (int x = 0; x < width; x++)
+            {
+                var ch = x < row.Length ? row[x] : '.';
+                pixels[y * width + x] = ch switch
+                {
+                    '#' => tint,
+                    '+' => Color.White,
+                    'x' or 'X' => shadow,
+                    _ => Color.Transparent
+                };
+            }
+        }
+
+        texture.SetData(pixels);
+        return texture;
+    }
+
+    private Rectangle GetStatusEffectAreaRect()
+    {
+        var handsRect = GetHandBarRect();
+        var equipmentRect = GetEquipmentGridRect();
+        var left = Math.Min(handsRect.Left, equipmentRect.Left);
+        var right = Math.Max(handsRect.Right, equipmentRect.Right);
+        var y = Math.Min(handsRect.Top, equipmentRect.Top) - 24;
+        return new Rectangle(left, y, right - left, 18);
+    }
+
     private void DrawActiveHandCursorIcon(HandsComponent hands)
     {
         if (_input == null || hands.ActiveItem == null || _draggedItem != null)
             return;
 
-        var mouse = _input.MousePosition;
+        var mouse = GetUiMousePoint();
         var rect = new Rectangle(mouse.X + 14, mouse.Y - 6, 14, 14);
         DrawEntityIcon(hands.ActiveItem, rect, 0.45f);
     }
@@ -953,10 +1629,10 @@ public class InteractionSystem : GameSystem
 
         if (_gd != null)
         {
-            if (rect.Right > _gd.Viewport.Width)
+            if (rect.Right > GetUiViewportWidth())
                 rect.X = Math.Max(0, (int)mousePos.X - rect.Width - 16);
-            if (rect.Bottom > _gd.Viewport.Height)
-                rect.Y = Math.Max(0, _gd.Viewport.Height - rect.Height - 4);
+            if (rect.Bottom > GetUiViewportHeight())
+                rect.Y = Math.Max(0, GetUiViewportHeight() - rect.Height - 4);
         }
 
         _sb!.Draw(_pixel!, rect, Color.Black * 0.82f);
@@ -998,7 +1674,9 @@ public class InteractionSystem : GameSystem
 
         var item = itemEntity.GetComponent<ItemComponent>();
         if (!string.IsNullOrWhiteSpace(item?.ItemName))
-            return item.ItemName;
+            return item.Stackable && item.StackCount > 1
+                ? $"{item.ItemName} x{item.StackCount}"
+                : item.ItemName;
 
         return itemEntity.Name;
     }
@@ -1195,8 +1873,8 @@ public class InteractionSystem : GameSystem
         var y = (int)mousePos.Y - _storageDragOffset.Y;
         var currentRect = GetStorageRect();
 
-        x = Math.Clamp(x, 0, Math.Max(0, _gd.Viewport.Width - currentRect.Width));
-        y = Math.Clamp(y, 0, Math.Max(0, _gd.Viewport.Height - currentRect.Height));
+        x = Math.Clamp(x, 0, Math.Max(0, GetUiViewportWidth() - currentRect.Width));
+        y = Math.Clamp(y, 0, Math.Max(0, GetUiViewportHeight() - currentRect.Height));
         _storageWindowPosition = new Point(x, y);
     }
 
@@ -1434,6 +2112,7 @@ public class InteractionSystem : GameSystem
 
     private void DrawEntityIcon(Entity entity, Rectangle rect, float alpha = 1f)
     {
+        var item = entity.GetComponent<ItemComponent>();
         var liquid = entity.GetComponent<LiquidContainerComponent>();
         var fillTexture = liquid?.GetFillTexture();
         if (fillTexture != null)
@@ -1452,10 +2131,27 @@ public class InteractionSystem : GameSystem
         if (sprite?.Texture != null)
         {
             _sb!.Draw(sprite.Texture, rect, sprite.SourceRect, sprite.Color * alpha);
-            return;
+        }
+        else
+        {
+            _sb!.Draw(_pixel!, rect, Color.Gray * alpha);
         }
 
-        _sb!.Draw(_pixel!, rect, Color.Gray * alpha);
+        if (item is { Stackable: true, StackCount: > 1 } && _font != null)
+            DrawStackCount(rect, item.StackCount, alpha);
+    }
+
+    private void DrawStackCount(Rectangle rect, int count, float alpha)
+    {
+        var text = count.ToString();
+        var scale = 0.6f;
+        var size = _font!.MeasureString(text) * scale;
+        var pos = new Vector2(
+            rect.Right - size.X - 1f,
+            rect.Bottom - size.Y + 1f);
+
+        _sb!.Draw(_pixel!, new Rectangle((int)pos.X - 2, (int)pos.Y - 1, (int)MathF.Ceiling(size.X) + 4, (int)MathF.Ceiling(size.Y) + 2), Color.Black * (0.82f * alpha));
+        _sb.DrawString(_font, text, pos, Color.White * alpha, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
     }
 
     private void DrawSlotFrame(Rectangle rect, Texture2D? texture, Color tint, Color fallbackFill)
@@ -1476,7 +2172,7 @@ public class InteractionSystem : GameSystem
     private Rectangle GetHandBarRect()
     {
         var totalWidth = HandSlotSize * 2 + HandSlotGap;
-        return new Rectangle((_gd!.Viewport.Width - totalWidth) / 2, _gd.Viewport.Height - HandSlotSize - 18, totalWidth, HandSlotSize);
+        return new Rectangle((GetUiViewportWidth() - totalWidth) / 2, GetUiViewportHeight() - HandSlotSize - 18, totalWidth, HandSlotSize);
     }
 
     private Rectangle GetEquipmentGridRect()
@@ -1526,8 +2222,8 @@ public class InteractionSystem : GameSystem
 
         if (_gd != null)
         {
-            if (x + MenuWidth > _gd.Viewport.Width) x = _gd.Viewport.Width - MenuWidth - 4;
-            if (y + totalH > _gd.Viewport.Height) y = _gd.Viewport.Height - totalH - 4;
+            if (x + MenuWidth > GetUiViewportWidth()) x = GetUiViewportWidth() - MenuWidth - 4;
+            if (y + totalH > GetUiViewportHeight()) y = GetUiViewportHeight() - totalH - 4;
             x = Math.Max(0, x);
             y = Math.Max(0, y);
         }
@@ -1540,7 +2236,8 @@ public class InteractionSystem : GameSystem
         if (_input == null)
             return _menuScreenPos;
 
-        return new Vector2(_input.MousePosition.X + 14, _input.MousePosition.Y - 8);
+        var mouse = GetUiMousePoint();
+        return new Vector2(mouse.X + 14, mouse.Y - 8);
     }
 
     private Rectangle GetItemRect(int i)

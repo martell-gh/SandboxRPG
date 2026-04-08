@@ -1,9 +1,19 @@
 namespace MTEngine.Core;
 
+[SaveObject("gameClock")]
 public class GameClock
 {
     private float _totalSeconds;
+
+    [SaveField("timeScale")]
     public float TimeScale { get; set; } = 72f; // 1 игровые сутки = 20 реальных минут
+
+    [SaveField("totalSeconds")]
+    public float SavedTotalSeconds
+    {
+        get => _totalSeconds;
+        set => _totalSeconds = Math.Clamp(value, 0f, 86400f);
+    }
 
     public GameClock(float startHour = 8f)
     {

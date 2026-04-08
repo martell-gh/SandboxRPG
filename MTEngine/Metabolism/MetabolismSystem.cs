@@ -6,6 +6,7 @@ using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Systems;
+using MTEngine.Wounds;
 
 namespace MTEngine.Metabolism;
 
@@ -26,6 +27,11 @@ public class MetabolismSystem : GameSystem
 
     public override void Update(float deltaTime)
     {
+        var sleepSystem = ServiceLocator.Has<SleepSystem>()
+            ? ServiceLocator.Get<SleepSystem>()
+            : null;
+        var suspendNeedDecay = sleepSystem?.ShouldSuspendNeedDecay() == true;
+
         foreach (var entity in World.GetEntitiesWith<MetabolismComponent>())
         {
             var m = entity.GetComponent<MetabolismComponent>()!;
@@ -33,10 +39,13 @@ public class MetabolismSystem : GameSystem
             if (!m.Enabled) continue;
             if (health?.IsDead == true) continue;
 
-            UpdateDecay(m, deltaTime);
-            UpdateDigestion(m, deltaTime);
+            if (!suspendNeedDecay)
+            {
+                UpdateDecay(m, deltaTime);
+                UpdateDigestion(m, deltaTime);
+            }
             UpdateSubstances(entity, m, deltaTime);
-            UpdateHealth(m, health, deltaTime);
+            UpdateHealth(entity, m, health, deltaTime);
             UpdateEffects(entity, m, deltaTime);
         }
     }
@@ -219,21 +228,122 @@ public class MetabolismSystem : GameSystem
         }
     }
 
-    private static void UpdateHealth(MetabolismComponent m, HealthComponent? health, float dt)
+    private static void UpdateHealth(Entity entity, MetabolismComponent m, HealthComponent? health, float dt)
     {
         if (health == null || health.IsDead)
             return;
 
-        var damage = 0f;
+        var wounds = entity.GetComponent<WoundComponent>();
+        var starvationDamage = 0f;
+        var dehydrationDamage = 0f;
 
         if (m.HungerStatus == NeedStatus.Critical)
-            damage += m.StarvationDamage * dt;
+            starvationDamage = m.StarvationDamage * dt;
 
         if (m.ThirstStatus == NeedStatus.Critical)
-            damage += m.DehydrationDamage * dt;
+            dehydrationDamage = m.DehydrationDamage * dt;
 
+        if (wounds != null)
+        {
+            var exhaustionDamage = starvationDamage + dehydrationDamage;
+            if (exhaustionDamage > 0f)
+                WoundComponent.ApplyDamage(entity, DamageType.Exhaustion, exhaustionDamage);
+            else
+            {
+                ApplyExhaustionRecovery(entity, m, wounds, dt);
+                ApplyNaturalRegen(entity, m, wounds, dt);
+            }
+
+            SyncHealthFromWounds(health, wounds);
+            return;
+        }
+
+        var damage = starvationDamage + dehydrationDamage;
         if (damage > 0f)
             health.Health = Math.Max(0f, health.Health - damage);
+        else
+            health.Health = Math.Min(health.MaxHealth, health.Health + GetFallbackRegenAmount(m, dt));
+    }
+
+    private static void ApplyNaturalRegen(Entity entity, MetabolismComponent metabolism, WoundComponent wounds, float dt)
+    {
+        if (!CanNaturallyRegenerate(metabolism, wounds))
+            return;
+
+        var regenAmount = metabolism.NaturalRegenRate * dt;
+        if (regenAmount <= 0f)
+            return;
+
+        // Сначала снимаем истощение, потом медленно заживляем обычные раны.
+        regenAmount -= WoundComponent.HealDamage(entity, DamageType.Exhaustion, regenAmount);
+        if (regenAmount <= 0f)
+            return;
+
+        regenAmount -= WoundComponent.HealDamage(entity, DamageType.Blunt, regenAmount);
+        if (regenAmount <= 0f)
+            return;
+
+        regenAmount -= WoundComponent.HealDamage(entity, DamageType.Slash, regenAmount);
+        if (regenAmount <= 0f)
+            return;
+
+        WoundComponent.HealDamage(entity, DamageType.Burn, regenAmount);
+    }
+
+    private static void ApplyExhaustionRecovery(Entity entity, MetabolismComponent metabolism, WoundComponent wounds, float dt)
+    {
+        if (!CanRecoverExhaustion(metabolism, wounds))
+            return;
+
+        var recoveryAmount = metabolism.ExhaustionRecoveryRate * dt;
+        if (metabolism.Hunger >= metabolism.NaturalRegenThreshold && metabolism.Thirst >= metabolism.NaturalRegenThreshold)
+            recoveryAmount *= 1.35f;
+
+        if (recoveryAmount <= 0f)
+            return;
+
+        WoundComponent.HealDamage(entity, DamageType.Exhaustion, recoveryAmount);
+    }
+
+    private static bool CanNaturallyRegenerate(MetabolismComponent metabolism, WoundComponent wounds)
+    {
+        if (wounds.IsBleeding || wounds.TotalDamage <= 0.01f)
+            return false;
+
+        return metabolism.Hunger >= metabolism.NaturalRegenThreshold
+            && metabolism.Thirst >= metabolism.NaturalRegenThreshold
+            && metabolism.BladderStatus != NeedStatus.Critical
+            && metabolism.BowelStatus != NeedStatus.Critical;
+    }
+
+    private static bool CanRecoverExhaustion(MetabolismComponent metabolism, WoundComponent wounds)
+    {
+        if (wounds.ExhaustionDamage <= 0.01f || wounds.IsBleeding)
+            return false;
+
+        return metabolism.DigestingItems.Count == 0
+            && metabolism.Hunger >= metabolism.ExhaustionRecoveryThreshold
+            && metabolism.Thirst >= metabolism.ExhaustionRecoveryThreshold
+            && metabolism.BladderStatus != NeedStatus.Critical
+            && metabolism.BowelStatus != NeedStatus.Critical;
+    }
+
+    private static float GetFallbackRegenAmount(MetabolismComponent metabolism, float dt)
+    {
+        if (metabolism.NaturalRegenRate <= 0f)
+            return 0f;
+
+        return metabolism.Hunger >= metabolism.NaturalRegenThreshold
+            && metabolism.Thirst >= metabolism.NaturalRegenThreshold
+            && metabolism.BladderStatus != NeedStatus.Critical
+            && metabolism.BowelStatus != NeedStatus.Critical
+                ? metabolism.NaturalRegenRate * dt
+                : 0f;
+    }
+
+    private static void SyncHealthFromWounds(HealthComponent health, WoundComponent wounds)
+    {
+        health.Health = Math.Max(0f, health.MaxHealth - wounds.TotalDamage);
     }
 
     // ── 4. Effects & warnings ──────────────────────────────────────

@@ -174,6 +174,8 @@ public class Renderer : GameSystem
 
         entity.Active = false;
         World.DestroyEntity(entity);
+        if (Core.ServiceLocator.Has<Core.IWorldStateTracker>())
+            Core.ServiceLocator.Get<Core.IWorldStateTracker>().MarkDirty();
         Console.WriteLine($"[Wearable] {item.ItemName} broke apart.");
     }
 }

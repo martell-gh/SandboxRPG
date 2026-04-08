@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["tool", "lamp", "light"]
     },
+    "info": {
+      "description": "Масляная лампа. Освещает путь в тёмное время суток. Можно включать и выключать."
+    },
     "lamp": {
       "name": "Lamp",
       "on": false

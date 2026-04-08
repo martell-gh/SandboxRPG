@@ -16,6 +16,7 @@ public class SpawnPointTool
 
     // ввод ID для нового спавнера
     public string InputId { get; private set; } = "default";
+    public bool IsTyping => _typingId;
     private bool _typingId = false;
     private KeyboardState _prevKeys;
 

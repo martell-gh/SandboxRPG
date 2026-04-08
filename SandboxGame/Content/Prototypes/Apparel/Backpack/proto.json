@@ -26,6 +26,9 @@
       "icon": "icon.png",
       "equippedAnimations": "equipped_animations.json"
     },
+    "info": {
+      "description": "Вместительный заплечный мешок из грубой ткани и кожи. Позволяет носить с собой припасы и снаряжение."
+    },
     "storage": {
       "name": "Backpack",
       "slots": 8,

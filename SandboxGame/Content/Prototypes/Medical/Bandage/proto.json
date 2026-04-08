@@ -1,0 +1,34 @@
+{
+  "id": "bandage",
+  "name": "Bandage",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Тряпичная повязка",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 5,
+      "stack": 1,
+      "tags": ["medical", "bandage"]
+    },
+    "info": {
+      "description": "Полоска чистой ткани для перевязки ран. Останавливает кровотечение и помогает заживлению порезов."
+    },
+    "healing": {
+      "damageType": "Slash",
+      "healAmount": 25,
+      "stopBleedAmount": 25.0,
+      "useLabel": "Перевязать"
+    }
+  }
+}

@@ -7,6 +7,7 @@ using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Items;
 using MTEngine.Rendering;
+using MTEngine.Systems;
 
 namespace SandboxGame.Systems;
 
@@ -55,8 +56,18 @@ public class PlayerMovementSystem : GameSystem
             var sprite = entity.GetComponent<SpriteComponent>();
             var equipment = entity.GetComponent<EquipmentComponent>();
             var health = entity.GetComponent<HealthComponent>();
+            var sleepSystem = ServiceLocator.Has<SleepSystem>() ? ServiceLocator.Get<SleepSystem>() : null;
 
             if (health?.IsDead == true)
+            {
+                velocity.Velocity = Vector2.Zero;
+                _camera.Follow(transform.Position);
+                if (sprite != null)
+                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
+                continue;
+            }
+
+            if (sleepSystem?.IsSleeping(entity) == true)
             {
                 velocity.Velocity = Vector2.Zero;
                 _camera.Follow(transform.Position);

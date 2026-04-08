@@ -93,8 +93,8 @@ public class ConsumableComponent : Component, IInteractionSource, IPrototypeInit
         if (item == null) yield break;
         if (item.ContainedIn != ctx.Actor) yield break;
 
-        // Only show on the item itself (target == this entity)
-        if (ctx.Target != Owner) yield break;
+        // Self-use should work both from the item context and from actor self-context.
+        if (ctx.Target != Owner && ctx.Target != ctx.Actor) yield break;
 
         var verb = GetVerb();
         var name = item.ItemName;
@@ -178,6 +178,9 @@ public class ConsumableComponent : Component, IInteractionSource, IPrototypeInit
             Owner!.Active = false;
             Owner.World?.DestroyEntity(Owner);
         }
+
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
     }
 }
 

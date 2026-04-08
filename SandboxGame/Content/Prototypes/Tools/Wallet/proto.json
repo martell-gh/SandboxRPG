@@ -1,0 +1,30 @@
+{
+  "id": "wallet",
+  "name": "Wallet",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "../Lamp/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Wallet",
+      "slots": 1,
+      "size": "Small",
+      "tags": ["wallet", "money"]
+    },
+    "info": {
+      "description": "Небольшой кошель для монет. Деньги из него можно пересыпать себе."
+    },
+    "currency": {
+      "amount": 15,
+      "name": "Монеты",
+      "symbol": "мон."
+    }
+  }
+}

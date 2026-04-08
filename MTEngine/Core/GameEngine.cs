@@ -6,6 +6,7 @@ using MTEngine.Rendering;
 using MTEngine.Systems;
 using MTEngine.UI;
 using MTEngine.World;
+using MTEngine.Wounds;
 using ECSWorld = MTEngine.ECS.World;
 
 namespace MTEngine.Core;
@@ -31,13 +32,16 @@ public class GameEngine : Game
     public LightingSystem LightingSystem { get; private set; } = new();
     public VisibilityOcclusionSystem VisibilityOcclusionSystem { get; private set; } = new();
     public DayNightSystem DayNightSystem { get; private set; } = new();
+    public SleepSystem SleepSystem { get; private set; } = new();
     public InteractionSystem InteractionSystem { get; private set; } = new();
     public PopupTextSystem PopupTextSystem { get; private set; } = new();
     public UIManager UIManager { get; private set; } = new();
     public HealthSystem HealthSystem { get; private set; } = new();
+    public HealthOverlaySystem HealthOverlaySystem { get; private set; } = new();
     public MetabolismSystem MetabolismSystem { get; private set; } = new();
     public SubstanceDebugSystem SubstanceDebugSystem { get; private set; } = new();
     public SubstanceWorkbenchSystem SubstanceWorkbenchSystem { get; private set; } = new();
+    public WoundSystem WoundSystem { get; private set; } = new();
 
     private RenderTarget2D? _sceneRT;
     private bool _isApplyingWindowChange;
@@ -68,18 +72,22 @@ public class GameEngine : Game
         ServiceLocator.Register(Camera);
         ServiceLocator.Register(GraphicsDevice);
         ServiceLocator.Register(Clock);
+        ServiceLocator.Register(SleepSystem);
         ServiceLocator.Register(PopupTextSystem);
         ServiceLocator.Register(UIManager);
 
         World.AddSystem(TileMapRenderer);
         World.AddSystem(CollisionSystem);
         World.AddSystem(DayNightSystem);
+        World.AddSystem(SleepSystem);
         World.AddSystem(new Renderer());
         World.AddSystem(VisibilityOcclusionSystem);
         World.AddSystem(LightingSystem);
         World.AddSystem(InteractionSystem);
         World.AddSystem(PopupTextSystem);
+        World.AddSystem(WoundSystem);
         World.AddSystem(HealthSystem);
+        World.AddSystem(HealthOverlaySystem);
         World.AddSystem(MetabolismSystem);
         World.AddSystem(SubstanceDebugSystem);
         World.AddSystem(SubstanceWorkbenchSystem);

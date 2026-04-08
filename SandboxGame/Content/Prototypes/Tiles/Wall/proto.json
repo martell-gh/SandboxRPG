@@ -7,7 +7,7 @@
   "opaque": true,
   "color": "#6F665C",
   "sprite": {
-    "source": "sprite.png",
+    "source": "full.png",
     "srcX": 0,
     "srcY": 0,
     "width": 32,

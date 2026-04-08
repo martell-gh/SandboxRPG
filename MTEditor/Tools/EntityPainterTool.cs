@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -22,6 +23,25 @@ public class EntityPainterTool
     {
         public Rectangle OpaqueBounds { get; init; }
         public Point[] EdgePixels { get; init; } = Array.Empty<Point>();
+    }
+
+    private sealed class PropertyButton
+    {
+        public required string Id { get; init; }
+        public required string Label { get; init; }
+        public required Action Action { get; init; }
+        public required Rectangle Bounds { get; set; }
+        public bool Enabled { get; init; } = true;
+        public bool Destructive { get; init; }
+    }
+
+    private sealed class PropertyPanelLayout
+    {
+        public required Rectangle Bounds { get; init; }
+        public required Rectangle HeaderRect { get; init; }
+        public required Rectangle CloseRect { get; init; }
+        public required List<PropertyButton> Buttons { get; init; }
+        public required List<(string Text, Color Color)> Lines { get; init; }
     }
 
     private MapData _map;
@@ -46,6 +66,15 @@ public class EntityPainterTool
     private bool _brushChanged;
     private List<MapEntityData>? _pendingDragSnapshot;
     private bool _dragChanged;
+    private MapEntityData? _propertyEntity;
+    private Point _propertyAnchorScreen;
+    private string? _selectedEditorPrototypeId;
+
+    private const int PropertyPanelWidth = 340;
+    private const int PropertyPanelPadding = 12;
+    private const int PropertyHeaderHeight = 28;
+    private const int PropertyButtonHeight = 24;
+    private const int PropertyLineHeight = 18;
 
     public EntityPainterTool(MapData map)
     {
@@ -64,6 +93,8 @@ public class EntityPainterTool
         _pendingDragSnapshot = null;
         _brushChanged = false;
         _dragChanged = false;
+        _propertyEntity = null;
+        _selectedEditorPrototypeId = null;
         _undo.Clear();
         _redo.Clear();
     }
@@ -131,17 +162,43 @@ public class EntityPainterTool
         Point mouseScreen,
         Camera camera,
         PrototypeManager prototypes,
-        AssetManager assets)
+        AssetManager assets,
+        string? selectedEntityId)
     {
+        _selectedEditorPrototypeId = selectedEntityId;
         _hoveredEntity = FindEntityAtScreen(mouseScreen, camera, prototypes, assets);
         var snapToGrid = IsSnapModifierDown();
         var snappedWorldPos = snapToGrid ? SnapToTileCenter(worldPos) : worldPos;
         var leftPressed = mouse.LeftButton == ButtonState.Pressed;
         var leftClicked = leftPressed && prev.LeftButton == ButtonState.Released;
         var leftReleased = mouse.LeftButton == ButtonState.Released && prev.LeftButton == ButtonState.Pressed;
+        var rightClicked = mouse.RightButton == ButtonState.Pressed && prev.RightButton == ButtonState.Released;
+
+        if (TryHandlePropertyPanelClick(mouseScreen, leftClicked, prototypes, assets))
+            return;
+
+        if (rightClicked)
+        {
+            if (_hoveredEntity != null)
+            {
+                _selectedEntities.Clear();
+                _selectedEntities.Add(_hoveredEntity);
+                _propertyEntity = _hoveredEntity;
+                _propertyAnchorScreen = mouseScreen;
+            }
+            else
+            {
+                _propertyEntity = null;
+            }
+
+            return;
+        }
 
         if (leftClicked)
         {
+            if (_propertyEntity != null)
+                _propertyEntity = null;
+
             if (_hoveredEntity != null)
             {
                 if (!_selectedEntities.Contains(_hoveredEntity))
@@ -292,6 +349,282 @@ public class EntityPainterTool
             spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), new Color(120, 210, 130));
             spriteBatch.Draw(pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), new Color(120, 210, 130));
         }
+    }
+
+    public void DrawPropertyPanel(SpriteBatch spriteBatch, SpriteFont font, GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
+    {
+        var layout = BuildPropertyPanelLayout(font, graphics, prototypes, assets);
+        if (layout == null)
+            return;
+
+        var pixel = assets.GetColorTexture("#ffffff");
+        spriteBatch.Draw(pixel, layout.Bounds, new Color(18, 24, 24, 235));
+        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Y, layout.Bounds.Width, 1), new Color(75, 105, 92));
+        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Bottom - 1, layout.Bounds.Width, 1), new Color(75, 105, 92));
+        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Y, 1, layout.Bounds.Height), new Color(75, 105, 92));
+        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.Right - 1, layout.Bounds.Y, 1, layout.Bounds.Height), new Color(75, 105, 92));
+
+        spriteBatch.Draw(pixel, layout.HeaderRect, new Color(32, 52, 44));
+        spriteBatch.DrawString(font, SanitizeEditorText("Entity Properties"), new Vector2(layout.HeaderRect.X + 10, layout.HeaderRect.Y + 5), new Color(220, 234, 224));
+
+        spriteBatch.Draw(pixel, layout.CloseRect, new Color(132, 48, 48));
+        spriteBatch.DrawString(font, SanitizeEditorText("X"), new Vector2(layout.CloseRect.X + 6, layout.CloseRect.Y + 2), Color.White);
+
+        for (var i = 0; i < layout.Lines.Count; i++)
+        {
+            var line = layout.Lines[i];
+            var position = new Vector2(layout.Bounds.X + PropertyPanelPadding, layout.HeaderRect.Bottom + 8 + i * PropertyLineHeight);
+            spriteBatch.DrawString(font, SanitizeEditorText(line.Text), position, line.Color);
+        }
+
+        foreach (var button in layout.Buttons)
+        {
+            var fill = !button.Enabled
+                ? new Color(50, 56, 56)
+                : button.Destructive
+                    ? new Color(108, 48, 48)
+                    : new Color(52, 86, 68);
+
+            spriteBatch.Draw(pixel, button.Bounds, fill);
+            spriteBatch.Draw(pixel, new Rectangle(button.Bounds.X, button.Bounds.Y, button.Bounds.Width, 1), Color.Black * 0.35f);
+            spriteBatch.Draw(pixel, new Rectangle(button.Bounds.X, button.Bounds.Bottom - 1, button.Bounds.Width, 1), Color.Black * 0.45f);
+            var textColor = button.Enabled ? new Color(236, 244, 238) : new Color(135, 145, 145);
+            spriteBatch.DrawString(font, SanitizeEditorText(button.Label), new Vector2(button.Bounds.X + 8, button.Bounds.Y + 4), textColor);
+        }
+    }
+
+    private bool TryHandlePropertyPanelClick(Point mouseScreen, bool leftClicked, PrototypeManager prototypes, AssetManager assets)
+    {
+        if (_propertyEntity == null)
+            return false;
+
+        var layout = BuildPropertyPanelLayout(null, assets.GraphicsDevice, prototypes, assets);
+        if (layout == null || !layout.Bounds.Contains(mouseScreen))
+            return false;
+
+        if (!leftClicked)
+            return false;
+
+        if (layout.CloseRect.Contains(mouseScreen))
+        {
+            _propertyEntity = null;
+            return true;
+        }
+
+        foreach (var button in layout.Buttons)
+        {
+            if (!button.Enabled || !button.Bounds.Contains(mouseScreen))
+                continue;
+
+            button.Action();
+            return true;
+        }
+
+        return true;
+    }
+
+    private PropertyPanelLayout? BuildPropertyPanelLayout(SpriteFont? font, GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
+    {
+        if (_propertyEntity == null || !_map.Entities.Contains(_propertyEntity))
+        {
+            _propertyEntity = null;
+            return null;
+        }
+
+        var proto = prototypes.GetEntity(_propertyEntity.ProtoId);
+        if (proto == null)
+            return null;
+
+        var viewport = graphics.Viewport;
+        var lines = BuildPropertyPanelLines(proto, _propertyEntity, prototypes);
+        var buttonLabels = EstimateButtonCount(proto, _propertyEntity);
+        var height = PropertyHeaderHeight
+            + PropertyPanelPadding * 2
+            + lines.Count * PropertyLineHeight
+            + buttonLabels * (PropertyButtonHeight + 6);
+        height = Math.Max(height, 150);
+
+        var x = Math.Clamp(_propertyAnchorScreen.X + 16, 8, Math.Max(8, viewport.Width - PropertyPanelWidth - 8));
+        var y = Math.Clamp(_propertyAnchorScreen.Y - 8, 8, Math.Max(8, viewport.Height - height - 8));
+        var bounds = new Rectangle(x, y, PropertyPanelWidth, height);
+        var headerRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, PropertyHeaderHeight);
+        var closeRect = new Rectangle(bounds.Right - 24, bounds.Y + 4, 18, 18);
+
+        var buttons = new List<PropertyButton>();
+        var buttonY = headerRect.Bottom + 8 + lines.Count * PropertyLineHeight + 8;
+        BuildButtons(proto, _propertyEntity, prototypes, bounds, buttonY, buttons);
+
+        return new PropertyPanelLayout
+        {
+            Bounds = bounds,
+            HeaderRect = headerRect,
+            CloseRect = closeRect,
+            Buttons = buttons,
+            Lines = lines
+        };
+    }
+
+    private List<(string Text, Color Color)> BuildPropertyPanelLines(EntityPrototype proto, MapEntityData entity, PrototypeManager prototypes)
+    {
+        var lines = new List<(string Text, Color Color)>
+        {
+            ($"Proto: {proto.Id}", new Color(210, 225, 214)),
+            ($"Name: {proto.Name}", new Color(236, 244, 238)),
+            ($"World: {MathF.Round(entity.X)}, {MathF.Round(entity.Y)}", new Color(172, 192, 180))
+        };
+
+        var itemData = GetEffectiveComponentData(entity, proto, "item");
+        if (itemData != null)
+        {
+            var stackable = itemData["stackable"]?.GetValue<bool>() ?? false;
+            var stack = itemData["stack"]?.GetValue<int>() ?? 1;
+            var maxStack = itemData["maxStack"]?.GetValue<int>() ?? 1;
+            lines.Add((
+                stackable ? $"Stack: {stack}/{maxStack}" : "Stack: not stackable",
+                new Color(198, 214, 204)));
+        }
+
+        var storageData = GetEffectiveComponentData(entity, proto, "storage");
+        if (storageData != null)
+        {
+            var name = storageData["name"]?.GetValue<string>() ?? "Storage";
+            var slots = storageData["slots"]?.GetValue<int>() ?? 0;
+            lines.Add(($"Storage: {name}", new Color(198, 214, 204)));
+            lines.Add(($"Contents: {entity.ContainedEntities.Count} item(s), {slots} slots", new Color(172, 192, 180)));
+
+            foreach (var contained in entity.ContainedEntities.Take(5))
+            {
+                var label = contained.ProtoId;
+                var containedItemData = prototypes.GetEntity(contained.ProtoId) is { } containedProto
+                    ? GetEffectiveComponentData(contained, containedProto, "item")
+                    : null;
+                var stackCount = containedItemData?["stack"]?.GetValue<int>() ?? 1;
+                if (stackCount > 1)
+                    label += $" x{stackCount}";
+                lines.Add(($"- {label}", new Color(150, 170, 160)));
+            }
+
+            if (entity.ContainedEntities.Count > 5)
+                lines.Add(($"- ... and {entity.ContainedEntities.Count - 5} more", new Color(132, 146, 140)));
+        }
+
+        var currencyData = GetEffectiveComponentData(entity, proto, "currency");
+        if (currencyData != null)
+        {
+            var amount = Math.Max(0, currencyData["amount"]?.GetValue<int>() ?? 0);
+            var name = currencyData["name"]?.GetValue<string>() ?? "Монеты";
+            var symbol = currencyData["symbol"]?.GetValue<string>() ?? "мон.";
+            lines.Add(($"Currency: {name}", new Color(198, 214, 204)));
+            lines.Add(($"Amount: {amount} {symbol}", new Color(172, 192, 180)));
+        }
+
+        return lines;
+    }
+
+    private int EstimateButtonCount(EntityPrototype proto, MapEntityData entity)
+    {
+        var count = 0;
+        if (GetEffectiveComponentData(entity, proto, "item") is JsonObject itemData)
+        {
+            if (itemData["stackable"]?.GetValue<bool>() == true)
+                count += 3;
+        }
+
+        if (GetEffectiveComponentData(entity, proto, "storage") != null)
+        {
+            count += 1;
+            count += entity.ContainedEntities.Count > 0 ? Math.Min(entity.ContainedEntities.Count, 5) + 1 : 0;
+        }
+
+        if (GetEffectiveComponentData(entity, proto, "currency") != null)
+            count += 5;
+
+        return Math.Max(1, count);
+    }
+
+    private void BuildButtons(
+        EntityPrototype proto,
+        MapEntityData entity,
+        PrototypeManager prototypes,
+        Rectangle panelBounds,
+        int startY,
+        List<PropertyButton> buttons)
+    {
+        var y = startY;
+        var itemData = GetEffectiveComponentData(entity, proto, "item");
+        if (itemData != null && itemData["stackable"]?.GetValue<bool>() == true)
+        {
+            var stack = itemData["stack"]?.GetValue<int>() ?? 1;
+            var maxStack = Math.Max(1, itemData["maxStack"]?.GetValue<int>() ?? 1);
+
+            buttons.Add(CreateButton("item.stack.minus", "Stack -1", panelBounds, y, stack > 1, () => AdjustStack(entity, -1)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("item.stack.plus", "Stack +1", panelBounds, y, stack < maxStack, () => AdjustStack(entity, 1)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("item.stack.fill", "Fill Stack To Max", panelBounds, y, stack < maxStack, () => SetStackToMax(entity, maxStack)));
+            y += PropertyButtonHeight + 10;
+        }
+
+        var storageData = GetEffectiveComponentData(entity, proto, "storage");
+        if (storageData != null)
+        {
+            var addLabel = "Add Selected Prototype To Storage";
+            var canAdd = CanAddSelectedPrototypeToStorage(prototypes);
+            if (!canAdd && !string.IsNullOrWhiteSpace(_selectedEditorPrototypeId))
+                addLabel = $"Selected '{_selectedEditorPrototypeId}' is not an item";
+
+            buttons.Add(CreateButton("storage.add", addLabel, panelBounds, y, canAdd, AddSelectedPrototypeToStorage));
+            y += PropertyButtonHeight + 6;
+
+            foreach (var contained in entity.ContainedEntities.Take(5).ToList())
+            {
+                var label = $"Remove {contained.ProtoId}";
+                buttons.Add(CreateButton(
+                    $"storage.remove.{contained.ProtoId}",
+                    label,
+                    panelBounds,
+                    y,
+                    true,
+                    () => RemoveContainedEntity(entity, contained),
+                    destructive: true));
+                y += PropertyButtonHeight + 6;
+            }
+
+            if (entity.ContainedEntities.Count > 0)
+            {
+                buttons.Add(CreateButton("storage.clear", "Clear Storage", panelBounds, y, true, () => ClearStorage(entity), destructive: true));
+                y += PropertyButtonHeight + 10;
+            }
+        }
+
+        var currencyData = GetEffectiveComponentData(entity, proto, "currency");
+        if (currencyData != null)
+        {
+            var amount = Math.Max(0, currencyData["amount"]?.GetValue<int>() ?? 0);
+
+            buttons.Add(CreateButton("currency.minus1", "Coins -1", panelBounds, y, amount > 0, () => AdjustCurrency(entity, -1)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("currency.plus1", "Coins +1", panelBounds, y, true, () => AdjustCurrency(entity, 1)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("currency.plus10", "Coins +10", panelBounds, y, true, () => AdjustCurrency(entity, 10)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("currency.plus100", "Coins +100", panelBounds, y, true, () => AdjustCurrency(entity, 100)));
+            y += PropertyButtonHeight + 6;
+            buttons.Add(CreateButton("currency.clear", "Clear Coins", panelBounds, y, amount > 0, () => SetCurrency(entity, 0), destructive: true));
+        }
+    }
+
+    private PropertyButton CreateButton(string id, string label, Rectangle panelBounds, int y, bool enabled, Action action, bool destructive = false)
+    {
+        return new PropertyButton
+        {
+            Id = id,
+            Label = label,
+            Enabled = enabled,
+            Action = action,
+            Destructive = destructive,
+            Bounds = new Rectangle(panelBounds.X + PropertyPanelPadding, y, panelBounds.Width - PropertyPanelPadding * 2, PropertyButtonHeight)
+        };
     }
 
     private void ApplySelectionRect(Rectangle screenRect, Camera camera, PrototypeManager prototypes, AssetManager assets)
@@ -575,6 +908,138 @@ public class EntityPainterTool
         return new Vector2((tileX + 0.5f) * _map.TileSize, (tileY + 0.5f) * _map.TileSize);
     }
 
+    private bool CanAddSelectedPrototypeToStorage(PrototypeManager prototypes)
+    {
+        if (string.IsNullOrWhiteSpace(_selectedEditorPrototypeId))
+            return false;
+
+        var selectedProto = prototypes.GetEntity(_selectedEditorPrototypeId);
+        return selectedProto?.Components?["item"] is JsonObject;
+    }
+
+    private void AddSelectedPrototypeToStorage()
+    {
+        if (_propertyEntity == null || string.IsNullOrWhiteSpace(_selectedEditorPrototypeId))
+            return;
+
+        ApplyEntityMutation(_propertyEntity, entity =>
+        {
+            entity.ContainedEntities.Add(new MapEntityData
+            {
+                X = entity.X,
+                Y = entity.Y,
+                ProtoId = _selectedEditorPrototypeId,
+                WorldSpace = true
+            });
+        });
+    }
+
+    private void RemoveContainedEntity(MapEntityData container, MapEntityData contained)
+    {
+        ApplyEntityMutation(container, entity => entity.ContainedEntities.Remove(contained));
+    }
+
+    private void ClearStorage(MapEntityData container)
+    {
+        ApplyEntityMutation(container, entity => entity.ContainedEntities.Clear());
+    }
+
+    private void AdjustStack(MapEntityData entity, int delta)
+    {
+        var proto = ServiceLocator.Has<PrototypeManager>() ? ServiceLocator.Get<PrototypeManager>().GetEntity(entity.ProtoId) : null;
+        if (proto == null)
+            return;
+
+        var effectiveItem = GetEffectiveComponentData(entity, proto, "item");
+        if (effectiveItem == null)
+            return;
+
+        var current = Math.Max(1, effectiveItem["stack"]?.GetValue<int>() ?? 1);
+        var maxStack = Math.Max(1, effectiveItem["maxStack"]?.GetValue<int>() ?? 1);
+        var next = Math.Clamp(current + delta, 1, maxStack);
+        SetItemOverrideInt(entity, "stack", next);
+    }
+
+    private void SetStackToMax(MapEntityData entity, int maxStack)
+    {
+        SetItemOverrideInt(entity, "stack", Math.Max(1, maxStack));
+    }
+
+    private void AdjustCurrency(MapEntityData entity, int delta)
+    {
+        var proto = ServiceLocator.Has<PrototypeManager>() ? ServiceLocator.Get<PrototypeManager>().GetEntity(entity.ProtoId) : null;
+        if (proto == null)
+            return;
+
+        var effectiveCurrency = GetEffectiveComponentData(entity, proto, "currency");
+        if (effectiveCurrency == null)
+            return;
+
+        var current = Math.Max(0, effectiveCurrency["amount"]?.GetValue<int>() ?? 0);
+        var next = Math.Max(0, current + delta);
+        SetCurrency(entity, next);
+    }
+
+    private void SetCurrency(MapEntityData entity, int value)
+    {
+        ApplyEntityMutation(entity, target =>
+        {
+            var currencyOverride = EnsureComponentOverride(target, "currency");
+            currencyOverride["amount"] = Math.Max(0, value);
+        });
+    }
+
+    private void SetItemOverrideInt(MapEntityData entity, string key, int value)
+    {
+        ApplyEntityMutation(entity, target =>
+        {
+            var itemOverride = EnsureComponentOverride(target, "item");
+            itemOverride[key] = value;
+        });
+    }
+
+    private void ApplyEntityMutation(MapEntityData entity, Action<MapEntityData> mutator)
+    {
+        var before = CloneEntities(_map.Entities);
+        mutator(entity);
+        CommitSnapshot(before);
+    }
+
+    private static JsonObject EnsureComponentOverride(MapEntityData entity, string componentName)
+    {
+        if (!entity.ComponentOverrides.TryGetValue(componentName, out var data))
+        {
+            data = new JsonObject();
+            entity.ComponentOverrides[componentName] = data;
+        }
+
+        return data;
+    }
+
+    private static JsonObject? GetEffectiveComponentData(MapEntityData entity, EntityPrototype proto, string componentName)
+    {
+        JsonObject? merged = null;
+        if (proto.Components?[componentName] is JsonObject baseData)
+            merged = CloneJsonObject(baseData);
+
+        if (entity.ComponentOverrides.TryGetValue(componentName, out var overrideData))
+        {
+            merged ??= new JsonObject();
+            MergeJsonObject(merged, overrideData);
+        }
+
+        return merged;
+    }
+
+    private static JsonObject CloneJsonObject(JsonObject source)
+        => JsonNode.Parse(source.ToJsonString())?.AsObject() ?? new JsonObject();
+
+    private static void MergeJsonObject(JsonObject target, JsonObject source)
+    {
+        foreach (var pair in source)
+            target[pair.Key] = pair.Value?.DeepClone();
+    }
+
     private void CommitPendingBrushSnapshot()
     {
         if (_pendingBrushSnapshot == null)
@@ -624,6 +1089,7 @@ public class EntityPainterTool
         _hoveredEntity = null;
         _isDraggingSelection = false;
         _isBoxSelecting = false;
+        _propertyEntity = null;
     }
 
     private static List<MapEntityData> CloneEntities(IEnumerable<MapEntityData> entities)
@@ -635,7 +1101,12 @@ public class EntityPainterTool
             X = entity.X,
             Y = entity.Y,
             ProtoId = entity.ProtoId,
-            WorldSpace = entity.WorldSpace
+            WorldSpace = entity.WorldSpace,
+            ComponentOverrides = entity.ComponentOverrides.ToDictionary(
+                pair => pair.Key,
+                pair => CloneJsonObject(pair.Value),
+                StringComparer.OrdinalIgnoreCase),
+            ContainedEntities = entity.ContainedEntities.Select(CloneEntity).ToList()
         };
 
     private static bool SnapshotsEqual(IReadOnlyList<MapEntityData> a, IReadOnlyList<MapEntityData> b)
@@ -648,10 +1119,46 @@ public class EntityPainterTool
             if (a[i].ProtoId != b[i].ProtoId
                 || a[i].WorldSpace != b[i].WorldSpace
                 || MathF.Abs(a[i].X - b[i].X) > 0.01f
-                || MathF.Abs(a[i].Y - b[i].Y) > 0.01f)
+                || MathF.Abs(a[i].Y - b[i].Y) > 0.01f
+                || !JsonObjectsEqual(a[i].ComponentOverrides, b[i].ComponentOverrides)
+                || !SnapshotsEqual(a[i].ContainedEntities, b[i].ContainedEntities))
                 return false;
         }
 
         return true;
+    }
+
+    private static bool JsonObjectsEqual(
+        IReadOnlyDictionary<string, JsonObject> a,
+        IReadOnlyDictionary<string, JsonObject> b)
+    {
+        if (a.Count != b.Count)
+            return false;
+
+        foreach (var pair in a)
+        {
+            if (!b.TryGetValue(pair.Key, out var other))
+                return false;
+
+            if (!string.Equals(pair.Value.ToJsonString(), other.ToJsonString(), StringComparison.Ordinal))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static string SanitizeEditorText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        var buffer = new char[text.Length];
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            buffer[i] = c is >= ' ' and <= '~' ? c : '?';
+        }
+
+        return new string(buffer);
     }
 }

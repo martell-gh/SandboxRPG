@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["drink", "water"]
     },
+    "info": {
+      "description": "Бутыль с чистой водой. Утоляет жажду и поддерживает силы в пути."
+    },
     "consumable": {
       "nutrition": 0,
       "hydration": 0,

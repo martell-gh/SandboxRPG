@@ -48,6 +48,11 @@ public class UIManager : GameSystem
             _assets = ServiceLocator.Get<AssetManager>();
     }
 
+    private float GetUiScale()
+        => ServiceLocator.Has<IUiScaleSource>()
+            ? Math.Clamp(ServiceLocator.Get<IUiScaleSource>().UiScale, 0.75f, 2f)
+            : 1f;
+
     // ── Window management ──────────────────────────────��───────────
 
     /// <summary>Load a window from an XML file and register it.</summary>
@@ -121,7 +126,10 @@ public class UIManager : GameSystem
         EnsureResources();
         ConsumedInput = false;
 
-        var mouse = _input.MousePosition;
+        var uiScale = GetUiScale();
+        var mouse = new Point(
+            (int)MathF.Round(_input.MousePosition.X / uiScale),
+            (int)MathF.Round(_input.MousePosition.Y / uiScale));
 
         // Escape closes the topmost window
         if (_input.IsPressed(Keys.Escape))
@@ -139,7 +147,7 @@ public class UIManager : GameSystem
 
         // Update all open windows (for hover, drag, etc.)
         foreach (var w in _windows)
-            if (w.IsOpen) w.Update(deltaTime, _input);
+            if (w.IsOpen) w.Update(deltaTime, _input, uiScale);
 
         // Left click — route to topmost window that contains the point
         if (_input.LeftClicked)
@@ -213,8 +221,9 @@ public class UIManager : GameSystem
         if (_sb == null || _pixel == null) return;
 
         _sb.Begin(
-            samplerState: SamplerState.PointClamp,
-            rasterizerState: new RasterizerState { ScissorTestEnable = true });
+            samplerState: Math.Abs(GetUiScale() - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
+            rasterizerState: new RasterizerState { ScissorTestEnable = true },
+            transformMatrix: Matrix.CreateScale(GetUiScale(), GetUiScale(), 1f));
 
         foreach (var w in _windows)
             w.Draw(_sb, _pixel, _font);

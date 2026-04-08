@@ -36,6 +36,11 @@ public class MetabolismUI : GameSystem
     private SpriteFont _font = null!;
     private Texture2D _pixel = null!;
 
+    private float GetUiScale()
+        => ServiceLocator.Has<IUiScaleSource>()
+            ? Math.Clamp(ServiceLocator.Get<IUiScaleSource>().UiScale, 0.75f, 2f)
+            : 1f;
+
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
@@ -115,7 +120,11 @@ public class MetabolismUI : GameSystem
         var m = player.GetComponent<MetabolismComponent>()!;
         var health = player.GetComponent<HealthComponent>();
 
-        _sb.Begin(samplerState: SamplerState.PointClamp);
+        var uiScale = GetUiScale();
+        var sampler = Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp;
+        _sb.Begin(
+            samplerState: sampler,
+            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
 
         var panelX = 16;
         var panelY = 16;
@@ -174,6 +183,8 @@ public class MetabolismUI : GameSystem
             currentY += lineHeight;
         }
 
+        DrawCurrencyHud(player);
+
         _sb.End();
     }
 
@@ -193,6 +204,45 @@ public class MetabolismUI : GameSystem
 
         var textSize = _font.MeasureString(text);
         _sb.DrawString(_font, text, new Vector2(barRect.Right - textSize.X - 4, y + 1), Color.White);
+    }
+
+    private void DrawCurrencyHud(Entity player)
+    {
+        var currency = player.GetComponent<CurrencyComponent>();
+        if (currency == null)
+            return;
+
+        var text = currency.GetDisplayText();
+        var textSize = _font.MeasureString(text);
+        const int iconSize = 14;
+        const int padding = 8;
+        const int gap = 8;
+
+        var viewportWidth = Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / GetUiScale()));
+        var x = viewportWidth - (int)textSize.X - iconSize - padding * 2 - gap - 16;
+        var y = 16;
+        var width = (int)textSize.X + iconSize + padding * 2 + gap;
+        var height = Math.Max(iconSize, (int)textSize.Y) + padding * 2;
+
+        _sb.Draw(_pixel, new Rectangle(x, y, width, height), Color.Black * 0.58f);
+
+        var coinRect = new Rectangle(x + padding, y + (height - iconSize) / 2, iconSize, iconSize);
+        DrawCoinIcon(coinRect);
+
+        _sb.DrawString(_font, text, new Vector2(coinRect.Right + gap, y + padding - 1), new Color(255, 230, 150));
+    }
+
+    private void DrawCoinIcon(Rectangle rect)
+    {
+        _sb.Draw(_pixel, rect, new Color(138, 96, 22));
+
+        var inner = new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(0, rect.Width - 4), Math.Max(0, rect.Height - 4));
+        if (inner.Width > 0 && inner.Height > 0)
+            _sb.Draw(_pixel, inner, new Color(214, 173, 54));
+
+        var shine = new Rectangle(inner.X + 1, inner.Y + 1, Math.Max(2, inner.Width / 3), Math.Max(2, inner.Height / 3));
+        if (shine.Width > 0 && shine.Height > 0)
+            _sb.Draw(_pixel, shine, new Color(255, 236, 173));
     }
 
     private void UpdateBars(float dt)

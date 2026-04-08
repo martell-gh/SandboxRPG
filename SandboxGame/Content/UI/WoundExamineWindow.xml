@@ -1,0 +1,14 @@
+<Window Id="woundsExamine" Title="Осмотр" Width="280" Height="230" Closable="true" Draggable="true">
+  <Panel Direction="Vertical" Padding="8" Gap="4">
+    <Label Name="noneLabel" Text="Ранений нет." Color="#88FF88" />
+    <Label Name="slashLabel" Text="" Color="#CCCC44" Visible="false" />
+    <Label Name="bluntLabel" Text="" Color="#CCCC44" Visible="false" />
+    <Label Name="burnLabel" Text="" Color="#CCCC44" Visible="false" />
+    <Label Name="exhaustionLabel" Text="" Color="#CCCC44" Visible="false" />
+    <Separator />
+    <Label Name="totalLabel" Text="" Color="#FFAAAA" Visible="false" />
+    <Label Name="bleedLabel" Text="" Color="#FF8888" Visible="false" />
+    <Separator />
+    <Label Name="healthLabel" Text="" Color="#88FF88" Visible="false" />
+  </Panel>
+</Window>

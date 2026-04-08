@@ -12,6 +12,9 @@
       "layerDepth": 0.5
     },
     "transform": { "x": 0, "y": 0 },
+    "info": {
+      "description": "Отрез грубой ткани. Используется для пошива одежды и изготовления повязок."
+    },
     "item": {
       "name": "Cloth Bolt",
       "size": "Small",

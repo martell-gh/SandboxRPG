@@ -12,7 +12,7 @@ public class UITextInput : UIElement
     public Color TextColor { get; set; } = Color.White;
     public Color PlaceholderColor { get; set; } = Color.Gray;
     public Color BackColor { get; set; } = new(20, 24, 28);
-    public Color BorderColor { get; set; } = new(70, 110, 70);
+    public Color BorderColor { get; set; } = new(70, 70, 110);
     public Color FocusBorderColor { get; set; } = new(100, 160, 100);
 
     public bool IsFocused { get; set; }

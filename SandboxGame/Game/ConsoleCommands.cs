@@ -11,6 +11,7 @@ using MTEngine.ECS;
 using MTEngine.Metabolism;
 using MTEngine.Systems;
 using MTEngine.World;
+using MTEngine.Wounds;
 
 namespace SandboxGame.Game;
 
@@ -37,12 +38,16 @@ public class ConsoleCommands
                 DevConsole.Log("Commands:");
                 DevConsole.Log("  maps                   - list maps");
                 DevConsole.Log("  loadmap <id> [spawnId] - load map");
+                DevConsole.Log("  ingamemaps             - list maps marked for world simulation");
+                DevConsole.Log("  ingamemap <id> <on|off|toggle> - change inGame flag on a map");
                 DevConsole.Log("  goto <spawnId>         - teleport");
                 DevConsole.Log("  time                   - show game time");
                 DevConsole.Log("  settime <0-24>         - set time of day");
                 DevConsole.Log("  timescale <x>          - speed of time");
                 DevConsole.Log("  lighting <on|off>      - toggle lighting");
                 DevConsole.Log("  spawn <protoId>        - spawn entity near player");
+                DevConsole.Log("  heal [value]           - heal player hp or fully heal");
+                DevConsole.Log("  hurt <value>           - damage player hp");
                 DevConsole.Log("  hunger [value]         - get/set hunger (0-100)");
                 DevConsole.Log("  thirst [value]         - get/set thirst (0-100)");
                 DevConsole.Log("  bladder [value]        - get/set bladder (0-100)");
@@ -96,6 +101,55 @@ public class ConsoleCommands
                 LoadMap(parts[1], parts.Length > 2 ? parts[2] : "default");
                 break;
 
+            case "ingamemaps":
+                var catalog = _mapManager.GetMapCatalog();
+                if (catalog.Count == 0)
+                {
+                    DevConsole.Log("No maps found.");
+                    break;
+                }
+
+                foreach (var entry in catalog)
+                    DevConsole.Log($"  - [{(entry.InGame ? "ON " : "OFF")}] {entry.Id} ({entry.Name})");
+                break;
+
+            case "ingamemap":
+                if (parts.Length < 3)
+                {
+                    DevConsole.Log("Usage: ingamemap <id> <on|off|toggle>");
+                    break;
+                }
+
+                var targetMapId = parts[1];
+                var catalogEntry = _mapManager.GetMapCatalog()
+                    .FirstOrDefault(entry => string.Equals(entry.Id, targetMapId, StringComparison.OrdinalIgnoreCase));
+                if (catalogEntry == null)
+                {
+                    DevConsole.Log($"Map not found: {targetMapId}");
+                    break;
+                }
+
+                var mode = parts[2].ToLowerInvariant();
+                var nextValue = mode switch
+                {
+                    "on" => true,
+                    "off" => false,
+                    "toggle" => !catalogEntry.InGame,
+                    _ => catalogEntry.InGame
+                };
+
+                if (mode is not ("on" or "off" or "toggle"))
+                {
+                    DevConsole.Log("Usage: ingamemap <id> <on|off|toggle>");
+                    break;
+                }
+
+                if (_mapManager.SetMapInGameFlag(catalogEntry.Id, nextValue))
+                    DevConsole.Log($"Map '{catalogEntry.Id}' inGame = {nextValue}");
+                else
+                    DevConsole.Log($"Failed to update map '{catalogEntry.Id}'.");
+                break;
+
             case "goto":
                 if (parts.Length < 2) { DevConsole.Log("Usage: goto <spawnId>"); break; }
                 TeleportToSpawn(parts[1]);
@@ -136,6 +190,14 @@ public class ConsoleCommands
             case "spawn":
                 if (parts.Length < 2) { DevConsole.Log("Usage: spawn <protoId>"); break; }
                 SpawnEntity(parts[1]);
+                break;
+
+            case "heal":
+                HealPlayer(parts);
+                break;
+
+            case "hurt":
+                HurtPlayer(parts);
                 break;
 
             case "hunger":
@@ -193,14 +255,15 @@ public class ConsoleCommands
         }
     }
 
-    public void LoadMap(string mapId, string spawnId = "default")
+    public void LoadMap(string mapId, string spawnId = "default", bool placePlayerAtSpawn = true)
     {
         var (tileMap, spawn) = _mapManager.LoadMap(mapId, spawnId);
         if (tileMap == null) { DevConsole.Log($"Map not found: {mapId}"); return; }
 
         _tileMapRenderer.TileMap = tileMap;
         _engine.CollisionSystem.SetTileMap(tileMap);
-        TeleportPlayerToSpawn(spawn);
+        if (placePlayerAtSpawn)
+            TeleportPlayerToSpawn(spawn);
         DevConsole.Log($"Loaded: {mapId} @ {spawnId}");
     }
 
@@ -237,6 +300,15 @@ public class ConsoleCommands
         return (player, player.GetComponent<MetabolismComponent>()!);
     }
 
+    private (Entity, HealthComponent)? GetPlayerHealth()
+    {
+        var player = _engine.World
+            .GetEntitiesWith<PlayerTagComponent, HealthComponent>()
+            .FirstOrDefault();
+        if (player == null) { DevConsole.Log("Player has no health."); return null; }
+        return (player, player.GetComponent<HealthComponent>()!);
+    }
+
     private void SpawnEntity(string protoId)
     {
         var proto = _engine.Prototypes.GetEntity(protoId);
@@ -263,6 +335,9 @@ public class ConsoleCommands
             DevConsole.Log($"Failed to spawn: {protoId}");
             return;
         }
+
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
 
         DevConsole.Log($"Spawned: {protoId}");
     }
@@ -301,6 +376,112 @@ public class ConsoleCommands
             case "bowel": m.Bowel = v; break;
         }
         DevConsole.Log($"{field} = {v:0.0}");
+    }
+
+    private void HealPlayer(string[] parts)
+    {
+        if (GetPlayerHealth() is not var (player, health))
+            return;
+
+        health.MaxHealth = Math.Max(1f, health.MaxHealth);
+        var wounds = player.GetComponent<WoundComponent>();
+
+        if (parts.Length < 2)
+        {
+            if (wounds != null)
+            {
+                wounds.SlashDamage = 0f;
+                wounds.BluntDamage = 0f;
+                wounds.BurnDamage = 0f;
+                wounds.ExhaustionDamage = 0f;
+                wounds.Bleedings.Clear();
+            }
+
+            health.Health = health.MaxHealth;
+            health.IsDead = false;
+            health.DeathPoseApplied = false;
+            if (player.GetComponent<TransformComponent>() is { } transform)
+            {
+                transform.Rotation = 0f;
+            }
+            DevConsole.Log($"Healed to full: {health.Health:0.##}/{health.MaxHealth:0.##}");
+            return;
+        }
+
+        if (!float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var amount))
+        {
+            DevConsole.Log("Usage: heal [amount]");
+            return;
+        }
+
+        amount = Math.Max(0f, amount);
+        if (wounds != null)
+        {
+            var remaining = amount;
+
+            remaining -= WoundComponent.HealDamage(player, DamageType.Exhaustion, remaining);
+            if (remaining > 0f)
+                remaining -= WoundComponent.HealDamage(player, DamageType.Blunt, remaining);
+            if (remaining > 0f)
+                remaining -= WoundComponent.HealDamage(player, DamageType.Slash, remaining);
+            if (remaining > 0f)
+                WoundComponent.HealDamage(player, DamageType.Burn, remaining);
+
+            if (amount > 0f)
+                WoundComponent.StopBleeding(player, amount * 0.25f);
+
+            health.Health = Math.Clamp(health.MaxHealth - wounds.TotalDamage, 0f, health.MaxHealth);
+        }
+        else
+        {
+            health.Health = Math.Clamp(health.Health + amount, 0f, health.MaxHealth);
+        }
+
+        if (health.Health > 0f || wounds?.TotalDamage <= 0.01f)
+        {
+            health.IsDead = false;
+            health.DeathPoseApplied = false;
+            if (player.GetComponent<TransformComponent>() is { } transform)
+            {
+                transform.Rotation = 0f;
+            }
+        }
+        DevConsole.Log($"Health: {health.Health:0.##}/{health.MaxHealth:0.##}");
+    }
+
+    private void HurtPlayer(string[] parts)
+    {
+        if (parts.Length < 2)
+        {
+            DevConsole.Log("Usage: hurt <amount>");
+            return;
+        }
+
+        if (GetPlayerHealth() is not var (player, health))
+            return;
+
+        if (!float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var amount))
+        {
+            DevConsole.Log("Usage: hurt <amount>");
+            return;
+        }
+
+        amount = Math.Max(0f, amount);
+        var wounds = player.GetComponent<WoundComponent>();
+        if (wounds != null)
+        {
+            var perType = amount / 3f;
+            WoundComponent.ApplyDamage(player, DamageType.Slash, perType);
+            WoundComponent.ApplyDamage(player, DamageType.Blunt, perType);
+            WoundComponent.ApplyDamage(player, DamageType.Burn, amount - perType - perType);
+            health.Health = Math.Clamp(health.MaxHealth - wounds.TotalDamage, 0f, Math.Max(1f, health.MaxHealth));
+        }
+        else
+        {
+            health.Health = Math.Clamp(health.Health - amount, 0f, Math.Max(1f, health.MaxHealth));
+        }
+
+        DevConsole.Log($"Health: {health.Health:0.##}/{health.MaxHealth:0.##}");
     }
 
     private static IEnumerable<PropertyInfo> GetDisplayProperties(Type type)

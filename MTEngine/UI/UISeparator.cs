@@ -5,7 +5,7 @@ namespace MTEngine.UI;
 
 public class UISeparator : UIElement
 {
-    public Color Color { get; set; } = new(70, 110, 70, 100);
+    public Color Color { get; set; } = new(70, 70, 110, 100);
     public int Thickness { get; set; } = 1;
 
     public override void Layout(Rectangle available)

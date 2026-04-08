@@ -1,0 +1,34 @@
+{
+  "id": "poultice",
+  "name": "Poultice",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "transform": { "x": 0, "y": 0 },
+    "item": {
+      "name": "Припарка",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 5,
+      "stack": 1,
+      "tags": ["medical", "poultice"]
+    },
+    "info": {
+      "description": "Влажная припарка из глины и трав. Прикладывается к ушибам, снимает отёк и уменьшает боль."
+    },
+    "healing": {
+      "damageType": "Blunt",
+      "healAmount": 25,
+      "stopBleedAmount": 0,
+      "useLabel": "Наложить припарку"
+    }
+  }
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using MTEngine.Components;
+using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 using MTEngine.Systems;
@@ -88,9 +89,54 @@ public class EquipmentComponent : Component, IInteractionSource
         slot.Item = itemEntity;
         item.ContainedIn = Owner;
         itemEntity.Active = false;
+        MarkWorldDirty();
 
         PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
         Console.WriteLine($"[Equipment] {Owner?.Name} equipped {item.ItemName} in {slot.DisplayName}");
+        return true;
+    }
+
+    public bool TryEquipOrSwapFromHands(HandsComponent hands, Entity itemEntity, string? targetSlotId = null)
+    {
+        var wearable = itemEntity.GetComponent<WearableComponent>();
+        var item = itemEntity.GetComponent<ItemComponent>();
+        var sourceHand = hands.GetHandWith(itemEntity);
+        if (wearable == null || item == null || sourceHand == null)
+            return false;
+
+        var resolvedSlotId = NormalizeSlotId(targetSlotId ?? wearable.SlotId);
+        var slot = GetSlot(resolvedSlotId);
+        if (slot == null)
+            return false;
+
+        if (!string.Equals(NormalizeSlotId(wearable.SlotId), resolvedSlotId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (slot.Item == null)
+            return TryEquipItem(hands, itemEntity, resolvedSlotId);
+
+        var equippedEntity = slot.Item;
+        if (equippedEntity == itemEntity)
+            return false;
+
+        var equippedItem = equippedEntity.GetComponent<ItemComponent>();
+        if (equippedItem == null || equippedItem.TwoHanded)
+            return false;
+
+        if (!hands.RemoveFromHand(itemEntity))
+            return false;
+
+        slot.Item = itemEntity;
+        item.ContainedIn = Owner;
+        itemEntity.Active = false;
+
+        sourceHand.HeldItem = equippedEntity;
+        equippedItem.ContainedIn = Owner;
+        equippedEntity.Active = false;
+
+        MarkWorldDirty();
+        PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
+        Console.WriteLine($"[Equipment] {Owner?.Name} swapped {equippedItem.ItemName} for {item.ItemName} in {slot.DisplayName}");
         return true;
     }
 
@@ -120,6 +166,7 @@ public class EquipmentComponent : Component, IInteractionSource
             return false;
         }
 
+        MarkWorldDirty();
         PopupTextSystem.Show(Owner!, $"- {item.ItemName}", Color.LightSkyBlue);
         Console.WriteLine($"[Equipment] {Owner?.Name} unequipped {item.ItemName} from {slot.DisplayName}");
         return true;
@@ -147,6 +194,7 @@ public class EquipmentComponent : Component, IInteractionSource
             itemTf.Position = ownerTf.Position;
 
         itemEntity.Active = true;
+        MarkWorldDirty();
         PopupTextSystem.Show(Owner!, item?.ItemName ?? "Dropped", Color.Silver);
         return true;
     }
@@ -162,6 +210,7 @@ public class EquipmentComponent : Component, IInteractionSource
         if (item != null)
             item.ContainedIn = null;
 
+        MarkWorldDirty();
         return true;
     }
 
@@ -219,4 +268,10 @@ public class EquipmentComponent : Component, IInteractionSource
         => string.IsNullOrWhiteSpace(slotId)
             ? "Slot"
             : char.ToUpperInvariant(slotId[0]) + slotId[1..];
+
+    private static void MarkWorldDirty()
+    {
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
+    }
 }

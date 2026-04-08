@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["container", "glass", "cup"]
     },
+    "info": {
+      "description": "Стеклянный стакан. Хрупкий, но удобный для питья различных жидкостей."
+    },
     "liquidContainer": {
       "name": "Glass Cup",
       "capacity": 100,

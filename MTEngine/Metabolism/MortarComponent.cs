@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 using MTEngine.Items;
@@ -12,11 +13,14 @@ namespace MTEngine.Metabolism;
 public class MortarComponent : Component, IInteractionSource, ISubstanceReservoir
 {
     [DataField("name")]
+    [SaveField("name")]
     public string MortarName { get; set; } = "Mortar";
 
     [DataField("capacity")]
+    [SaveField("capacity")]
     public float Capacity { get; set; } = 100f;
 
+    [SaveField("buffer")]
     public List<SubstanceDose> Buffer { get; } = new();
 
     public string DisplayName => MortarName;
@@ -76,6 +80,7 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
                 Execute = c =>
                 {
                     Buffer.Clear();
+                    MarkWorldDirty();
                     Systems.PopupTextSystem.Show(c.Actor, "Толкушка очищена", Color.Silver, lifetime: 1.5f);
                 }
             };
@@ -109,6 +114,7 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
         item!.ContainedIn = null;
         sourceEntity.Active = false;
         sourceEntity.World?.DestroyEntity(sourceEntity);
+        MarkWorldDirty();
 
         Systems.PopupTextSystem.Show(actor, $"Измельчено: {item.ItemName}", Color.LightGoldenrodYellow, lifetime: 1.5f);
         Console.WriteLine($"[Mortar] Loaded {item.ItemName} into {MortarName}");
@@ -145,6 +151,8 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
         }
 
         Cleanup();
+        if (moved > 0.001f)
+            MarkWorldDirty();
         return moved;
     }
 
@@ -169,5 +177,11 @@ public class MortarComponent : Component, IInteractionSource, ISubstanceReservoi
         var merged = SubstanceResolver.MergeById(Buffer);
         Buffer.Clear();
         Buffer.AddRange(merged);
+    }
+
+    private static void MarkWorldDirty()
+    {
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
     }
 }

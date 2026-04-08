@@ -14,12 +14,14 @@ public enum EditorCommand
     NewMap,
     LoadMap,
     SaveMap,
+    InGameMaps,
     Undo,
     Redo,
     ToggleFullscreen,
     ToolTiles,
     ToolPrototypes,
     ToolSpawns,
+    ToolTriggers,
     PointerBrush,
     PointerMouse,
     ShapePoint,
@@ -146,7 +148,9 @@ public class EditorHUD
         {
             EditorGame.Tool.TilePainter => "[1] Tiles",
             EditorGame.Tool.EntityPainter => "[2] Objects",
-            _ => "[3] Spawn"
+            EditorGame.Tool.SpawnPoint => "[3] Spawn",
+            EditorGame.Tool.TriggerZone => "[4] Triggers",
+            _ => "?"
         };
         var selected = activeTool == EditorGame.Tool.TilePainter
             ? palette.SelectedTileId ?? "-"
@@ -160,7 +164,7 @@ public class EditorHUD
         spriteBatch.Draw(_pixel, _bottomBarBounds, new Color(10, 12, 14, 245));
         spriteBatch.Draw(_pixel, new Rectangle(_bottomBarBounds.X, _bottomBarBounds.Y, _bottomBarBounds.Width, 1), new Color(90, 120, 96));
 
-        var info = $"Tool: {tool}   Selected: {selected}   Layer: {activeLayer}   Map: {map.Id}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Objects: {map.Entities.Count}";
+        var info = $"Tool: {tool}   Selected: {selected}   Layer: {activeLayer}   Map: {map.Id}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Objects: {map.Entities.Count}   Triggers: {map.Triggers.Count}";
         spriteBatch.DrawString(_font, info, new Vector2(12, _bottomBarBounds.Y + 8), Color.LimeGreen);
 
         // сообщение по центру над панелью
@@ -191,6 +195,7 @@ public class EditorHUD
             ("New", EditorCommand.NewMap, false),
             ("Load", EditorCommand.LoadMap, false),
             ("Save", EditorCommand.SaveMap, true),
+            ("InGame Maps", EditorCommand.InGameMaps, false),
             ("Undo", EditorCommand.Undo, false),
             ("Redo", EditorCommand.Redo, false),
             ("Fullscreen", EditorCommand.ToggleFullscreen, false),
@@ -201,6 +206,7 @@ public class EditorHUD
             ("Tiles", EditorCommand.ToolTiles, false),
             ("Prototypes", EditorCommand.ToolPrototypes, false),
             ("Spawns", EditorCommand.ToolSpawns, false),
+            ("Triggers", EditorCommand.ToolTriggers, false),
         };
 
         var leftStart = OuterMargin + BrandBlockWidth + ToolbarInnerGap;
@@ -359,6 +365,7 @@ public class EditorHUD
             (EditorCommand.ToolTiles, EditorGame.Tool.TilePainter) => true,
             (EditorCommand.ToolPrototypes, EditorGame.Tool.EntityPainter) => true,
             (EditorCommand.ToolSpawns, EditorGame.Tool.SpawnPoint) => true,
+            (EditorCommand.ToolTriggers, EditorGame.Tool.TriggerZone) => true,
             _ => false
         };
     }

@@ -16,38 +16,49 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
     private const float DrinkSipVolume = 10f;
 
     [DataField("name")]
+    [SaveField("name")]
     public string ContainerName { get; set; } = "Container";
 
     [DataField("capacity")]
+    [SaveField("capacity")]
     public float Capacity { get; set; } = 100f;
 
     [DataField("transparent")]
+    [SaveField("transparent")]
     public bool Transparent { get; set; }
 
     [DataField("showContents")]
+    [SaveField("showContents")]
     public bool ShowContents { get; set; }
 
     [DataField("drinkVerb")]
+    [SaveField("drinkVerb")]
     public string DrinkVerb { get; set; } = "Выпить";
 
     [DataField("nutrition")]
+    [SaveField("nutrition")]
     public float Nutrition { get; set; }
 
     [DataField("hydration")]
+    [SaveField("hydration")]
     public float Hydration { get; set; }
 
     [DataField("bladderLoad")]
+    [SaveField("bladderLoad")]
     public float BladderLoad { get; set; }
 
     [DataField("bowelLoad")]
+    [SaveField("bowelLoad")]
     public float BowelLoad { get; set; }
 
     [DataField("digestTime")]
+    [SaveField("digestTime")]
     public float DigestTime { get; set; } = 8f;
 
     [DataField("contents")]
     public List<SubstanceReference> ContentRefs { get; set; } = new();
 
+    [SaveField("contents")]
     public List<SubstanceDose> Contents { get; set; } = new();
 
     [DataField("fillSprite25")]
@@ -92,7 +103,7 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
         var item = Owner?.GetComponent<ItemComponent>();
         var heldByActor = item?.ContainedIn == ctx.Actor;
 
-        if (ctx.Target == Owner && heldByActor && HasContents)
+        if ((ctx.Target == Owner || ctx.Target == ctx.Actor) && heldByActor && HasContents)
         {
             yield return new InteractionEntry
             {
@@ -204,6 +215,8 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
 
         CleanupContents();
         target.NormalizeContents();
+        if (movable > 0.01f && ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
         return movable;
     }
 
@@ -249,6 +262,8 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
 
         CleanupContents();
         target.NormalizeContents();
+        if (moved > 0.001f && ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
         return moved;
     }
 
@@ -337,6 +352,8 @@ public class LiquidContainerComponent : Component, IInteractionSource, IPrototyp
         BowelLoad = Math.Max(0f, BowelLoad - sipBowelLoad);
         CleanupContents();
         _normalized = true;
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
     }
 
     public void Smell(Entity actor)

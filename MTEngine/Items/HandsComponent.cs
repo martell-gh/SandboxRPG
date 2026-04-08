@@ -5,6 +5,7 @@ using MTEngine.Interactions;
 using MTEngine.Core;
 using MTEngine.Rendering;
 using MTEngine.Systems;
+using MTEngine.World;
 
 namespace MTEngine.Items;
 
@@ -92,6 +93,9 @@ public class HandsComponent : Component, IInteractionSource
         var item = itemEntity.GetComponent<ItemComponent>();
         if (item == null) return false;
 
+        if (FindCompatibleStack(itemEntity) != null)
+            return true;
+
         if (item.TwoHanded)
             return FreeHandCount() >= 2;
 
@@ -115,6 +119,9 @@ public class HandsComponent : Component, IInteractionSource
         var item = itemEntity.GetComponent<ItemComponent>();
         if (item == null || !item.IsFree) return false;
 
+        if (TryMergeIntoHeldStack(itemEntity, item))
+            return true;
+
         if (item.TwoHanded)
             return TryPickUpTwoHanded(itemEntity, item);
 
@@ -127,6 +134,7 @@ public class HandsComponent : Component, IInteractionSource
 
         // Hide item from the world
         itemEntity.Active = false;
+        MarkWorldDirty();
 
         PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
         Console.WriteLine($"[Hands] {Owner?.Name} picked up {item.ItemName} in {hand.Name}");
@@ -140,7 +148,24 @@ public class HandsComponent : Component, IInteractionSource
         if (handIndex < 0 || handIndex >= Hands.Count) return false;
 
         var targetHand = Hands[handIndex];
-        if (!targetHand.IsFree) return false;
+        if (!targetHand.IsFree)
+        {
+            var targetItem = targetHand.HeldItem?.GetComponent<ItemComponent>();
+            if (targetItem == null || !targetItem.CanStackWith(item))
+                return false;
+
+            targetItem.MergeFrom(item);
+            if (item.StackCount <= 0)
+            {
+                ConsumeMergedSource(itemEntity, item);
+                ActiveHandIndex = handIndex;
+                MarkWorldDirty();
+                PopupTextSystem.Show(Owner!, $"+ {targetItem.ItemName}", Color.LightGreen);
+                return true;
+            }
+
+            return false;
+        }
 
         if (item.TwoHanded)
         {
@@ -160,6 +185,7 @@ public class HandsComponent : Component, IInteractionSource
             }
 
             ActiveHandIndex = handIndex;
+            MarkWorldDirty();
             PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
             return true;
         }
@@ -168,6 +194,7 @@ public class HandsComponent : Component, IInteractionSource
         item.ContainedIn = Owner;
         itemEntity.Active = false;
         ActiveHandIndex = handIndex;
+        MarkWorldDirty();
         PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
         return true;
     }
@@ -194,6 +221,7 @@ public class HandsComponent : Component, IInteractionSource
         sourceHand.HeldItem = null;
         targetHand.HeldItem = itemEntity;
         ActiveHandIndex = handIndex;
+        MarkWorldDirty();
         return true;
     }
 
@@ -219,9 +247,63 @@ public class HandsComponent : Component, IInteractionSource
             }
         }
 
+        MarkWorldDirty();
         PopupTextSystem.Show(Owner!, $"+ {item.ItemName}", Color.LightGreen);
         Console.WriteLine($"[Hands] {Owner?.Name} picked up {item.ItemName} (two-handed)");
         return true;
+    }
+
+    private bool TryMergeIntoHeldStack(Entity itemEntity, ItemComponent item)
+    {
+        var target = FindCompatibleStack(itemEntity);
+        if (target == null)
+            return false;
+
+        var targetItem = target.GetComponent<ItemComponent>();
+        if (targetItem == null)
+            return false;
+
+        var moved = targetItem.MergeFrom(item);
+        if (moved <= 0)
+            return false;
+
+        if (item.StackCount <= 0)
+            ConsumeMergedSource(itemEntity, item);
+
+        MarkWorldDirty();
+        PopupTextSystem.Show(Owner!, $"+ {targetItem.ItemName} x{moved}", Color.LightGreen);
+        return true;
+    }
+
+    private Entity? FindCompatibleStack(Entity itemEntity)
+    {
+        var item = itemEntity.GetComponent<ItemComponent>();
+        if (item == null || !item.Stackable)
+            return null;
+
+        if (ActiveItem?.GetComponent<ItemComponent>() is { } activeItem
+            && activeItem.CanStackWith(item)
+            && activeItem.AvailableStackSpace > 0)
+        {
+            return ActiveItem;
+        }
+
+        foreach (var hand in Hands)
+        {
+            var heldItem = hand.HeldItem;
+            var held = heldItem?.GetComponent<ItemComponent>();
+            if (held != null && held.CanStackWith(item) && held.AvailableStackSpace > 0)
+                return heldItem;
+        }
+
+        return null;
+    }
+
+    private static void ConsumeMergedSource(Entity itemEntity, ItemComponent item)
+    {
+        item.ContainedIn = null;
+        itemEntity.Active = false;
+        itemEntity.World?.DestroyEntity(itemEntity);
     }
 
     /// <summary>Drop the item from a specific hand onto the ground.</summary>
@@ -251,9 +333,10 @@ public class HandsComponent : Component, IInteractionSource
         var ownerTf = Owner?.GetComponent<TransformComponent>();
         var itemTf = itemEntity.GetComponent<TransformComponent>();
         if (ownerTf != null && itemTf != null)
-            itemTf.Position = ResolveDropPosition(ownerTf.Position, worldPosition);
+            itemTf.Position = ResolveDropPosition(ownerTf.Position, worldPosition, itemEntity, Owner?.World);
 
         itemEntity.Active = true;
+        MarkWorldDirty();
 
         PopupTextSystem.Show(Owner!, item?.ItemName ?? "Dropped", Color.Silver);
         Console.WriteLine($"[Hands] {Owner?.Name} dropped {item?.ItemName ?? "item"}");
@@ -277,6 +360,7 @@ public class HandsComponent : Component, IInteractionSource
         if (item != null)
             item.ContainedIn = null;
 
+        MarkWorldDirty();
         return true;
     }
 
@@ -295,6 +379,7 @@ public class HandsComponent : Component, IInteractionSource
         if (Hands.Count <= 1) return;
         if (ActiveItem?.GetComponent<ItemComponent>()?.TwoHanded == true) return;
         ActiveHandIndex = (ActiveHandIndex + 1) % Hands.Count;
+        MarkWorldDirty();
         Console.WriteLine($"[Hands] Active hand: {ActiveHand?.Name}");
     }
 
@@ -308,7 +393,43 @@ public class HandsComponent : Component, IInteractionSource
         yield break;
     }
 
-    private static Vector2 ResolveDropPosition(Vector2 ownerPosition, Vector2? desiredPosition)
+    private static Vector2 ResolveDropPosition(Vector2 ownerPosition, Vector2? desiredPosition, Entity? itemEntity, ECS.World? ownerWorld)
+    {
+        var targetPosition = ClampDropRadius(ownerPosition, desiredPosition);
+        if (targetPosition == ownerPosition)
+            return ownerPosition;
+
+        var world = itemEntity?.World ?? ownerWorld;
+        var collision = world?.GetSystem<CollisionSystem>();
+        var tileMap = world?.GetSystem<TileMapRenderer>()?.TileMap;
+        if (collision == null || tileMap == null)
+            return targetPosition;
+
+        var direction = targetPosition - ownerPosition;
+        if (direction.LengthSquared() <= 0.001f)
+            return ownerPosition;
+
+        var stepLength = Math.Max(4f, tileMap.TileSize * 0.2f);
+        var steps = Math.Max(1, (int)MathF.Ceiling(direction.Length() / stepLength));
+        var best = ownerPosition;
+
+        for (var i = 1; i <= steps; i++)
+        {
+            var t = i / (float)steps;
+            var candidate = Vector2.Lerp(ownerPosition, targetPosition, t);
+            if (!tileMap.HasWorldLineOfSight(ownerPosition, candidate))
+                break;
+
+            if (!CanDropAt(candidate, itemEntity, collision))
+                break;
+
+            best = candidate;
+        }
+
+        return best;
+    }
+
+    private static Vector2 ClampDropRadius(Vector2 ownerPosition, Vector2? desiredPosition)
     {
         if (!desiredPosition.HasValue)
             return ownerPosition;
@@ -324,6 +445,27 @@ public class HandsComponent : Component, IInteractionSource
         return ownerPosition + offset * CursorDropRadius;
     }
 
+    private static bool CanDropAt(Vector2 position, Entity? itemEntity, CollisionSystem collision)
+    {
+        Rectangle bounds;
+
+        if (itemEntity?.GetComponent<ColliderComponent>() is { } collider)
+        {
+            bounds = collider.GetBounds(position);
+        }
+        else
+        {
+            const int fallbackSize = 12;
+            bounds = new Rectangle(
+                (int)(position.X - fallbackSize / 2f),
+                (int)(position.Y - fallbackSize / 2f),
+                fallbackSize,
+                fallbackSize);
+        }
+
+        return collision.CanMoveTo(bounds);
+    }
+
     private static Vector2? TryGetCursorDropPosition()
     {
         if (!ServiceLocator.Has<InputManager>() || !ServiceLocator.Has<Camera>())
@@ -332,5 +474,11 @@ public class HandsComponent : Component, IInteractionSource
         var input = ServiceLocator.Get<InputManager>();
         var camera = ServiceLocator.Get<Camera>();
         return camera.ScreenToWorld(new Vector2(input.MousePosition.X, input.MousePosition.Y));
+    }
+
+    private static void MarkWorldDirty()
+    {
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
     }
 }

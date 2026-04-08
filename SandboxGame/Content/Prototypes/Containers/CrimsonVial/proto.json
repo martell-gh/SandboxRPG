@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["container", "glass", "vial"]
     },
+    "info": {
+      "description": "Стеклянный пузырёк тёмно-красного цвета. Используется алхимиками для хранения зелий и эссенций."
+    },
     "liquidContainer": {
       "name": "Crimson Vial",
       "capacity": 100,

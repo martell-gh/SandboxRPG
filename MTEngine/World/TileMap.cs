@@ -190,6 +190,26 @@ public class TileMap
 
                     var destRect = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
 
+                    // Smoothing: pick sprite based on neighbor bitmask
+                    if (proto.Smoothing != null)
+                    {
+                        if (DrawBlobCornerTile(spriteBatch, assets, x, y, layer, proto, prototypes, destRect))
+                            continue;
+
+                        var mask = GetConnectionMask(x, y, layer, proto, prototypes);
+                        var state = proto.Smoothing.States[mask];
+                        if (!string.IsNullOrWhiteSpace(state.FilePath))
+                        {
+                            var smoothTex = assets.LoadFromFile(state.FilePath);
+                            if (smoothTex != null)
+                            {
+                                var smoothSrc = new Rectangle(state.SrcX, state.SrcY, state.Width, state.Height);
+                                DrawSmoothedLayer(spriteBatch, smoothTex, smoothSrc, destRect, state.Rotation);
+                                continue;
+                            }
+                        }
+                    }
+
                     Texture2D? tex = null;
                     Rectangle? srcRect = null;
 
@@ -220,5 +240,208 @@ public class TileMap
                 }
             }
         }
+    }
+
+    private bool DrawBlobCornerTile(
+        SpriteBatch spriteBatch,
+        AssetManager assets,
+        int x,
+        int y,
+        int layer,
+        TilePrototype proto,
+        PrototypeManager prototypes,
+        Rectangle destRect)
+    {
+        var smoothing = proto.Smoothing;
+        if (smoothing == null || !string.Equals(smoothing.Mode, "blobCorners", StringComparison.OrdinalIgnoreCase))
+            return false;
+        if (smoothing.FillCorner?.FilePath == null
+            || smoothing.InnerCorner?.FilePath == null
+            || smoothing.HorizontalEdge?.FilePath == null
+            || smoothing.VerticalEdge?.FilePath == null
+            || smoothing.OuterCorner?.FilePath == null)
+            return false;
+
+        var fillTex = assets.LoadFromFile(smoothing.FillCorner.FilePath);
+        var innerTex = assets.LoadFromFile(smoothing.InnerCorner.FilePath);
+        var horizTex = assets.LoadFromFile(smoothing.HorizontalEdge.FilePath);
+        var vertTex = assets.LoadFromFile(smoothing.VerticalEdge.FilePath);
+        var outerTex = assets.LoadFromFile(smoothing.OuterCorner.FilePath);
+        if (fillTex == null || innerTex == null || horizTex == null || vertTex == null || outerTex == null)
+            return false;
+
+        DrawCornerPiece(spriteBatch, fillTex, innerTex, horizTex, vertTex, outerTex,
+            smoothing, x, y, layer, proto, prototypes, destRect, 0, x, y - 1, x - 1, y, x - 1, y - 1);
+        DrawCornerPiece(spriteBatch, fillTex, innerTex, horizTex, vertTex, outerTex,
+            smoothing, x, y, layer, proto, prototypes, destRect, 1, x, y - 1, x + 1, y, x + 1, y - 1);
+        DrawCornerPiece(spriteBatch, fillTex, innerTex, horizTex, vertTex, outerTex,
+            smoothing, x, y, layer, proto, prototypes, destRect, 2, x, y + 1, x - 1, y, x - 1, y + 1);
+        DrawCornerPiece(spriteBatch, fillTex, innerTex, horizTex, vertTex, outerTex,
+            smoothing, x, y, layer, proto, prototypes, destRect, 3, x, y + 1, x + 1, y, x + 1, y + 1);
+
+        return true;
+    }
+
+    private void DrawCornerPiece(
+        SpriteBatch spriteBatch,
+        Texture2D fillTex,
+        Texture2D innerTex,
+        Texture2D horizTex,
+        Texture2D vertTex,
+        Texture2D outerTex,
+        SmoothingConfig smoothing,
+        int x,
+        int y,
+        int layer,
+        TilePrototype proto,
+        PrototypeManager prototypes,
+        Rectangle destRect,
+        int quadrant,
+        int verticalNeighborX,
+        int verticalNeighborY,
+        int horizontalNeighborX,
+        int horizontalNeighborY,
+        int diagonalNeighborX,
+        int diagonalNeighborY)
+    {
+        var vertical = ConnectsToNeighbor(verticalNeighborX, verticalNeighborY, layer, proto, prototypes);
+        var horizontal = ConnectsToNeighbor(horizontalNeighborX, horizontalNeighborY, layer, proto, prototypes);
+        var diagonal = ConnectsToNeighbor(diagonalNeighborX, diagonalNeighborY, layer, proto, prototypes);
+
+        Texture2D texture;
+        SmoothingState state;
+
+        if (vertical && horizontal && diagonal)
+        {
+            texture = fillTex;
+            state = smoothing.FillCorner!;
+        }
+        else if (vertical && horizontal)
+        {
+            texture = innerTex;
+            state = smoothing.InnerCorner!;
+        }
+        else if (horizontal)
+        {
+            texture = horizTex;
+            state = smoothing.HorizontalEdge!;
+        }
+        else if (vertical)
+        {
+            texture = vertTex;
+            state = smoothing.VerticalEdge!;
+        }
+        else
+        {
+            texture = outerTex;
+            state = smoothing.OuterCorner!;
+        }
+
+        var src = GetBlobQuadrantSourceRect(texture, state, quadrant);
+        var dest = GetBlobQuadrantDestinationRect(destRect, quadrant);
+        spriteBatch.Draw(texture, dest, src, Color.White);
+    }
+
+    private static void DrawSmoothedLayer(
+        SpriteBatch spriteBatch,
+        Texture2D texture,
+        Rectangle sourceRect,
+        Rectangle destRect,
+        float rotationDegrees)
+    {
+        var origin = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
+        var position = new Vector2(destRect.X + destRect.Width * 0.5f, destRect.Y + destRect.Height * 0.5f);
+        var scale = new Vector2(
+            destRect.Width / (float)sourceRect.Width,
+            destRect.Height / (float)sourceRect.Height);
+
+        spriteBatch.Draw(
+            texture,
+            position,
+            sourceRect,
+            Color.White,
+            MathHelper.ToRadians(rotationDegrees),
+            origin,
+            scale,
+            SpriteEffects.None,
+            0f);
+    }
+
+    private static Rectangle GetBlobQuadrantSourceRect(Texture2D texture, SmoothingState state, int quadrant)
+    {
+        var isAtlas = texture.Width >= state.SrcX + 64 && texture.Height >= state.SrcY + 64;
+        if (isAtlas)
+        {
+            return quadrant switch
+            {
+                0 => new Rectangle(state.SrcX + 32, state.SrcY + 0, 16, 16),
+                1 => new Rectangle(state.SrcX + 16, state.SrcY + 32, 16, 16),
+                2 => new Rectangle(state.SrcX + 32, state.SrcY + 48, 16, 16),
+                _ => new Rectangle(state.SrcX + 16, state.SrcY + 16, 16, 16),
+            };
+        }
+
+        return quadrant switch
+        {
+            0 => new Rectangle(state.SrcX + 0, state.SrcY + 0, 16, 16),
+            1 => new Rectangle(state.SrcX + 16, state.SrcY + 0, 16, 16),
+            2 => new Rectangle(state.SrcX + 0, state.SrcY + 16, 16, 16),
+            _ => new Rectangle(state.SrcX + 16, state.SrcY + 16, 16, 16),
+        };
+    }
+
+    private static Rectangle GetBlobQuadrantDestinationRect(Rectangle destRect, int quadrant)
+    {
+        var halfW = destRect.Width / 2;
+        var halfH = destRect.Height / 2;
+
+        return quadrant switch
+        {
+            0 => new Rectangle(destRect.X, destRect.Y, halfW, halfH),
+            1 => new Rectangle(destRect.X + halfW, destRect.Y, halfW, halfH),
+            2 => new Rectangle(destRect.X, destRect.Y + halfH, halfW, halfH),
+            _ => new Rectangle(destRect.X + halfW, destRect.Y + halfH, halfW, halfH),
+        };
+    }
+
+    private int GetConnectionMask(int x, int y, int layer, TilePrototype proto, PrototypeManager prototypes)
+    {
+        var mask = 0;
+
+        if (ConnectsToNeighbor(x, y - 1, layer, proto, prototypes))
+            mask |= 1; // N
+        if (ConnectsToNeighbor(x, y + 1, layer, proto, prototypes))
+            mask |= 2; // S
+        if (ConnectsToNeighbor(x - 1, y, layer, proto, prototypes))
+            mask |= 4; // W
+        if (ConnectsToNeighbor(x + 1, y, layer, proto, prototypes))
+            mask |= 8; // E
+
+        return mask;
+    }
+
+    private bool ConnectsToNeighbor(int x, int y, int layer, TilePrototype proto, PrototypeManager prototypes)
+    {
+        if (!IsInBounds(x, y))
+            return false;
+
+        var neighborTile = GetTile(x, y, layer);
+        if (neighborTile.Type == TileType.Empty || string.IsNullOrWhiteSpace(neighborTile.ProtoId))
+            return false;
+
+        if (string.Equals(neighborTile.ProtoId, proto.Id, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (proto.Smoothing == null)
+            return false;
+
+        if (proto.Smoothing.SmoothWith.Any(id => string.Equals(id, neighborTile.ProtoId, StringComparison.OrdinalIgnoreCase)))
+            return true;
+
+        var neighborProto = prototypes.GetTile(neighborTile.ProtoId);
+        if (neighborProto?.Smoothing == null)
+            return false;
+
+        return neighborProto.Smoothing.SmoothWith.Any(id => string.Equals(id, proto.Id, StringComparison.OrdinalIgnoreCase));
     }
 }

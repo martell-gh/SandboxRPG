@@ -10,10 +10,22 @@ namespace MTEngine.Items;
 [RegisterComponent("lamp")]
 public class LampComponent : Component, IInteractionSource, IPrototypeInitializable
 {
+    private bool _isOn;
+
     [DataField("on")]
-    public bool IsOn { get; set; }
+    [SaveField("on")]
+    public bool IsOn
+    {
+        get => _isOn;
+        set
+        {
+            _isOn = value;
+            SyncLightState();
+        }
+    }
 
     [DataField("name")]
+    [SaveField("name")]
     public string LampName { get; set; } = "Lamp";
 
     public void InitializeFromPrototype(EntityPrototype proto, AssetManager assets)

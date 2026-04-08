@@ -20,76 +20,115 @@ namespace MTEngine.Metabolism;
 public class MetabolismComponent : Component, IInteractionSource
 {
     // ── Hunger ─────────────────────────────────────────────────────
+    [SaveField("hunger")]
     [DataField("hunger")]
     public float Hunger { get; set; } = 100f;
 
     /// <summary>Hunger loss per real second (before GameClock scale).</summary>
+    [SaveField("hungerDecay")]
     [DataField("hungerDecay")]
     public float HungerDecay { get; set; } = 0.8f;
 
     // ── Thirst ─────────────────────────────────────────────────────
+    [SaveField("thirst")]
     [DataField("thirst")]
     public float Thirst { get; set; } = 100f;
 
     /// <summary>Thirst loss per real second (decays faster than hunger).</summary>
+    [SaveField("thirstDecay")]
     [DataField("thirstDecay")]
     public float ThirstDecay { get; set; } = 1.2f;
 
     // ── Bladder ────────────────────────────────────────────────────
+    [SaveField("bladder")]
     [DataField("bladder")]
     public float Bladder { get; set; } = 0f;
 
     /// <summary>Passive bladder fill per real second.</summary>
+    [SaveField("bladderFill")]
     [DataField("bladderFill")]
     public float BladderFillRate { get; set; } = 0.15f;
 
     // ── Bowel ──────────────────────────────────────────────────────
+    [SaveField("bowel")]
     [DataField("bowel")]
     public float Bowel { get; set; } = 0f;
 
     /// <summary>Passive bowel fill per real second.</summary>
+    [SaveField("bowelFill")]
     [DataField("bowelFill")]
     public float BowelFillRate { get; set; } = 0.08f;
 
+    [SaveField("starvationDamage")]
     [DataField("starvationDamage")]
     public float StarvationDamage { get; set; } = 0.35f;
 
+    [SaveField("dehydrationDamage")]
     [DataField("dehydrationDamage")]
     public float DehydrationDamage { get; set; } = 0.75f;
+
+    [SaveField("naturalRegenRate")]
+    [DataField("naturalRegenRate")]
+    public float NaturalRegenRate { get; set; } = 1.2f;
+
+    [SaveField("naturalRegenThreshold")]
+    [DataField("naturalRegenThreshold")]
+    public float NaturalRegenThreshold { get; set; } = 70f;
+
+    [SaveField("exhaustionRecoveryRate")]
+    [DataField("exhaustionRecoveryRate")]
+    public float ExhaustionRecoveryRate { get; set; } = 3.5f;
+
+    [SaveField("exhaustionRecoveryThreshold")]
+    [DataField("exhaustionRecoveryThreshold")]
+    public float ExhaustionRecoveryThreshold { get; set; } = 45f;
 
     // ── Digestion queue ────────────────────────────────────────────
     // When food/drink is consumed, nutrients are not applied instantly.
     // They enter a digestion queue and are absorbed over time.
 
+    [SaveField]
     public List<DigestingItem> DigestingItems { get; } = new();
+    [SaveField]
     public List<ActiveSubstanceDose> ActiveSubstances { get; } = new();
+    [SaveField]
     public Dictionary<string, SubstanceConcentrationSnapshot> SubstanceConcentrations { get; } =
         new(StringComparer.OrdinalIgnoreCase);
+    [SaveField]
     public HashSet<string> ActiveConcentrationEffectKeys { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     // ── Speed modifier (applied by MetabolismSystem) ───────────────
     /// <summary>Multiplier applied to VelocityComponent.Speed. 1.0 = normal.</summary>
+    [SaveField]
     public float SpeedModifier { get; set; } = 1f;
+    [SaveField]
     public float SubstanceSpeedModifier { get; set; } = 1f;
 
     // ── Thresholds (can tweak in proto.json) ───────────────────────
+    [SaveField("wellFedThreshold")]
     [DataField("wellFedThreshold")]
     public float WellFedThreshold { get; set; } = 80f;
 
+    [SaveField("hungryThreshold")]
     [DataField("hungryThreshold")]
     public float HungryThreshold { get; set; } = 30f;
 
+    [SaveField("starvingThreshold")]
     [DataField("starvingThreshold")]
     public float StarvingThreshold { get; set; } = 10f;
 
+    [SaveField("needToGoThreshold")]
     [DataField("needToGoThreshold")]
     public float NeedToGoThreshold { get; set; } = 60f;
 
+    [SaveField("urgentThreshold")]
     [DataField("urgentThreshold")]
     public float UrgentThreshold { get; set; } = 85f;
 
     // ── Runtime state (not serialized) ─────────────────────────────
+    [SaveField]
     public float TimeSinceLastWarning { get; set; }
+    [SaveField]
     public bool HadAccident { get; set; }
 
     // ── Status helpers ─────────────────────────────────────────────
@@ -122,8 +161,15 @@ public class MetabolismComponent : Component, IInteractionSource
 
     public IEnumerable<InteractionEntry> GetInteractions(InteractionContext ctx)
     {
+        if (ctx.Actor != Owner)
+            yield break;
+
         var actorMetab = ctx.Actor.GetComponent<MetabolismComponent>();
         if (actorMetab == null) yield break;
+
+        var actorHealth = ctx.Actor.GetComponent<Components.HealthComponent>();
+        if (actorHealth?.IsDead == true)
+            yield break;
 
         // Determine context: toilet object or self-interaction
         var targetItem = ctx.Target.GetComponent<Items.ItemComponent>();
@@ -139,7 +185,7 @@ public class MetabolismComponent : Component, IInteractionSource
         {
             var label = isToilet
                 ? "Сходить (малая нужда)"
-                : "Справить нужду на месте (малая)";
+                : "Справить нужду(малая)";
 
             yield return new InteractionEntry
             {
@@ -155,7 +201,7 @@ public class MetabolismComponent : Component, IInteractionSource
         {
             var label = isToilet
                 ? "Сходить (большая нужда)"
-                : "Справить нужду на месте (большая)";
+                : "Справить нужду (большая)";
 
             yield return new InteractionEntry
             {
@@ -174,6 +220,10 @@ public class MetabolismComponent : Component, IInteractionSource
     {
         var m = actor.GetComponent<MetabolismComponent>();
         if (m == null) return;
+
+        var health = actor.GetComponent<Components.HealthComponent>();
+        if (health?.IsDead == true)
+            return;
 
         switch (need)
         {

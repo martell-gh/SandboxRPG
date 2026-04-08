@@ -28,6 +28,7 @@ public class TilePrototype
     public int SrcY { get; set; }
     public TileSpriteInfo? Sprite { get; set; }
     public AnimationSet? Animations { get; set; }
+    public SmoothingConfig? Smoothing { get; set; }
 }
 
 public class PrototypeManager
@@ -96,6 +97,14 @@ public class PrototypeManager
                     {
                         proto.Animations = AnimationSet.LoadFromFile(animPath);
                         Console.WriteLine($"[PrototypeManager] Loaded animations for: {id}");
+                    }
+
+                    // smoothing — ищем smoothing.json рядом
+                    var smoothPath = Path.Combine(dir, "smoothing.json");
+                    if (File.Exists(smoothPath))
+                    {
+                        proto.Smoothing = SmoothingConfig.LoadFromFile(smoothPath);
+                        Console.WriteLine($"[PrototypeManager] Loaded smoothing for: {id}");
                     }
 
                     _tiles[id] = proto;

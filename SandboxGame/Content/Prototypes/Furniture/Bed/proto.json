@@ -1,0 +1,36 @@
+{
+  "id": "bed",
+  "name": "Bed",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "../Chest/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "transform": { "x": 0, "y": 0 },
+    "collider": {
+      "width": 24,
+      "height": 24,
+      "offsetX": -12,
+      "offsetY": -12
+    },
+    "info": {
+      "description": "Простая кровать. Ночью на ней можно лечь спать и переждать до утра."
+    },
+    "interactable": {
+      "name": "Bed",
+      "range": 72
+    },
+    "bed": {
+      "name": "Bed",
+      "wakeHour": 6,
+      "sleepTimeScale": 2400,
+      "healingPerSecond": 0.6
+    }
+  }
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using MTEngine.Components;
+using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 using MTEngine.Systems;
@@ -132,6 +133,7 @@ public class StorageComponent : Component, IInteractionSource
         Contents.Add(itemEntity);
         item.ContainedIn = Owner;
         itemEntity.Active = false;
+        MarkWorldDirty();
 
         PopupTextSystem.Show(ResolveDropAnchor() ?? Owner!, $"+ {item.ItemName}", Color.Khaki);
         Console.WriteLine($"[Storage] {item.ItemName} → {StorageName}");
@@ -156,6 +158,7 @@ public class StorageComponent : Component, IInteractionSource
             itemTf.Position = ownerTf.Position;
 
         itemEntity.Active = true;
+        MarkWorldDirty();
 
         PopupTextSystem.Show(ResolveDropAnchor() ?? Owner!, item?.ItemName ?? "Removed", Color.Silver);
         Console.WriteLine($"[Storage] Removed {item?.ItemName ?? "item"} from {StorageName}");
@@ -175,8 +178,10 @@ public class StorageComponent : Component, IInteractionSource
             item.ContainedIn = null;
 
         // Item is now free, so TryPickUp will work
-        hands.TryPickUp(itemEntity);
-        return true;
+        var success = hands.TryPickUp(itemEntity);
+        if (success)
+            MarkWorldDirty();
+        return success;
     }
 
     public bool TryRemoveToHand(Entity itemEntity, HandsComponent hands, int handIndex)
@@ -197,6 +202,7 @@ public class StorageComponent : Component, IInteractionSource
             return false;
         }
 
+        MarkWorldDirty();
         return true;
     }
 
@@ -270,5 +276,11 @@ public class StorageComponent : Component, IInteractionSource
         }
 
         return Owner;
+    }
+
+    private static void MarkWorldDirty()
+    {
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
     }
 }

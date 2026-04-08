@@ -16,6 +16,7 @@ public class LightingSystem : GameSystem
     public override void Draw() { }
 
     private RenderTarget2D? _lightRT;
+    private RenderTarget2D? _singleLightRT;
     private Texture2D? _lightCircle;
     private SpriteBatch? _sb;
     private Camera? _camera;
@@ -51,32 +52,23 @@ public class LightingSystem : GameSystem
         gd.SetRenderTarget(_lightRT);
         gd.Clear(AmbientColor);
 
-        // Draw light circles additively
-        _sb.Begin(
-            sortMode: SpriteSortMode.Deferred,
-            blendState: BlendState.Additive,
-            samplerState: SamplerState.LinearClamp,
-            transformMatrix: _camera.GetViewMatrix()
-        );
-
         foreach (var entity in World.GetEntities())
         {
             var lt = entity.GetComponent<LightComponent>();
             if (lt == null || !lt.Enabled) continue;
             if (!TryGetLightPosition(entity, out var position)) continue;
 
-            float r = lt.Radius;
-            var dest = new Rectangle(
-                (int)(position.X - r), (int)(position.Y - r),
-                (int)(r * 2), (int)(r * 2)
+            BuildSingleLight(gd, position, lt);
+
+            gd.SetRenderTarget(_lightRT);
+            _sb.Begin(
+                sortMode: SpriteSortMode.Deferred,
+                blendState: BlendState.Additive,
+                samplerState: SamplerState.LinearClamp
             );
-            _sb.Draw(_lightCircle!, dest, lt.Color * lt.Intensity);
+            _sb.Draw(_singleLightRT!, gd.Viewport.Bounds, Color.White);
+            _sb.End();
         }
-
-        _sb.End();
-
-        // Cut light with shadows from occluder edges
-        DrawLightOcclusion(gd);
     }
 
     public void ApplyLightMap(GraphicsDevice gd)
@@ -96,15 +88,52 @@ public class LightingSystem : GameSystem
             return;
 
         _lightRT?.Dispose();
-        _lightRT = new RenderTarget2D(gd, vp.Width, vp.Height);
+        _singleLightRT?.Dispose();
+        _lightRT = new RenderTarget2D(
+            gd,
+            vp.Width,
+            vp.Height,
+            false,
+            gd.PresentationParameters.BackBufferFormat,
+            DepthFormat.None,
+            0,
+            RenderTargetUsage.PreserveContents);
+        _singleLightRT = new RenderTarget2D(
+            gd,
+            vp.Width,
+            vp.Height,
+            false,
+            gd.PresentationParameters.BackBufferFormat,
+            DepthFormat.None,
+            0,
+            RenderTargetUsage.PreserveContents);
         _lightCircle ??= BuildLightCircle(gd, 256);
     }
 
-    private void DrawLightOcclusion(GraphicsDevice gd)
+    private void BuildSingleLight(GraphicsDevice gd, Vector2 lightPos, LightComponent light)
     {
         _camera ??= ServiceLocator.Get<Camera>();
         _tileMapRenderer ??= World.GetSystem<TileMapRenderer>();
-        if (_camera == null || _tileMapRenderer?.TileMap == null) return;
+        if (_camera == null || _tileMapRenderer?.TileMap == null || _singleLightRT == null)
+            return;
+
+        gd.SetRenderTarget(_singleLightRT);
+        gd.Clear(Color.Transparent);
+
+        _sb!.Begin(
+            sortMode: SpriteSortMode.Deferred,
+            blendState: BlendState.Additive,
+            samplerState: SamplerState.LinearClamp,
+            transformMatrix: _camera.GetViewMatrix()
+        );
+
+        var r = light.Radius;
+        var dest = new Rectangle(
+            (int)(lightPos.X - r), (int)(lightPos.Y - r),
+            (int)(r * 2), (int)(r * 2)
+        );
+        _sb.Draw(_lightCircle!, dest, light.Color * light.Intensity);
+        _sb.End();
 
         var map = _tileMapRenderer.TileMap;
         var viewport = gd.Viewport;
@@ -123,40 +152,30 @@ public class LightingSystem : GameSystem
         _shadowEffect.Projection = Matrix.CreateOrthographicOffCenter(
             0f, viewport.Width, viewport.Height, 0f, 0f, 1f);
 
-        var ambientColor = AmbientColor;
-        var featherOuter = new Color(ambientColor.R, ambientColor.G, ambientColor.B, (byte)0);
+        var lightTile = map.WorldToTile(lightPos);
+        if (!map.IsInBounds(lightTile.X, lightTile.Y))
+            return;
 
-        foreach (var entity in World.GetEntities())
+        OccluderEdgeCollector.Collect(map, lightPos, startX, startY, endX, endY, _edges);
+
+        _shadowVertices.Clear();
+        _shadowFeatherVertices.Clear();
+
+        foreach (var edge in _edges)
         {
-            var light = entity.GetComponent<LightComponent>();
-            if (light == null || !light.Enabled) continue;
-            if (!TryGetLightPosition(entity, out var lightPos)) continue;
-
-            var lightTile = map.WorldToTile(lightPos);
-            if (!map.IsInBounds(lightTile.X, lightTile.Y)) continue;
-
-            // Collect silhouette edges facing this light
-            OccluderEdgeCollector.Collect(map, lightPos, startX, startY, endX, endY, _edges);
-
-            _shadowVertices.Clear();
-            _shadowFeatherVertices.Clear();
-
-            foreach (var edge in _edges)
-            {
-                TileShadowGeometry.AppendEdgeShadow(
-                    _shadowVertices,
-                    null,
-                    lightPos,
-                    edge.A, edge.B,
-                    shadowLength,
-                    0f,
-                    ambientColor,
-                    default,
-                    default);
-            }
-
-            DrawShadowVertices(gd);
+            TileShadowGeometry.AppendEdgeShadow(
+                _shadowVertices,
+                null,
+                lightPos,
+                edge.A, edge.B,
+                shadowLength,
+                0f,
+                Color.Black,
+                default,
+                default);
         }
+
+        DrawShadowVertices(gd);
     }
 
     private void DrawShadowVertices(GraphicsDevice gd)

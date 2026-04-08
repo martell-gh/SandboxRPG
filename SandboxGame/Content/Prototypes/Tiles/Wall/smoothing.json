@@ -1,0 +1,13 @@
+{
+  "mode": "blobCorners",
+  "smoothWith": ["wall"],
+  "fillCorner":       { "file": "full.png", "srcX": 0, "srcY": 0, "width": 32, "height": 32 },
+  "innerCorner":      { "file": "wood0.png", "srcX": 0, "srcY": 0, "width": 32, "height": 32 },
+  "horizontalEdge":   { "file": "wood1.png", "srcX": 0, "srcY": 0, "width": 32, "height": 32 },
+  "verticalEdge":     { "file": "wood4.png", "srcX": 0, "srcY": 0, "width": 32, "height": 32 },
+  "outerCorner":      { "file": "wood5.png", "srcX": 0, "srcY": 0, "width": 32, "height": 32 },
+  "states": [
+    {},
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+  ]
+}

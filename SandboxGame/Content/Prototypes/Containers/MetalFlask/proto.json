@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["container", "flask"]
     },
+    "info": {
+      "description": "Металлическая фляга. Прочная и надёжная, хорошо сохраняет воду в долгих походах."
+    },
     "liquidContainer": {
       "name": "Metal Flask",
       "capacity": 120,

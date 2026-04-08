@@ -1,0 +1,7354 @@
+{
+  "Map": {
+    "id": "river",
+    "name": "River",
+    "width": 50,
+    "height": 50,
+    "tileSize": 32,
+    "ingame": true,
+    "spawnPoints": [
+      {
+        "id": "top",
+        "x": 23,
+        "y": 11
+      },
+      {
+        "id": "default",
+        "x": 21,
+        "y": 22
+      }
+    ],
+    "tiles": [
+      {
+        "x": 1,
+        "y": 15,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 16,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 18,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 21,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 25,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 29,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 30,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 1,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 2,
+        "y": 17,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 2,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 2,
+        "y": 25,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 2,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 2,
+        "y": 32,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 15,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 16,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 18,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 21,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 24,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 29,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 30,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 3,
+        "y": 32,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 14,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 15,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 16,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 17,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 18,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 20,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 21,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 13,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 8,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 12,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 13,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 9,
+        "y": 32,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 10,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 11,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 12,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 12,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 13,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 12,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 13,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 14,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 12,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 13,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 14,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 15,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 13,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 14,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 16,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 14,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 17,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 14,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 38,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 40,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 18,
+        "y": 42,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 37,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 38,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 40,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 42,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 19,
+        "y": 43,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 38,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 40,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 20,
+        "y": 42,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 9,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 10,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 15,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 17,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 36,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 37,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 38,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 40,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 42,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 43,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 21,
+        "y": 44,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 9,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 10,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 11,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 38,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 40,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 22,
+        "y": 42,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 9,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 10,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 11,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 23,
+        "y": 41,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 9,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 10,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 11,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 17,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 18,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 24,
+        "y": 39,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 9,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 10,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 16,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 17,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 18,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 19,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 20,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 25,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 17,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 18,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 19,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 20,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 21,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 26,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 18,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 19,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 20,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 21,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 22,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 27,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 20,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 21,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 22,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 28,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 21,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 22,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 24,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 29,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 21,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 22,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 30,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 22,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 31,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 32,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 33,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 23,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 34,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 11,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 12,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 13,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 26,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 31,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 32,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 35,
+        "y": 33,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 12,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 13,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 26,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 36,
+        "y": 32,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 13,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 14,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 15,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 16,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 17,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 18,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 19,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 20,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 21,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 22,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 23,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 24,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 25,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 26,
+        "protoId": "water",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 27,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 28,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 29,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 30,
+        "protoId": "grass",
+        "layer": 0
+      },
+      {
+        "x": 37,
+        "y": 31,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 14,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 15,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 16,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 17,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 18,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 20,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 21,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 24,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 25,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 26,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 28,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 29,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 38,
+        "y": 30,
+        "protoId": "wall",
+        "layer": 0
+      },
+      {
+        "x": 7,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 24,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 25,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 26,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 28,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 29,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 7,
+        "y": 30,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 8,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 8,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 9,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 10,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 10,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 20,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 21,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 24,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 26,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 11,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 12,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 12,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 12,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 13,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 13,
+        "y": 25,
+        "protoId": "grass",
+        "layer": 1
+      },
+      {
+        "x": 13,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 14,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 14,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 14,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 19,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 20,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 22,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 23,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 24,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 25,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 26,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 15,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      },
+      {
+        "x": 16,
+        "y": 27,
+        "protoId": "wall",
+        "layer": 1
+      }
+    ],
+    "entities": [
+      {
+        "x": 532.7382,
+        "y": 586.2146,
+        "protoId": "heavy_armor",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 564.7382,
+        "y": 585.7146,
+        "protoId": "tinted_shirt",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 653.7382,
+        "y": 564.7146,
+        "protoId": "backpack",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 565.7382,
+        "y": 602.7146,
+        "protoId": "work_pants",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 566.2382,
+        "y": 616.2146,
+        "protoId": "leather_boots",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 680.7382,
+        "y": 598.7146,
+        "protoId": "apple",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 699.7382,
+        "y": 597.7146,
+        "protoId": "bread",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 530.7382,
+        "y": 758.7146,
+        "protoId": "water_bottle",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 553.2382,
+        "y": 755.2146,
+        "protoId": "crimson_vial",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 575.2382,
+        "y": 755.2146,
+        "protoId": "glass_cup",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 602.7382,
+        "y": 754.7146,
+        "protoId": "metal_flask",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 464,
+        "y": 656,
+        "protoId": "chest",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 400,
+        "y": 656,
+        "protoId": "toilet",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 467.73822,
+        "y": 564.7146,
+        "protoId": "cloth_bolt",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 492.23822,
+        "y": 564.7146,
+        "protoId": "leather_patch",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 519.7382,
+        "y": 563.2146,
+        "protoId": "metal_plate",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 467.23822,
+        "y": 718.7146,
+        "protoId": "lamp",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 633.2382,
+        "y": 752.7146,
+        "protoId": "mortar_pestle",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 641.2382,
+        "y": 616.2146,
+        "protoId": "greatsword",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      },
+      {
+        "x": 464,
+        "y": 784,
+        "protoId": "bed",
+        "worldSpace": true,
+        "componentOverrides": {},
+        "containedEntities": []
+      }
+    ],
+    "triggers": [
+      {
+        "id": "loc_toRiv",
+        "tiles": [
+          {
+            "x": 23,
+            "y": 9
+          },
+          {
+            "x": 24,
+            "y": 9
+          },
+          {
+            "x": 22,
+            "y": 9
+          }
+        ],
+        "action": {
+          "type": "location_transition",
+          "targetMapId": "river_startloc",
+          "spawnPointId": "down"
+        }
+      }
+    ]
+  },
+  "HasCapturedState": true,
+  "Entities": [
+    {
+      "SaveId": "499025747d4b4ed9a35ba3384ee92f4e",
+      "PrototypeId": "herbal_salve",
+      "Name": "Herbal Salve",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 641.2382,
+              "y": 572.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u0440\u0430\u0432\u044F\u043D\u0430\u044F \u043C\u0430\u0437\u044C",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 5,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "medical",
+              "salve"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0413\u0443\u0441\u0442\u0430\u044F \u043C\u0430\u0437\u044C \u0438\u0437 \u0446\u0435\u043B\u0435\u0431\u043D\u044B\u0445 \u0442\u0440\u0430\u0432 \u0438 \u043C\u0451\u0434\u0430. \u0421\u043D\u0438\u043C\u0430\u0435\u0442 \u0431\u043E\u043B\u044C \u0438 \u0437\u0430\u0436\u0438\u0432\u043B\u044F\u0435\u0442 \u043E\u0436\u043E\u0433\u0438. \u0420\u0435\u0446\u0435\u043F\u0442 \u0438\u0437\u0432\u0435\u0441\u0442\u0435\u043D \u0437\u043D\u0430\u0445\u0430\u0440\u044F\u043C \u0441 \u0434\u0440\u0435\u0432\u043D\u0438\u0445 \u0432\u0440\u0435\u043C\u0451\u043D."
+          }
+        },
+        {
+          "TypeId": "healing",
+          "ClrType": "MTEngine.Wounds.HealingComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "fb5ecc1b8166400084e97ba0cb41c222"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "b8d68b2896a149da8d5798c72931b0b5",
+      "PrototypeId": "apple",
+      "Name": "Apple",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Apple",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "food",
+              "organic"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0421\u043F\u0435\u043B\u043E\u0435 \u044F\u0431\u043B\u043E\u043A\u043E. \u0423\u0442\u043E\u043B\u044F\u0435\u0442 \u043B\u0451\u0433\u043A\u0438\u0439 \u0433\u043E\u043B\u043E\u0434 \u0438 \u043D\u0435\u043C\u043D\u043E\u0433\u043E \u043E\u0441\u0432\u0435\u0436\u0430\u0435\u0442."
+          }
+        },
+        {
+          "TypeId": "substanceSource",
+          "ClrType": "MTEngine.Metabolism.SubstanceSourceComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "consumable",
+          "ClrType": "MTEngine.Metabolism.ConsumableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "a5c1378616b94e14b9ffaa12f89853a3"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "ad4f0e006d06454bacb7e0cec3320c8f",
+      "PrototypeId": "bandage",
+      "Name": "Bandage",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u0440\u044F\u043F\u0438\u0447\u043D\u0430\u044F \u043F\u043E\u0432\u044F\u0437\u043A\u0430",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 5,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "medical",
+              "bandage"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041F\u043E\u043B\u043E\u0441\u043A\u0430 \u0447\u0438\u0441\u0442\u043E\u0439 \u0442\u043A\u0430\u043D\u0438 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0432\u044F\u0437\u043A\u0438 \u0440\u0430\u043D. \u041E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442 \u043A\u0440\u043E\u0432\u043E\u0442\u0435\u0447\u0435\u043D\u0438\u0435 \u0438 \u043F\u043E\u043C\u043E\u0433\u0430\u0435\u0442 \u0437\u0430\u0436\u0438\u0432\u043B\u0435\u043D\u0438\u044E \u043F\u043E\u0440\u0435\u0437\u043E\u0432."
+          }
+        },
+        {
+          "TypeId": "healing",
+          "ClrType": "MTEngine.Wounds.HealingComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "a5c1378616b94e14b9ffaa12f89853a3"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "27e48047f22646abbb0331ccbd779cbe",
+      "PrototypeId": "herbal_salve",
+      "Name": "Herbal Salve",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u0440\u0430\u0432\u044F\u043D\u0430\u044F \u043C\u0430\u0437\u044C",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 5,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "medical",
+              "salve"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0413\u0443\u0441\u0442\u0430\u044F \u043C\u0430\u0437\u044C \u0438\u0437 \u0446\u0435\u043B\u0435\u0431\u043D\u044B\u0445 \u0442\u0440\u0430\u0432 \u0438 \u043C\u0451\u0434\u0430. \u0421\u043D\u0438\u043C\u0430\u0435\u0442 \u0431\u043E\u043B\u044C \u0438 \u0437\u0430\u0436\u0438\u0432\u043B\u044F\u0435\u0442 \u043E\u0436\u043E\u0433\u0438. \u0420\u0435\u0446\u0435\u043F\u0442 \u0438\u0437\u0432\u0435\u0441\u0442\u0435\u043D \u0437\u043D\u0430\u0445\u0430\u0440\u044F\u043C \u0441 \u0434\u0440\u0435\u0432\u043D\u0438\u0445 \u0432\u0440\u0435\u043C\u0451\u043D."
+          }
+        },
+        {
+          "TypeId": "healing",
+          "ClrType": "MTEngine.Wounds.HealingComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "a5c1378616b94e14b9ffaa12f89853a3"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "e1544a4e6e6943eeb544b88d03ddfe49",
+      "PrototypeId": "herbal_salve",
+      "Name": "Herbal Salve",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u0440\u0430\u0432\u044F\u043D\u0430\u044F \u043C\u0430\u0437\u044C",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 5,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "medical",
+              "salve"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0413\u0443\u0441\u0442\u0430\u044F \u043C\u0430\u0437\u044C \u0438\u0437 \u0446\u0435\u043B\u0435\u0431\u043D\u044B\u0445 \u0442\u0440\u0430\u0432 \u0438 \u043C\u0451\u0434\u0430. \u0421\u043D\u0438\u043C\u0430\u0435\u0442 \u0431\u043E\u043B\u044C \u0438 \u0437\u0430\u0436\u0438\u0432\u043B\u044F\u0435\u0442 \u043E\u0436\u043E\u0433\u0438. \u0420\u0435\u0446\u0435\u043F\u0442 \u0438\u0437\u0432\u0435\u0441\u0442\u0435\u043D \u0437\u043D\u0430\u0445\u0430\u0440\u044F\u043C \u0441 \u0434\u0440\u0435\u0432\u043D\u0438\u0445 \u0432\u0440\u0435\u043C\u0451\u043D."
+          }
+        },
+        {
+          "TypeId": "healing",
+          "ClrType": "MTEngine.Wounds.HealingComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "a5c1378616b94e14b9ffaa12f89853a3"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "e56b32175bd644a9a9a8affa174d51ad",
+      "PrototypeId": "herbal_salve",
+      "Name": "Herbal Salve",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u0440\u0430\u0432\u044F\u043D\u0430\u044F \u043C\u0430\u0437\u044C",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 5,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "medical",
+              "salve"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0413\u0443\u0441\u0442\u0430\u044F \u043C\u0430\u0437\u044C \u0438\u0437 \u0446\u0435\u043B\u0435\u0431\u043D\u044B\u0445 \u0442\u0440\u0430\u0432 \u0438 \u043C\u0451\u0434\u0430. \u0421\u043D\u0438\u043C\u0430\u0435\u0442 \u0431\u043E\u043B\u044C \u0438 \u0437\u0430\u0436\u0438\u0432\u043B\u044F\u0435\u0442 \u043E\u0436\u043E\u0433\u0438. \u0420\u0435\u0446\u0435\u043F\u0442 \u0438\u0437\u0432\u0435\u0441\u0442\u0435\u043D \u0437\u043D\u0430\u0445\u0430\u0440\u044F\u043C \u0441 \u0434\u0440\u0435\u0432\u043D\u0438\u0445 \u0432\u0440\u0435\u043C\u0451\u043D."
+          }
+        },
+        {
+          "TypeId": "healing",
+          "ClrType": "MTEngine.Wounds.HealingComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "a5c1378616b94e14b9ffaa12f89853a3"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "5eb2d658c3ea4afbb9e4861f4c8d3b58",
+      "PrototypeId": "heavy_armor",
+      "Name": "Heavy Armor",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 532.7382,
+              "y": 586.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Heavy Armor",
+            "size": 3,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 2,
+            "tags": [
+              "clothing",
+              "armor",
+              "torso"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0422\u044F\u0436\u0451\u043B\u044B\u0439 \u0434\u043E\u0441\u043F\u0435\u0445 \u0438\u0437 \u043A\u043E\u0432\u0430\u043D\u044B\u0445 \u043C\u0435\u0442\u0430\u043B\u043B\u0438\u0447\u0435\u0441\u043A\u0438\u0445 \u043F\u043B\u0430\u0441\u0442\u0438\u043D. \u041E\u0442\u043B\u0438\u0447\u043D\u043E \u0437\u0430\u0449\u0438\u0449\u0430\u0435\u0442 \u043E\u0442 \u0443\u0434\u0430\u0440\u043E\u0432, \u043D\u043E \u0441\u043A\u043E\u0432\u044B\u0432\u0430\u0435\u0442 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F."
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "7f2255f805714d63bbb360b8f479f578",
+      "PrototypeId": "tinted_shirt",
+      "Name": "Tinted Shirt",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 564.7382,
+              "y": 585.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Tinted Shirt",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "torso",
+              "shirt"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0420\u0443\u0431\u0430\u0445\u0430, \u043E\u043A\u0440\u0430\u0448\u0435\u043D\u043D\u0430\u044F \u0440\u0430\u0441\u0442\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u043C \u043A\u0440\u0430\u0441\u0438\u0442\u0435\u043B\u0435\u043C. \u041F\u0440\u043E\u0441\u0442\u0430\u044F, \u043D\u043E \u043D\u043E\u0441\u043A\u0430\u044F \u043E\u0434\u0435\u0436\u0434\u0430."
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "7390280d294141f7a0749f4c1c1528bd",
+      "PrototypeId": "backpack",
+      "Name": "Backpack",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 653.7382,
+              "y": 564.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Backpack",
+            "size": 3,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 2,
+            "tags": [
+              "container",
+              "backpack",
+              "wearable-storage"
+            ]
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0412\u043C\u0435\u0441\u0442\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0437\u0430\u043F\u043B\u0435\u0447\u043D\u044B\u0439 \u043C\u0435\u0448\u043E\u043A \u0438\u0437 \u0433\u0440\u0443\u0431\u043E\u0439 \u0442\u043A\u0430\u043D\u0438 \u0438 \u043A\u043E\u0436\u0438. \u041F\u043E\u0437\u0432\u043E\u043B\u044F\u0435\u0442 \u043D\u043E\u0441\u0438\u0442\u044C \u0441 \u0441\u043E\u0431\u043E\u0439 \u043F\u0440\u0438\u043F\u0430\u0441\u044B \u0438 \u0441\u043D\u0430\u0440\u044F\u0436\u0435\u043D\u0438\u0435."
+          }
+        },
+        {
+          "TypeId": "storage",
+          "ClrType": "MTEngine.Items.StorageComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": {
+        "ContentEntityIds": []
+      }
+    },
+    {
+      "SaveId": "59f414ef458441c3a269ef01ae4bef2e",
+      "PrototypeId": "work_pants",
+      "Name": "Work Pants",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 565.7382,
+              "y": 602.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Work Pants",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "pants"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041F\u0440\u043E\u0447\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0447\u0438\u0435 \u0448\u0442\u0430\u043D\u044B \u0438\u0437 \u043F\u043B\u043E\u0442\u043D\u043E\u0439 \u0442\u043A\u0430\u043D\u0438. \u0423\u0434\u043E\u0431\u043D\u044B \u0434\u043B\u044F \u043F\u043E\u0432\u0441\u0435\u0434\u043D\u0435\u0432\u043D\u043E\u0439 \u043D\u043E\u0441\u043A\u0438 \u0438 \u0442\u0440\u0443\u0434\u0430."
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "7a18d0fe0ed34eed970a3fb3aed54709",
+      "PrototypeId": "leather_boots",
+      "Name": "Leather Boots",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 566.2382,
+              "y": 616.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Leather Boots",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "shoes",
+              "boots"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041A\u0440\u0435\u043F\u043A\u0438\u0435 \u043A\u043E\u0436\u0430\u043D\u044B\u0435 \u0441\u0430\u043F\u043E\u0433\u0438. \u0417\u0430\u0449\u0438\u0449\u0430\u044E\u0442 \u043D\u043E\u0433\u0438 \u043E\u0442 \u043A\u0430\u043C\u043D\u0435\u0439 \u0438 \u0433\u0440\u044F\u0437\u0438 \u043D\u0430 \u0434\u043E\u0440\u043E\u0433\u0430\u0445."
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "14cc0e4cd9e649cfade2fdef414d891c",
+      "PrototypeId": "apple",
+      "Name": "Apple",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 680.7382,
+              "y": 598.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Apple",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "food",
+              "organic"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0421\u043F\u0435\u043B\u043E\u0435 \u044F\u0431\u043B\u043E\u043A\u043E. \u0423\u0442\u043E\u043B\u044F\u0435\u0442 \u043B\u0451\u0433\u043A\u0438\u0439 \u0433\u043E\u043B\u043E\u0434 \u0438 \u043D\u0435\u043C\u043D\u043E\u0433\u043E \u043E\u0441\u0432\u0435\u0436\u0430\u0435\u0442."
+          }
+        },
+        {
+          "TypeId": "substanceSource",
+          "ClrType": "MTEngine.Metabolism.SubstanceSourceComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "consumable",
+          "ClrType": "MTEngine.Metabolism.ConsumableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "1ea247556a7840c8bf7ea22912aa265a",
+      "PrototypeId": "bread",
+      "Name": "Bread",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 699.7382,
+              "y": 597.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Bread",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "food",
+              "organic"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041B\u043E\u043C\u043E\u0442\u044C \u0440\u0436\u0430\u043D\u043E\u0433\u043E \u0445\u043B\u0435\u0431\u0430. \u041E\u0441\u043D\u043E\u0432\u0430 \u0440\u0430\u0446\u0438\u043E\u043D\u0430 \u043F\u0440\u043E\u0441\u0442\u043E\u0433\u043E \u043B\u044E\u0434\u0430. \u0421\u044B\u0442\u043D\u044B\u0439 \u0438 \u043F\u0438\u0442\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0439."
+          }
+        },
+        {
+          "TypeId": "substanceSource",
+          "ClrType": "MTEngine.Metabolism.SubstanceSourceComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "consumable",
+          "ClrType": "MTEngine.Metabolism.ConsumableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "9a1a76ecfcaa4fa5807bbe8cc1a2717b",
+      "PrototypeId": "water_bottle",
+      "Name": "Water Bottle",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 530.7382,
+              "y": 758.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Water Bottle",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "drink",
+              "water"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0411\u0443\u0442\u044B\u043B\u044C \u0441 \u0447\u0438\u0441\u0442\u043E\u0439 \u0432\u043E\u0434\u043E\u0439. \u0423\u0442\u043E\u043B\u044F\u0435\u0442 \u0436\u0430\u0436\u0434\u0443 \u0438 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0441\u0438\u043B\u044B \u0432 \u043F\u0443\u0442\u0438."
+          }
+        },
+        {
+          "TypeId": "consumable",
+          "ClrType": "MTEngine.Metabolism.ConsumableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "5ba65e1aa21148b9aaa485e0a123232f",
+      "PrototypeId": "crimson_vial",
+      "Name": "Crimson Vial",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 553.2382,
+              "y": 755.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Crimson Vial",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "container",
+              "glass",
+              "vial"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0421\u0442\u0435\u043A\u043B\u044F\u043D\u043D\u044B\u0439 \u043F\u0443\u0437\u044B\u0440\u0451\u043A \u0442\u0451\u043C\u043D\u043E-\u043A\u0440\u0430\u0441\u043D\u043E\u0433\u043E \u0446\u0432\u0435\u0442\u0430. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u0430\u043B\u0445\u0438\u043C\u0438\u043A\u0430\u043C\u0438 \u0434\u043B\u044F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0437\u0435\u043B\u0438\u0439 \u0438 \u044D\u0441\u0441\u0435\u043D\u0446\u0438\u0439."
+          }
+        },
+        {
+          "TypeId": "liquidContainer",
+          "ClrType": "MTEngine.Metabolism.LiquidContainerComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Crimson Vial",
+            "capacity": 100,
+            "transparent": true,
+            "showContents": true,
+            "drinkVerb": "\u0412\u044B\u043F\u0438\u0442\u044C",
+            "nutrition": 0,
+            "hydration": 0,
+            "bladderLoad": 0,
+            "bowelLoad": 0,
+            "digestTime": 8,
+            "contents": [
+              {
+                "Id": "khryashchitin",
+                "Name": "\u0425\u0440\u044F\u0449\u0438\u0442\u0438\u043D",
+                "Color": "#D94A4AFF",
+                "Amount": 30,
+                "Volume": 30,
+                "Nutrition": 0,
+                "Hydration": 0,
+                "BladderLoad": 0,
+                "BowelLoad": 0,
+                "AbsorptionTime": 4,
+                "ClearanceTime": 70,
+                "Smells": [
+                  "\u043A\u0438\u0441\u043B\u043E",
+                  "\u043C\u0435\u0442\u0430\u043B\u043B\u0438\u0447\u0435\u0441\u043A\u0438"
+                ],
+                "PreparationHint": "\u041F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u0438\u0437 \u043F\u043B\u043E\u0442\u043D\u044B\u0445 \u043A\u0440\u0430\u0441\u043D\u044B\u0445 \u043E\u0440\u0433\u0430\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0445 \u043C\u0430\u0441\u0441.",
+                "Effects": [],
+                "ResponseProfiles": [
+                  {
+                    "Id": "khryashchitin_taste",
+                    "Name": "\u0415\u0434\u043A\u043E\u0435 \u043F\u043E\u0441\u043B\u0435\u0432\u043A\u0443\u0441\u0438\u0435",
+                    "MinAmount": 5,
+                    "MaxAmount": 18,
+                    "Effects": [
+                      {
+                        "Id": "khryashchitin_popup",
+                        "Type": "popup",
+                        "Magnitude": 0,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": "\u0412\u043E \u0440\u0442\u0443 \u043E\u0441\u0442\u0430\u0451\u0442\u0441\u044F \u043A\u0438\u0441\u043B\u044B\u0439 \u043C\u0435\u0442\u0430\u043B\u043B\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u043B\u0435\u0434.",
+                        "Color": "#F4A261FF"
+                      }
+                    ]
+                  },
+                  {
+                    "Id": "khryashchitin_nausea",
+                    "Name": "\u0422\u043E\u0448\u043D\u043E\u0442\u0430",
+                    "MinAmount": 18,
+                    "MaxAmount": 40,
+                    "Effects": [
+                      {
+                        "Id": "khryashchitin_hunger",
+                        "Type": "needDeltaOverTime",
+                        "Magnitude": -18,
+                        "Duration": 15,
+                        "Delay": 0,
+                        "Need": "hunger",
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "khryashchitin_popup_2",
+                        "Type": "popup",
+                        "Magnitude": 0,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": "\u0416\u0435\u043B\u0443\u0434\u043E\u043A \u0441\u0436\u0438\u043C\u0430\u0435\u0442\u0441\u044F \u043E\u0442 \u0445\u0440\u044F\u0449\u0438\u0442\u0438\u043D\u0430.",
+                        "Color": "#D94A4AFF"
+                      }
+                    ]
+                  },
+                  {
+                    "Id": "khryashchitin_frenzy",
+                    "Name": "\u041A\u0440\u043E\u0432\u0430\u0432\u044B\u0439 \u0432\u0441\u043F\u043B\u0435\u0441\u043A",
+                    "MinAmount": 40,
+                    "MaxAmount": null,
+                    "Effects": [
+                      {
+                        "Id": "khryashchitin_frenzy_speed",
+                        "Type": "speedMultiplier",
+                        "Magnitude": 0.12,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "khryashchitin_frenzy_bladder",
+                        "Type": "needDeltaOverTime",
+                        "Magnitude": 15,
+                        "Duration": 15,
+                        "Delay": 0,
+                        "Need": "bladder",
+                        "Message": null,
+                        "Color": null
+                      }
+                    ]
+                  }
+                ],
+                "Recipes": [],
+                "EffectiveVolume": 30
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "fbb85c2793544e5bbc6ccf53dfda8659",
+      "PrototypeId": "glass_cup",
+      "Name": "Glass Cup",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 575.2382,
+              "y": 755.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Glass Cup",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "container",
+              "glass",
+              "cup"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0421\u0442\u0435\u043A\u043B\u044F\u043D\u043D\u044B\u0439 \u0441\u0442\u0430\u043A\u0430\u043D. \u0425\u0440\u0443\u043F\u043A\u0438\u0439, \u043D\u043E \u0443\u0434\u043E\u0431\u043D\u044B\u0439 \u0434\u043B\u044F \u043F\u0438\u0442\u044C\u044F \u0440\u0430\u0437\u043B\u0438\u0447\u043D\u044B\u0445 \u0436\u0438\u0434\u043A\u043E\u0441\u0442\u0435\u0439."
+          }
+        },
+        {
+          "TypeId": "liquidContainer",
+          "ClrType": "MTEngine.Metabolism.LiquidContainerComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Glass Cup",
+            "capacity": 100,
+            "transparent": true,
+            "showContents": true,
+            "drinkVerb": "\u0412\u044B\u043F\u0438\u0442\u044C",
+            "nutrition": 0,
+            "hydration": 0,
+            "bladderLoad": 0,
+            "bowelLoad": 0,
+            "digestTime": 8,
+            "contents": [
+              {
+                "Id": "taurine",
+                "Name": "Taurine",
+                "Color": "#F2D44AFF",
+                "Amount": 30,
+                "Volume": 30,
+                "Nutrition": 0,
+                "Hydration": 0,
+                "BladderLoad": 0,
+                "BowelLoad": 0,
+                "AbsorptionTime": 5,
+                "ClearanceTime": 90,
+                "Smells": [
+                  "\u0441\u043B\u0430\u0434\u043A\u043E",
+                  "\u0440\u0435\u0437\u043A\u043E"
+                ],
+                "PreparationHint": "\u0427\u0430\u0441\u0442\u043E \u0432\u0441\u0442\u0440\u0435\u0447\u0430\u0435\u0442\u0441\u044F \u0432 \u0442\u043E\u043D\u0438\u0437\u0438\u0440\u0443\u044E\u0449\u0438\u0445 \u043D\u0430\u043F\u0438\u0442\u043A\u0430\u0445 \u0438 \u0432\u044B\u0442\u044F\u0436\u043A\u0430\u0445.",
+                "Effects": [],
+                "ResponseProfiles": [
+                  {
+                    "Id": "taurine_trace",
+                    "Name": "\u041B\u0451\u0433\u043A\u0438\u0439 \u0441\u0442\u0438\u043C\u0443\u043B",
+                    "MinAmount": 5,
+                    "MaxAmount": 20,
+                    "Effects": [
+                      {
+                        "Id": "taurine_trace_speed",
+                        "Type": "speedMultiplier",
+                        "Magnitude": 0.08,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": null,
+                        "Color": null
+                      }
+                    ]
+                  },
+                  {
+                    "Id": "taurine_boost",
+                    "Name": "\u0420\u0430\u0437\u0433\u043E\u043D",
+                    "MinAmount": 20,
+                    "MaxAmount": 45,
+                    "Effects": [
+                      {
+                        "Id": "taurine_boost_speed",
+                        "Type": "speedMultiplier",
+                        "Magnitude": 0.2,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "taurine_boost_popup",
+                        "Type": "popup",
+                        "Magnitude": 0,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": "\u0422\u0430\u0443\u0440\u0438\u043D \u0440\u0430\u0437\u0433\u043E\u043D\u044F\u0435\u0442 \u043A\u0440\u043E\u0432\u044C.",
+                        "Color": "#F2D44AFF"
+                      }
+                    ]
+                  },
+                  {
+                    "Id": "taurine_overdose",
+                    "Name": "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0437",
+                    "MinAmount": 45,
+                    "MaxAmount": 80,
+                    "Effects": [
+                      {
+                        "Id": "taurine_overdose_speed",
+                        "Type": "speedMultiplier",
+                        "Magnitude": -0.18,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "taurine_overdose_thirst",
+                        "Type": "needDeltaOverTime",
+                        "Magnitude": -28,
+                        "Duration": 20,
+                        "Delay": 0,
+                        "Need": "thirst",
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "taurine_overdose_popup",
+                        "Type": "popup",
+                        "Magnitude": 0,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": "\u0421\u0435\u0440\u0434\u0446\u0435 \u043A\u043E\u043B\u043E\u0442\u0438\u0442\u0441\u044F \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u0431\u044B\u0441\u0442\u0440\u043E...",
+                        "Color": "#FF8C42FF"
+                      }
+                    ]
+                  },
+                  {
+                    "Id": "taurine_beyond",
+                    "Name": "\u0421\u0440\u044B\u0432",
+                    "MinAmount": 80,
+                    "MaxAmount": null,
+                    "Effects": [
+                      {
+                        "Id": "taurine_beyond_speed",
+                        "Type": "speedMultiplier",
+                        "Magnitude": -0.45,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "taurine_beyond_hunger",
+                        "Type": "needDeltaOverTime",
+                        "Magnitude": -25,
+                        "Duration": 12,
+                        "Delay": 0,
+                        "Need": "hunger",
+                        "Message": null,
+                        "Color": null
+                      },
+                      {
+                        "Id": "taurine_beyond_popup",
+                        "Type": "popup",
+                        "Magnitude": 0,
+                        "Duration": 1,
+                        "Delay": 0,
+                        "Need": null,
+                        "Message": "\u041E\u0440\u0433\u0430\u043D\u0438\u0437\u043C \u043D\u0435 \u0432\u044B\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0434\u043E\u0437\u0443 \u0442\u0430\u0443\u0440\u0438\u043D\u0430!",
+                        "Color": "#FF4D4DFF"
+                      }
+                    ]
+                  }
+                ],
+                "Recipes": [
+                  {
+                    "Id": "babijonin_recipe",
+                    "Name": "\u0411\u0430\u0431\u0438\u0434\u0436\u043E\u043D\u0438\u043D",
+                    "Description": "\u0422\u0430\u0443\u0440\u0438\u043D \u002B \u0445\u0440\u044F\u0449\u0438\u0442\u0438\u043D \u0434\u0430\u044E\u0442 \u0431\u0430\u0431\u0438\u0434\u0436\u043E\u043D\u0438\u043D.",
+                    "Ingredients": [
+                      {
+                        "SubstanceId": "taurine",
+                        "Amount": 10
+                      },
+                      {
+                        "SubstanceId": "khryashchitin",
+                        "Amount": 10
+                      }
+                    ],
+                    "Results": [
+                      {
+                        "Id": "babijonin",
+                        "Amount": 20
+                      }
+                    ]
+                  }
+                ],
+                "EffectiveVolume": 30
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "69927201dd014265ac41c5decc1d1d21",
+      "PrototypeId": "metal_flask",
+      "Name": "Metal Flask",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 602.7382,
+              "y": 754.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Metal Flask",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "container",
+              "flask"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041C\u0435\u0442\u0430\u043B\u043B\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0444\u043B\u044F\u0433\u0430. \u041F\u0440\u043E\u0447\u043D\u0430\u044F \u0438 \u043D\u0430\u0434\u0451\u0436\u043D\u0430\u044F, \u0445\u043E\u0440\u043E\u0448\u043E \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442 \u0432\u043E\u0434\u0443 \u0432 \u0434\u043E\u043B\u0433\u0438\u0445 \u043F\u043E\u0445\u043E\u0434\u0430\u0445."
+          }
+        },
+        {
+          "TypeId": "liquidContainer",
+          "ClrType": "MTEngine.Metabolism.LiquidContainerComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Metal Flask",
+            "capacity": 120,
+            "transparent": false,
+            "showContents": false,
+            "drinkVerb": "\u0412\u044B\u043F\u0438\u0442\u044C",
+            "nutrition": 0,
+            "hydration": 0,
+            "bladderLoad": 0,
+            "bowelLoad": 0,
+            "digestTime": 6,
+            "contents": [
+              {
+                "Id": "spring_water",
+                "Name": "\u0412\u043E\u0434\u0430",
+                "Color": "#7BC6F5FF",
+                "Amount": 60,
+                "Volume": 60,
+                "Nutrition": 0,
+                "Hydration": 60,
+                "BladderLoad": 21,
+                "BowelLoad": 1.1999999,
+                "AbsorptionTime": 2,
+                "ClearanceTime": 20,
+                "Smells": [
+                  "\u0441\u0432\u0435\u0436\u043E"
+                ],
+                "PreparationHint": "\u0427\u0438\u0441\u0442\u0430\u044F \u043F\u0438\u0442\u044C\u0435\u0432\u0430\u044F \u0432\u043E\u0434\u0430.",
+                "Effects": [
+                  {
+                    "Id": "spring_popup",
+                    "Type": "popup",
+                    "Magnitude": 0,
+                    "Duration": 1,
+                    "Delay": 0,
+                    "Need": null,
+                    "Message": "\u0412\u043E\u0434\u0430 \u043F\u0440\u0438\u044F\u0442\u043D\u043E \u043E\u0441\u0432\u0435\u0436\u0430\u0435\u0442.",
+                    "Color": "#7BC6F5FF"
+                  }
+                ],
+                "ResponseProfiles": [],
+                "Recipes": [],
+                "EffectiveVolume": 60
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "cfa8bf69c82241e791aa32a0a99dd15b",
+      "PrototypeId": "chest",
+      "Name": "Chest",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "storage",
+          "ClrType": "MTEngine.Items.StorageComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0414\u0435\u0440\u0435\u0432\u044F\u043D\u043D\u044B\u0439 \u0441\u0443\u043D\u0434\u0443\u043A \u0441 \u0436\u0435\u043B\u0435\u0437\u043D\u044B\u043C\u0438 \u043F\u0435\u0442\u043B\u044F\u043C\u0438. \u0412\u043C\u0435\u0441\u0442\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0435 \u0434\u043B\u044F \u0432\u0435\u0449\u0435\u0439."
+          }
+        },
+        {
+          "TypeId": "interactable",
+          "ClrType": "MTEngine.Components.InteractableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": null,
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": {
+        "ContentEntityIds": []
+      }
+    },
+    {
+      "SaveId": "bb9626d661f341dfb83eb99bd9dc83e2",
+      "PrototypeId": "toilet",
+      "Name": "Toilet",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 400,
+              "y": 656
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "collider",
+          "ClrType": "MTEngine.Components.ColliderComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041E\u0442\u0445\u043E\u0436\u0435\u0435 \u043C\u0435\u0441\u0442\u043E. \u041F\u0440\u043E\u0441\u0442\u043E\u0435, \u043D\u043E \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u043E\u0435 \u0443\u0434\u043E\u0431\u0441\u0442\u0432\u043E."
+          }
+        },
+        {
+          "TypeId": "interactable",
+          "ClrType": "MTEngine.Components.InteractableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "toilet",
+          "ClrType": "MTEngine.Metabolism.ToiletComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": null,
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "ccf66d989d9e43a3b3c0a617846872fd",
+      "PrototypeId": "cloth_bolt",
+      "Name": "Cloth Bolt",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 467.73822,
+              "y": 564.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041E\u0442\u0440\u0435\u0437 \u0433\u0440\u0443\u0431\u043E\u0439 \u0442\u043A\u0430\u043D\u0438. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u0434\u043B\u044F \u043F\u043E\u0448\u0438\u0432\u0430 \u043E\u0434\u0435\u0436\u0434\u044B \u0438 \u0438\u0437\u0433\u043E\u0442\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u043F\u043E\u0432\u044F\u0437\u043E\u043A."
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Cloth Bolt",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 20,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "material",
+              "cloth"
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "10f388752f564ca5a02c8042928fda5c",
+      "PrototypeId": "leather_patch",
+      "Name": "Leather Patch",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 492.23822,
+              "y": 564.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041A\u0443\u0441\u043E\u043A \u0432\u044B\u0434\u0435\u043B\u0430\u043D\u043D\u043E\u0439 \u043A\u043E\u0436\u0438. \u041F\u0440\u043E\u0447\u043D\u044B\u0439 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B \u0434\u043B\u044F \u0440\u0435\u043C\u043E\u043D\u0442\u0430 \u0441\u043D\u0430\u0440\u044F\u0436\u0435\u043D\u0438\u044F \u0438 \u0438\u0437\u0433\u043E\u0442\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u0434\u043E\u0441\u043F\u0435\u0445\u043E\u0432."
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Leather Patch",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 20,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "material",
+              "leather"
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "48816f19e77845f68aadfb092dcecd23",
+      "PrototypeId": "metal_plate",
+      "Name": "Metal Plate",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 519.7382,
+              "y": 563.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041A\u043E\u0432\u0430\u043D\u0430\u044F \u043C\u0435\u0442\u0430\u043B\u043B\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043F\u043B\u0430\u0441\u0442\u0438\u043D\u0430. \u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B \u0434\u043B\u044F \u0438\u0437\u0433\u043E\u0442\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u0431\u0440\u043E\u043D\u0438 \u0438 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432."
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Metal Plate",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": true,
+            "maxStack": 20,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "material",
+              "metal"
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "b191a2146ce74d12a76b3b6de4901b4e",
+      "PrototypeId": "lamp",
+      "Name": "Lamp",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 467.23822,
+              "y": 718.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Lamp",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "tool",
+              "lamp",
+              "light"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041C\u0430\u0441\u043B\u044F\u043D\u0430\u044F \u043B\u0430\u043C\u043F\u0430. \u041E\u0441\u0432\u0435\u0449\u0430\u0435\u0442 \u043F\u0443\u0442\u044C \u0432 \u0442\u0451\u043C\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F \u0441\u0443\u0442\u043E\u043A. \u041C\u043E\u0436\u043D\u043E \u0432\u043A\u043B\u044E\u0447\u0430\u0442\u044C \u0438 \u0432\u044B\u043A\u043B\u044E\u0447\u0430\u0442\u044C."
+          }
+        },
+        {
+          "TypeId": "lamp",
+          "ClrType": "MTEngine.Items.LampComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "on": false,
+            "name": "Lamp"
+          }
+        },
+        {
+          "TypeId": "light",
+          "ClrType": "MTEngine.Components.LightComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "enabled": false
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "0daf9da9ecce4c84a6e2eb48549be75c",
+      "PrototypeId": "mortar_pestle",
+      "Name": "Mortar \u0026 Pestle",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 633.2382,
+              "y": 752.7146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Mortar \u0026 Pestle",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "tool",
+              "mortar"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041A\u0430\u043C\u0435\u043D\u043D\u0430\u044F \u0441\u0442\u0443\u043F\u043A\u0430 \u0441 \u043F\u0435\u0441\u0442\u0438\u043A\u043E\u043C. \u041D\u0435\u0437\u0430\u043C\u0435\u043D\u0438\u043C\u044B\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u0434\u043B\u044F \u0438\u0437\u043C\u0435\u043B\u044C\u0447\u0435\u043D\u0438\u044F \u0442\u0440\u0430\u0432, \u0441\u043F\u0435\u0446\u0438\u0439 \u0438 \u043C\u0438\u043D\u0435\u0440\u0430\u043B\u043E\u0432."
+          }
+        },
+        {
+          "TypeId": "mortar",
+          "ClrType": "MTEngine.Metabolism.MortarComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "\u0422\u043E\u043B\u043A\u0443\u0448\u043A\u0430",
+            "capacity": 120,
+            "buffer": []
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "8025c76b0f3a4ee486bb2d60771e6945",
+      "PrototypeId": "greatsword",
+      "Name": "Greatsword",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 641.2382,
+              "y": 616.2146
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0422\u044F\u0436\u0451\u043B\u044B\u0439 \u0434\u0432\u0443\u0440\u0443\u0447\u043D\u044B\u0439 \u043C\u0435\u0447. \u041D\u0430\u043D\u043E\u0441\u0438\u0442 \u0441\u043E\u043A\u0440\u0443\u0448\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0443\u0434\u0430\u0440\u044B, \u043D\u043E \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u043E\u0431\u0435\u0438\u0445 \u0440\u0443\u043A \u0434\u043B\u044F \u0432\u043B\u0430\u0434\u0435\u043D\u0438\u044F."
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Greatsword",
+            "size": 4,
+            "twoHanded": true,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 3,
+            "tags": [
+              "weapon",
+              "melee",
+              "two-handed"
+            ]
+          }
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": null
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "f98f2c1194c6450cb1c4134a5446878d",
+      "PrototypeId": "bed",
+      "Name": "Bed",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 464,
+              "y": 784
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "collider",
+          "ClrType": "MTEngine.Components.ColliderComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041F\u0440\u043E\u0441\u0442\u0430\u044F \u043A\u0440\u043E\u0432\u0430\u0442\u044C. \u041D\u043E\u0447\u044C\u044E \u043D\u0430 \u043D\u0435\u0439 \u043C\u043E\u0436\u043D\u043E \u043B\u0435\u0447\u044C \u0441\u043F\u0430\u0442\u044C \u0438 \u043F\u0435\u0440\u0435\u0436\u0434\u0430\u0442\u044C \u0434\u043E \u0443\u0442\u0440\u0430."
+          }
+        },
+        {
+          "TypeId": "interactable",
+          "ClrType": "MTEngine.Components.InteractableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "bed",
+          "ClrType": "MTEngine.Metabolism.BedComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Game.MapEntityTagComponent",
+          "ClrType": "SandboxGame.Game.MapEntityTagComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": null,
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    }
+  ]
+}

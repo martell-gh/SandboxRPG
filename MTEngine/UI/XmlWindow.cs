@@ -14,7 +14,7 @@ public class XmlWindow
     public const int TitleBarHeight = 28;
     public const int CloseButtonSize = 18;
     private static readonly Color TitleBarColor = new(35, 55, 35);
-    private static readonly Color TitleTextColor = Color.LimeGreen;
+    private static readonly Color TitleTextColor = Color.SkyBlue;
     private static readonly Color WindowBgColor = new(18, 22, 28, 220);
     private static readonly Color BorderColor = new(70, 110, 70);
     private static readonly Color CloseNormal = new(120, 40, 40);
@@ -104,12 +104,14 @@ public class XmlWindow
 
     // ── Update (called every frame when open) ──────────────────────
 
-    public void Update(float dt, InputManager input)
+    public void Update(float dt, InputManager input, float uiScale = 1f)
     {
         if (!IsOpen) return;
         OnUpdate?.Invoke(dt);
 
-        var mouse = input.MousePosition;
+        var mouse = new Point(
+            (int)MathF.Round(input.MousePosition.X / Math.Max(0.01f, uiScale)),
+            (int)MathF.Round(input.MousePosition.Y / Math.Max(0.01f, uiScale)));
 
         // Close button hover
         _closeHovered = Closable && GetCloseRect().Contains(mouse);

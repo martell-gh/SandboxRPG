@@ -6,12 +6,13 @@ using Microsoft.Xna.Framework.Graphics;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Interactions;
 using MTEngine.Rendering;
 
 namespace MTEngine.Items;
 
 [RegisterComponent("wearable")]
-public class WearableComponent : Component, IPrototypeInitializable
+public class WearableComponent : Component, IPrototypeInitializable, IInteractionSource
 {
     [DataField("slot")]
     public string SlotId { get; set; } = "";
@@ -165,5 +166,36 @@ public class WearableComponent : Component, IPrototypeInitializable
             (byte)(a.B * b.B / 255),
             (byte)(a.A * b.A / 255)
         );
+    }
+
+    public IEnumerable<InteractionEntry> GetInteractions(InteractionContext ctx)
+    {
+        if (Owner == null || ctx.Actor != ctx.Target)
+            yield break;
+
+        var item = Owner.GetComponent<ItemComponent>();
+        var hands = ctx.Actor.GetComponent<HandsComponent>();
+        var equipment = ctx.Actor.GetComponent<EquipmentComponent>();
+        if (item?.ContainedIn != ctx.Actor || hands?.GetHandWith(Owner) == null || equipment == null)
+            yield break;
+
+        var slot = equipment.GetSlot(SlotId);
+        if (slot == null)
+            yield break;
+
+        if (slot.Item == Owner)
+            yield break;
+
+        var label = slot.Item == null
+            ? $"Надеть ({slot.DisplayName})"
+            : $"Надеть ({slot.DisplayName}, снять текущее в руку)";
+
+        yield return new InteractionEntry
+        {
+            Id = $"wearable.equip.{slot.Id}",
+            Label = label,
+            Priority = 28,
+            Execute = _ => equipment.TryEquipOrSwapFromHands(hands, Owner, slot.Id)
+        };
     }
 }

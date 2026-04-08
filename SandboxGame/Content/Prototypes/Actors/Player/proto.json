@@ -31,6 +31,12 @@
       "health": 100,
       "maxHealth": 100
     },
+    "currency": {
+      "amount": 25,
+      "name": "Монеты",
+      "symbol": "мон."
+    },
+    "wounds": {},
     "velocity": { "speed": 100 },
     "metabolism": {
       "hunger": 85,
@@ -40,7 +46,11 @@
       "bladderFill": 0.15,
       "bowelFill": 0.08,
       "starvationDamage": 0.35,
-      "dehydrationDamage": 0.75
+      "dehydrationDamage": 0.75,
+      "naturalRegenRate": 1.2,
+      "naturalRegenThreshold": 70,
+      "exhaustionRecoveryRate": 3.5,
+      "exhaustionRecoveryThreshold": 45
     }
   },
   "animations": "animations.json"

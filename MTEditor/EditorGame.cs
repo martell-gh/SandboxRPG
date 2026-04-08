@@ -28,15 +28,17 @@ public class EditorGame : Game
     private TilePainterTool _tilePainter = null!;
     private EntityPainterTool _entityPainter = null!;
     private SpawnPointTool _spawnTool = null!;
+    private TriggerZoneTool _triggerTool = null!;
     private TilePalette _palette = null!;
     private EditorHUD _hud = null!;
     private MapSelectDialog _mapSelectDialog = null!;
+    private InGameMapsDialog _inGameMapsDialog = null!;
     private SaveMapDialog? _activeSaveDialog;
     private EditorHistory _history = new();
 
     private const int TileLayerCount = 3;
 
-    public enum Tool { TilePainter, EntityPainter, SpawnPoint }
+    public enum Tool { TilePainter, EntityPainter, SpawnPoint, TriggerZone }
     public Tool ActiveTool { get; set; } = Tool.TilePainter;
     public int ActiveTileLayer { get; set; } = 0;
     public PointerTool ActivePointerTool { get; set; } = PointerTool.Brush;
@@ -88,9 +90,11 @@ public class EditorGame : Game
         _tilePainter = new TilePainterTool(_currentMap, _currentTileMap, _prototypes, _assets, _history);
         _entityPainter = new EntityPainterTool(_currentMap);
         _spawnTool = new SpawnPointTool(_currentMap, GraphicsDevice);
+        _triggerTool = new TriggerZoneTool(_currentMap, _mapManager, GraphicsDevice, _font);
         _palette = new TilePalette(_prototypes, _assets, _font, GraphicsDevice);
         _hud = new EditorHUD(_font, GraphicsDevice);
         _mapSelectDialog = new MapSelectDialog(_font, GraphicsDevice);
+        _inGameMapsDialog = new InGameMapsDialog(_font, GraphicsDevice);
     }
 
     private void NewMap()
@@ -125,11 +129,30 @@ public class EditorGame : Game
         _mapSelectDialog.Update(mouse, _prevMouse, keys, _prevKeys);
         if (_mapSelectDialog.IsOpen) goto EndUpdate;
 
+        if (IsPressed(keys, _prevKeys, Keys.F6))
+        {
+            if (_inGameMapsDialog.IsOpen)
+                _inGameMapsDialog.Close();
+            else
+                _inGameMapsDialog.Open(_mapManager.GetMapCatalog(), HandleToggleInGameMap);
+        }
+
+        _inGameMapsDialog.Update(mouse, _prevMouse, keys, _prevKeys);
+        if (_inGameMapsDialog.IsOpen) goto EndUpdate;
+
+        // триггер тул обновляет свою UI-панель и диалог независимо от позиции курсора
+        if (ActiveTool == Tool.TriggerZone)
+            _triggerTool.Update(mouse, _prevMouse, keys, _prevKeys);
+
+        // блокируем остальной ввод если открыт диалог выбора карты в триггер-туле
+        if (_triggerTool.IsDialogOpen) goto EndUpdate;
+
         var ctrl = keys.IsKeyDown(Keys.LeftControl) || keys.IsKeyDown(Keys.RightControl);
+        var anyTyping = _spawnTool.IsTyping || _triggerTool.IsTyping;
 
         HandleWindowHotkeys(keys);
 
-        // хоткеи
+        // хоткеи (ctrl-комбинации всегда работают, остальные — только если не печатаем)
         if (ctrl && IsPressed(keys, _prevKeys, Keys.S)) SaveMap();
         if (ctrl && IsPressed(keys, _prevKeys, Keys.O)) LoadMap();
         if (ctrl && IsPressed(keys, _prevKeys, Keys.Z)) UndoLastAction();
@@ -141,25 +164,31 @@ public class EditorGame : Game
             _tilePainter.SetHistory(_history);
             _entityPainter.SetMap(_currentMap);
             _spawnTool.SetMap(_currentMap);
+            _triggerTool.SetMap(_currentMap);
         }
 
-        if (IsPressed(keys, _prevKeys, Keys.D1))
-            ActiveTool = Tool.TilePainter;
-        if (IsPressed(keys, _prevKeys, Keys.D2))
-            ActiveTool = Tool.EntityPainter;
-        if (IsPressed(keys, _prevKeys, Keys.D3))
-            ActiveTool = Tool.SpawnPoint;
-        if (IsPressed(keys, _prevKeys, Keys.B))
-            ActivePointerTool = PointerTool.Brush;
-        if (IsPressed(keys, _prevKeys, Keys.V))
-            ActivePointerTool = PointerTool.Mouse;
+        if (!anyTyping)
+        {
+            if (IsPressed(keys, _prevKeys, Keys.D1))
+                ActiveTool = Tool.TilePainter;
+            if (IsPressed(keys, _prevKeys, Keys.D2))
+                ActiveTool = Tool.EntityPainter;
+            if (IsPressed(keys, _prevKeys, Keys.D3))
+                ActiveTool = Tool.SpawnPoint;
+            if (IsPressed(keys, _prevKeys, Keys.D4))
+                ActiveTool = Tool.TriggerZone;
+            if (IsPressed(keys, _prevKeys, Keys.B))
+                ActivePointerTool = PointerTool.Brush;
+            if (IsPressed(keys, _prevKeys, Keys.V))
+                ActivePointerTool = PointerTool.Mouse;
 
-        if (IsPressed(keys, _prevKeys, Keys.Q))
-            ActiveTileLayer = Math.Max(0, ActiveTileLayer - 1);
-        if (IsPressed(keys, _prevKeys, Keys.E))
-            ActiveTileLayer = Math.Min(_currentTileMap.LayerCount - 1, ActiveTileLayer + 1);
+            if (IsPressed(keys, _prevKeys, Keys.Q))
+                ActiveTileLayer = Math.Max(0, ActiveTileLayer - 1);
+            if (IsPressed(keys, _prevKeys, Keys.E))
+                ActiveTileLayer = Math.Min(_currentTileMap.LayerCount - 1, ActiveTileLayer + 1);
+        }
 
-        if (ActiveTool == Tool.EntityPainter
+        if (!anyTyping && ActiveTool == Tool.EntityPainter
             && ActivePointerTool == PointerTool.Mouse
             && (IsPressed(keys, _prevKeys, Keys.Delete) || IsPressed(keys, _prevKeys, Keys.Back)))
         {
@@ -167,12 +196,19 @@ public class EditorGame : Game
                 _hud.ShowMessage("Deleted selected prototypes");
         }
 
-        // камера
+        // камера (стрелки всегда, WASD — только если не печатаем)
         var camSpeed = 300f / _camera.Zoom;
-        if (keys.IsKeyDown(Keys.Left) || keys.IsKeyDown(Keys.A)) _camera.Position -= new Vector2(camSpeed * dt, 0);
-        if (keys.IsKeyDown(Keys.Right) || keys.IsKeyDown(Keys.D)) _camera.Position += new Vector2(camSpeed * dt, 0);
-        if (keys.IsKeyDown(Keys.Up) || keys.IsKeyDown(Keys.W)) _camera.Position -= new Vector2(0, camSpeed * dt);
-        if (keys.IsKeyDown(Keys.Down) || keys.IsKeyDown(Keys.S)) _camera.Position += new Vector2(0, camSpeed * dt);
+        if (keys.IsKeyDown(Keys.Left)) _camera.Position -= new Vector2(camSpeed * dt, 0);
+        if (keys.IsKeyDown(Keys.Right)) _camera.Position += new Vector2(camSpeed * dt, 0);
+        if (keys.IsKeyDown(Keys.Up)) _camera.Position -= new Vector2(0, camSpeed * dt);
+        if (keys.IsKeyDown(Keys.Down)) _camera.Position += new Vector2(0, camSpeed * dt);
+        if (!anyTyping)
+        {
+            if (keys.IsKeyDown(Keys.A)) _camera.Position -= new Vector2(camSpeed * dt, 0);
+            if (keys.IsKeyDown(Keys.D)) _camera.Position += new Vector2(camSpeed * dt, 0);
+            if (keys.IsKeyDown(Keys.W)) _camera.Position -= new Vector2(0, camSpeed * dt);
+            if (keys.IsKeyDown(Keys.S)) _camera.Position += new Vector2(0, camSpeed * dt);
+        }
 
         // зум
         var scrollDelta = mouse.ScrollWheelValue - _prevMouse.ScrollWheelValue;
@@ -209,10 +245,12 @@ public class EditorGame : Game
                 if (ActivePointerTool == PointerTool.Brush && _palette.SelectedEntityId != null)
                     _entityPainter.UpdateBrush(mouse, _prevMouse, worldPos, _palette.SelectedEntityId, ActiveBrushShape);
                 else if (ActivePointerTool == PointerTool.Mouse)
-                    _entityPainter.UpdateSelection(mouse, _prevMouse, worldPos, mouse.Position, _camera, _prototypes, _assets);
+                    _entityPainter.UpdateSelection(mouse, _prevMouse, worldPos, mouse.Position, _camera, _prototypes, _assets, _palette.SelectedEntityId);
             }
             if (ActiveTool == Tool.SpawnPoint)
                 _spawnTool.Update(mouse, _prevMouse, worldPos);
+            if (ActiveTool == Tool.TriggerZone)
+                _triggerTool.UpdateWorldInput(mouse, _prevMouse, worldPos, ActivePointerTool);
         }
 
     EndUpdate:
@@ -246,16 +284,24 @@ public class EditorGame : Game
         DrawBrushPreview();
         DrawActiveLayerBadge();
         _spawnTool.Draw(_spriteBatch, _assets, _font);
+        if (ActiveTool == Tool.TriggerZone)
+            _triggerTool.Draw(_spriteBatch, _assets, _font);
 
         _spriteBatch.End();
 
         _spriteBatch.Begin();
         if (ActiveTool == Tool.EntityPainter && ActivePointerTool == PointerTool.Mouse)
+        {
             _entityPainter.DrawSelectionOverlay(_spriteBatch, _camera, _prototypes, _assets);
+            _entityPainter.DrawPropertyPanel(_spriteBatch, _font, GraphicsDevice, _prototypes, _assets);
+        }
         _palette.Draw(_spriteBatch);
         _hud.Draw(_spriteBatch, ActiveTool, ActivePointerTool, ActiveBrushShape, _currentMap, _history, ActiveTileLayer, _palette);
         if (ActiveTool == Tool.SpawnPoint)
             _spawnTool.DrawUI(_spriteBatch, _font);
+        if (ActiveTool == Tool.TriggerZone)
+            _triggerTool.DrawUI(_spriteBatch, _font);
+        _inGameMapsDialog.Draw(_spriteBatch);
         _mapSelectDialog.Draw(_spriteBatch);
         _activeSaveDialog?.Draw(_spriteBatch);
         _spriteBatch.End();
@@ -397,6 +443,7 @@ public class EditorGame : Game
             _tilePainter.SetHistory(_history);
             _entityPainter.SetMap(_currentMap);
             _spawnTool.SetMap(_currentMap);
+            _triggerTool.SetMap(_currentMap);
             ActiveTileLayer = Math.Min(ActiveTileLayer, _currentTileMap.LayerCount - 1);
             _hud.ShowMessage($"Loaded: {_currentMap.Name}");
         });
@@ -486,6 +533,7 @@ public class EditorGame : Game
                 _tilePainter.SetHistory(_history);
                 _entityPainter.SetMap(_currentMap);
                 _spawnTool.SetMap(_currentMap);
+                _triggerTool.SetMap(_currentMap);
                 _hud.ShowMessage("Created: new map");
                 break;
             case EditorCommand.LoadMap:
@@ -493,6 +541,12 @@ public class EditorGame : Game
                 break;
             case EditorCommand.SaveMap:
                 SaveMap();
+                break;
+            case EditorCommand.InGameMaps:
+                if (_inGameMapsDialog.IsOpen)
+                    _inGameMapsDialog.Close();
+                else
+                    _inGameMapsDialog.Open(_mapManager.GetMapCatalog(), HandleToggleInGameMap);
                 break;
             case EditorCommand.Undo:
                 UndoLastAction();
@@ -511,6 +565,9 @@ public class EditorGame : Game
                 break;
             case EditorCommand.ToolSpawns:
                 ActiveTool = Tool.SpawnPoint;
+                break;
+            case EditorCommand.ToolTriggers:
+                ActiveTool = Tool.TriggerZone;
                 break;
             case EditorCommand.PointerBrush:
                 ActivePointerTool = PointerTool.Brush;
@@ -618,5 +675,18 @@ public class EditorGame : Game
             _history.Redo(_currentTileMap);
         else
             _entityPainter.TryRedo();
+    }
+
+    private void HandleToggleInGameMap(string mapId, bool inGame)
+    {
+        if (_mapManager.SetMapInGameFlag(mapId, inGame))
+        {
+            _inGameMapsDialog.Refresh(_mapManager.GetMapCatalog());
+            _hud.ShowMessage($"Map '{mapId}' inGame = {inGame}");
+        }
+        else
+        {
+            _hud.ShowMessage($"Failed to update map '{mapId}'");
+        }
     }
 }

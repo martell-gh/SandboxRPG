@@ -8,9 +8,10 @@ using MTEngine.Core;
 
 namespace SandboxGame.Settings;
 
-public class GameSettings : IKeyBindingSource
+public class GameSettings : IKeyBindingSource, IUiScaleSource
 {
     public bool DevMode { get; set; }
+    public float UiScale { get; set; } = 1f;
     public Dictionary<string, string> KeyBindings { get; set; } = new();
 
     [JsonIgnore]
@@ -37,6 +38,7 @@ public class GameSettings : IKeyBindingSource
         ["DevMode"] = Keys.F3,
         ["Console"] = Keys.OemTilde,
         ["InspectContainer"] = Keys.P,
+        ["InGameMaps"] = Keys.F6,
         ["Fullscreen"] = Keys.F11,
     };
 
@@ -54,6 +56,7 @@ public class GameSettings : IKeyBindingSource
         ["DevMode"] = "Режим разработчика",
         ["Console"] = "Консоль разработчика",
         ["InspectContainer"] = "Показать состав тары",
+        ["InGameMaps"] = "InGame карты",
         ["Fullscreen"] = "Полный экран",
     };
 
@@ -72,6 +75,7 @@ public class GameSettings : IKeyBindingSource
     public void ResetToDefaults()
     {
         DevMode = true;
+        UiScale = 1f;
         KeyBindings.Clear();
         foreach (var (action, key) in DefaultKeys)
             KeyBindings[action] = key.ToString();

@@ -1,5 +1,6 @@
 {
   "DevMode": true,
+  "UiScale": 1,
   "KeyBindings": {
     "MoveUp": "W",
     "MoveDown": "S",
@@ -14,6 +15,7 @@
     "Console": "OemTilde",
     "InspectContainer": "P",
     "InspectMemory": "O",
-    "Fullscreen": "F11"
+    "Fullscreen": "F11",
+    "InGameMaps": "F6"
   }
 }

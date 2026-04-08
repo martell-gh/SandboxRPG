@@ -18,6 +18,9 @@
       "slots": 16,
       "maxItemSize": 5
     },
+    "info": {
+      "description": "Деревянный сундук с железными петлями. Вместительное хранилище для вещей."
+    },
     "interactable": {
       "name": "Chest",
       "range": 72

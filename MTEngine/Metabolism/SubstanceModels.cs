@@ -249,8 +249,8 @@ public class ActiveSubstanceDose : SubstanceDose
 {
     public string SourceName { get; set; } = "";
     public float Elapsed { get; set; }
-    public HashSet<string> StartedEffects { get; } = new();
-    public HashSet<string> FinishedEffects { get; } = new();
+    public HashSet<string> StartedEffects { get; set; } = new();
+    public HashSet<string> FinishedEffects { get; set; } = new();
 
     public float AbsorptionProgress
         => AbsorptionTime <= 0f ? 1f : Math.Clamp(Elapsed / AbsorptionTime, 0f, 1f);
@@ -408,10 +408,10 @@ public class SubstanceEffectContext
 
 public class SubstanceConcentrationSnapshot
 {
-    public string Id { get; init; } = "";
-    public string Name { get; init; } = "";
-    public float Amount { get; init; }
-    public IReadOnlyList<SubstanceResponseProfile> Profiles { get; init; } = Array.Empty<SubstanceResponseProfile>();
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public float Amount { get; set; }
+    public List<SubstanceResponseProfile> Profiles { get; set; } = new();
 }
 
 public interface ISubstanceEffectHandler

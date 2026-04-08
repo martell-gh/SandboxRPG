@@ -26,7 +26,7 @@ public static class ComponentPrototypeSerializer
         return instance;
     }
 
-    private static void ApplyData(Component instance, JsonObject data)
+    public static void ApplyData(Component instance, JsonObject data)
     {
         var type = instance.GetType();
 

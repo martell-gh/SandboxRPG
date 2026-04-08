@@ -18,6 +18,9 @@
       "size": "Small",
       "tags": ["food", "organic"]
     },
+    "info": {
+      "description": "Спелое яблоко. Утоляет лёгкий голод и немного освежает."
+    },
     "substanceSource": {
       "yieldMultiplier": 1.0,
       "substances": [

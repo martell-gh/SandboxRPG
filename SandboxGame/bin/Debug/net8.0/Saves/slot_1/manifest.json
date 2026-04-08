@@ -1,0 +1,199 @@
+{
+  "Version": 1,
+  "CreatedAtUtc": "2026-04-08T21:30:16.822584Z",
+  "UpdatedAtUtc": "2026-04-08T21:32:17.151721Z",
+  "SaveName": "\u041D\u043E\u0432\u0430\u044F \u0438\u0433\u0440\u0430",
+  "PlayerName": "Player",
+  "CurrentMapName": "River",
+  "CurrentMapId": "river",
+  "TimeOfDaySeconds": 22625.332,
+  "TimeScale": 72,
+  "SystemStates": {
+    "sleepSystem": {
+      "isSleeping": false,
+      "sleepRemainingSeconds": 0,
+      "sleepWakeHour": 6,
+      "sleepTimeScale": 0,
+      "sleepHealingPerSecond": 0
+    },
+    "gameClock": {
+      "timeScale": 72,
+      "totalSeconds": 22625.332
+    }
+  },
+  "PlayerEntities": [
+    {
+      "SaveId": "be64f9852f434c6e8f83ce20a8e19bcd",
+      "PrototypeId": "player",
+      "Name": "Player",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 770.4488,
+              "y": 400.50626
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "collider",
+          "ClrType": "MTEngine.Components.ColliderComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "hands",
+          "ClrType": "MTEngine.Items.HandsComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "equipment",
+          "ClrType": "MTEngine.Items.EquipmentComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "health",
+          "ClrType": "MTEngine.Components.HealthComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "health": 100,
+            "maxHealth": 100,
+            "IsDead": false,
+            "DeathPoseApplied": false
+          }
+        },
+        {
+          "TypeId": "currency",
+          "ClrType": "MTEngine.Components.CurrencyComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "amount": 25,
+            "name": "\u041C\u043E\u043D\u0435\u0442\u044B",
+            "symbol": "\u043C\u043E\u043D."
+          }
+        },
+        {
+          "TypeId": "wounds",
+          "ClrType": "MTEngine.Wounds.WoundComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slashDamage": 0,
+            "bluntDamage": 0,
+            "burnDamage": 0,
+            "exhaustionDamage": 0,
+            "Bleedings": []
+          }
+        },
+        {
+          "TypeId": "velocity",
+          "ClrType": "MTEngine.Components.VelocityComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "Velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "speed": 100
+          }
+        },
+        {
+          "TypeId": "metabolism",
+          "ClrType": "MTEngine.Metabolism.MetabolismComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "hunger": 69.66998,
+            "hungerDecay": 0.17,
+            "thirst": 52.074005,
+            "thirstDecay": 0.42,
+            "bladder": 13.539229,
+            "bladderFill": 0.15,
+            "bowel": 7.2209797,
+            "bowelFill": 0.08,
+            "starvationDamage": 0.35,
+            "dehydrationDamage": 0.75,
+            "naturalRegenRate": 1.2,
+            "naturalRegenThreshold": 70,
+            "exhaustionRecoveryRate": 3.5,
+            "exhaustionRecoveryThreshold": 45,
+            "DigestingItems": [],
+            "ActiveSubstances": [],
+            "SubstanceConcentrations": {},
+            "ActiveConcentrationEffectKeys": [],
+            "SpeedModifier": 1,
+            "SubstanceSpeedModifier": 1,
+            "wellFedThreshold": 80,
+            "hungryThreshold": 30,
+            "starvingThreshold": 10,
+            "needToGoThreshold": 60,
+            "urgentThreshold": 85,
+            "TimeSinceLastWarning": 117.02719,
+            "HadAccident": false
+          }
+        },
+        {
+          "TypeId": "playertag",
+          "ClrType": "MTEngine.Components.PlayerTagComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "MTEngine.Metabolism.MetabolismBaseSpeedTag",
+          "ClrType": "MTEngine.Metabolism.MetabolismBaseSpeedTag, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "SandboxGame.Save.SaveEntityIdComponent",
+          "ClrType": "SandboxGame.Save.SaveEntityIdComponent, SandboxGame, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": null,
+      "HandsRefs": {
+        "ActiveHandIndex": 0,
+        "Hands": [
+          {
+            "Name": "Left",
+            "HeldEntityId": null,
+            "BlockedByTwoHanded": false
+          },
+          {
+            "Name": "Right",
+            "HeldEntityId": null,
+            "BlockedByTwoHanded": false
+          }
+        ]
+      },
+      "EquipmentRefs": {
+        "Slots": [
+          {
+            "SlotId": "torso",
+            "ItemEntityId": null
+          },
+          {
+            "SlotId": "pants",
+            "ItemEntityId": null
+          },
+          {
+            "SlotId": "shoes",
+            "ItemEntityId": null
+          },
+          {
+            "SlotId": "back",
+            "ItemEntityId": null
+          }
+        ]
+      },
+      "StorageRefs": null
+    }
+  ],
+  "SavedMapIds": [
+    "river",
+    "river_startloc"
+  ]
+}

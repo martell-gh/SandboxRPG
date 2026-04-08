@@ -15,6 +15,7 @@ public class LightComponent : Component
     public float Intensity { get; set; } = 1f;
 
     [DataField("enabled")]
+    [SaveField("enabled")]
     public bool PrototypeEnabled
     {
         get => Enabled;

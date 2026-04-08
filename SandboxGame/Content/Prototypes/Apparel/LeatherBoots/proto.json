@@ -19,6 +19,9 @@
       "slots": 1,
       "tags": ["clothing", "shoes", "boots"]
     },
+    "info": {
+      "description": "Крепкие кожаные сапоги. Защищают ноги от камней и грязи на дорогах."
+    },
     "wearable": {
       "slot": "shoes",
       "durability": 80,

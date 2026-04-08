@@ -1,4 +1,6 @@
+using System;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 
 namespace MTEngine.World;
 
@@ -42,6 +44,12 @@ public class MapEntityData
 
     [JsonPropertyName("worldSpace")]
     public bool WorldSpace { get; set; }
+
+    [JsonPropertyName("componentOverrides")]
+    public Dictionary<string, JsonObject> ComponentOverrides { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    [JsonPropertyName("containedEntities")]
+    public List<MapEntityData> ContainedEntities { get; set; } = new();
 }
 
 public class MapData
@@ -61,6 +69,9 @@ public class MapData
     [JsonPropertyName("tileSize")]
     public int TileSize { get; set; } = 32;
 
+    [JsonPropertyName("ingame")]
+    public bool InGame { get; set; }
+
     [JsonPropertyName("spawnPoints")]
     public List<SpawnPoint> SpawnPoints { get; set; } = new();
 
@@ -69,6 +80,9 @@ public class MapData
 
     [JsonPropertyName("entities")]
     public List<MapEntityData> Entities { get; set; } = new();
+
+    [JsonPropertyName("triggers")]
+    public List<TriggerZoneData> Triggers { get; set; } = new();
 
     public (bool valid, string error) Validate()
     {
@@ -84,6 +98,10 @@ public class MapData
             return (false, "Tile has empty proto id");
         if (Entities.Any(e => string.IsNullOrWhiteSpace(e.ProtoId)))
             return (false, "Entity has empty proto id");
+        if (Triggers.Any(t => string.IsNullOrWhiteSpace(t.Id)))
+            return (false, "Trigger has empty id");
+        if (Triggers.Any(t => t.Tiles.Count == 0))
+            return (false, "Trigger has no tiles");
         return (true, "");
     }
 }

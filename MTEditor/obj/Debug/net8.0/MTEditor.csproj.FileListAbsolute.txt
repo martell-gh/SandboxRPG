@@ -11,9 +11,6 @@
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/MTEditor.pdb
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/MonoGame.Framework.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/NVorbis.dll
-/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/System.IO.Pipelines.dll
-/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/System.Text.Encodings.Web.dll
-/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/System.Text.Json.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/android-arm/native/libopenal.so
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/android-arm64/native/libopenal.so
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/android-x64/native/libopenal.so
@@ -28,7 +25,6 @@
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/linux-x64/native/libSDL2-2.0.so.0
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/osx/native/libSDL2-2.0.0.dylib
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/win-x64/native/SDL2.dll
-/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/MTEngine.dll
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/MTEngine.pdb
 /Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/Debug/net8.0/MTEditor.csproj.Up2Date

@@ -18,6 +18,9 @@
       "slots": 2,
       "tags": ["clothing", "armor", "torso"]
     },
+    "info": {
+      "description": "Тяжёлый доспех из кованых металлических пластин. Отлично защищает от ударов, но сковывает движения."
+    },
     "wearable": {
       "slot": "torso",
       "speedMultiplier": 0.82,
