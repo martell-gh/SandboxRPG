@@ -22,6 +22,7 @@ public enum EditorCommand
     ToolPrototypes,
     ToolSpawns,
     ToolTriggers,
+    ToolAreas,
     PointerBrush,
     PointerMouse,
     ShapePoint,
@@ -150,6 +151,7 @@ public class EditorHUD
             EditorGame.Tool.EntityPainter => "[2] Objects",
             EditorGame.Tool.SpawnPoint => "[3] Spawn",
             EditorGame.Tool.TriggerZone => "[4] Triggers",
+            EditorGame.Tool.AreaZone => "[5] Areas",
             _ => "?"
         };
         var selected = activeTool == EditorGame.Tool.TilePainter
@@ -164,7 +166,7 @@ public class EditorHUD
         spriteBatch.Draw(_pixel, _bottomBarBounds, new Color(10, 12, 14, 245));
         spriteBatch.Draw(_pixel, new Rectangle(_bottomBarBounds.X, _bottomBarBounds.Y, _bottomBarBounds.Width, 1), new Color(90, 120, 96));
 
-        var info = $"Tool: {tool}   Selected: {selected}   Layer: {activeLayer}   Map: {map.Id}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Objects: {map.Entities.Count}   Triggers: {map.Triggers.Count}";
+        var info = $"Tool: {tool}   Selected: {selected}   Layer: {activeLayer}   Map: {map.Id}   Size: {map.Width}x{map.Height}   Spawns: {map.SpawnPoints.Count}   Objects: {map.Entities.Count}   Triggers: {map.Triggers.Count}   Areas: {map.Areas.Count}";
         spriteBatch.DrawString(_font, info, new Vector2(12, _bottomBarBounds.Y + 8), Color.LimeGreen);
 
         // сообщение по центру над панелью
@@ -207,6 +209,7 @@ public class EditorHUD
             ("Prototypes", EditorCommand.ToolPrototypes, false),
             ("Spawns", EditorCommand.ToolSpawns, false),
             ("Triggers", EditorCommand.ToolTriggers, false),
+            ("Areas", EditorCommand.ToolAreas, false),
         };
 
         var leftStart = OuterMargin + BrandBlockWidth + ToolbarInnerGap;
@@ -366,6 +369,7 @@ public class EditorHUD
             (EditorCommand.ToolPrototypes, EditorGame.Tool.EntityPainter) => true,
             (EditorCommand.ToolSpawns, EditorGame.Tool.SpawnPoint) => true,
             (EditorCommand.ToolTriggers, EditorGame.Tool.TriggerZone) => true,
+            (EditorCommand.ToolAreas, EditorGame.Tool.AreaZone) => true,
             _ => false
         };
     }

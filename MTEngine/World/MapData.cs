@@ -84,6 +84,9 @@ public class MapData
     [JsonPropertyName("triggers")]
     public List<TriggerZoneData> Triggers { get; set; } = new();
 
+    [JsonPropertyName("areas")]
+    public List<AreaZoneData> Areas { get; set; } = new();
+
     public (bool valid, string error) Validate()
     {
         if (string.IsNullOrWhiteSpace(Id))
@@ -102,6 +105,12 @@ public class MapData
             return (false, "Trigger has empty id");
         if (Triggers.Any(t => t.Tiles.Count == 0))
             return (false, "Trigger has no tiles");
+        if (Areas.Any(a => string.IsNullOrWhiteSpace(a.Id)))
+            return (false, "Area has empty id");
+        if (Areas.Any(a => string.IsNullOrWhiteSpace(a.Kind)))
+            return (false, "Area has empty kind");
+        if (Areas.Any(a => a.Tiles.Count == 0))
+            return (false, "Area has no tiles");
         return (true, "");
     }
 }
