@@ -38,6 +38,7 @@
     },
     "wounds": {},
     "velocity": { "speed": 100 },
+    "age": { "ageYears": 25 },
     "metabolism": {
       "hunger": 85,
       "thirst": 90,

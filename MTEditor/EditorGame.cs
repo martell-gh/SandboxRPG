@@ -29,6 +29,7 @@ public class EditorGame : Game
     private EntityPainterTool _entityPainter = null!;
     private SpawnPointTool _spawnTool = null!;
     private TriggerZoneTool _triggerTool = null!;
+    private AreaZoneTool _areaTool = null!;
     private TilePalette _palette = null!;
     private EditorHUD _hud = null!;
     private MapSelectDialog _mapSelectDialog = null!;
@@ -38,7 +39,7 @@ public class EditorGame : Game
 
     private const int TileLayerCount = 3;
 
-    public enum Tool { TilePainter, EntityPainter, SpawnPoint, TriggerZone }
+    public enum Tool { TilePainter, EntityPainter, SpawnPoint, TriggerZone, AreaZone }
     public Tool ActiveTool { get; set; } = Tool.TilePainter;
     public int ActiveTileLayer { get; set; } = 0;
     public PointerTool ActivePointerTool { get; set; } = PointerTool.Brush;
@@ -91,6 +92,7 @@ public class EditorGame : Game
         _entityPainter = new EntityPainterTool(_currentMap);
         _spawnTool = new SpawnPointTool(_currentMap, GraphicsDevice);
         _triggerTool = new TriggerZoneTool(_currentMap, _mapManager, GraphicsDevice, _font);
+        _areaTool = new AreaZoneTool(_currentMap, GraphicsDevice, _font);
         _palette = new TilePalette(_prototypes, _assets, _font, GraphicsDevice);
         _hud = new EditorHUD(_font, GraphicsDevice);
         _mapSelectDialog = new MapSelectDialog(_font, GraphicsDevice);
@@ -143,12 +145,14 @@ public class EditorGame : Game
         // триггер тул обновляет свою UI-панель и диалог независимо от позиции курсора
         if (ActiveTool == Tool.TriggerZone)
             _triggerTool.Update(mouse, _prevMouse, keys, _prevKeys);
+        if (ActiveTool == Tool.AreaZone)
+            _areaTool.Update(mouse, _prevMouse, keys, _prevKeys);
 
         // блокируем остальной ввод если открыт диалог выбора карты в триггер-туле
         if (_triggerTool.IsDialogOpen) goto EndUpdate;
 
         var ctrl = keys.IsKeyDown(Keys.LeftControl) || keys.IsKeyDown(Keys.RightControl);
-        var anyTyping = _spawnTool.IsTyping || _triggerTool.IsTyping;
+        var anyTyping = _spawnTool.IsTyping || _triggerTool.IsTyping || _areaTool.IsTyping;
 
         HandleWindowHotkeys(keys);
 
@@ -165,6 +169,7 @@ public class EditorGame : Game
             _entityPainter.SetMap(_currentMap);
             _spawnTool.SetMap(_currentMap);
             _triggerTool.SetMap(_currentMap);
+            _areaTool.SetMap(_currentMap);
         }
 
         if (!anyTyping)
@@ -177,6 +182,8 @@ public class EditorGame : Game
                 ActiveTool = Tool.SpawnPoint;
             if (IsPressed(keys, _prevKeys, Keys.D4))
                 ActiveTool = Tool.TriggerZone;
+            if (IsPressed(keys, _prevKeys, Keys.D5))
+                ActiveTool = Tool.AreaZone;
             if (IsPressed(keys, _prevKeys, Keys.B))
                 ActivePointerTool = PointerTool.Brush;
             if (IsPressed(keys, _prevKeys, Keys.V))
@@ -251,6 +258,8 @@ public class EditorGame : Game
                 _spawnTool.Update(mouse, _prevMouse, worldPos);
             if (ActiveTool == Tool.TriggerZone)
                 _triggerTool.UpdateWorldInput(mouse, _prevMouse, worldPos, ActivePointerTool);
+            if (ActiveTool == Tool.AreaZone)
+                _areaTool.UpdateWorldInput(mouse, _prevMouse, worldPos, ActivePointerTool, keys);
         }
 
     EndUpdate:
@@ -286,6 +295,8 @@ public class EditorGame : Game
         _spawnTool.Draw(_spriteBatch, _assets, _font);
         if (ActiveTool == Tool.TriggerZone)
             _triggerTool.Draw(_spriteBatch, _assets, _font);
+        if (ActiveTool == Tool.AreaZone)
+            _areaTool.Draw(_spriteBatch);
 
         _spriteBatch.End();
 
@@ -301,6 +312,8 @@ public class EditorGame : Game
             _spawnTool.DrawUI(_spriteBatch, _font);
         if (ActiveTool == Tool.TriggerZone)
             _triggerTool.DrawUI(_spriteBatch, _font);
+        if (ActiveTool == Tool.AreaZone)
+            _areaTool.DrawUI(_spriteBatch);
         _inGameMapsDialog.Draw(_spriteBatch);
         _mapSelectDialog.Draw(_spriteBatch);
         _activeSaveDialog?.Draw(_spriteBatch);
@@ -444,6 +457,7 @@ public class EditorGame : Game
             _entityPainter.SetMap(_currentMap);
             _spawnTool.SetMap(_currentMap);
             _triggerTool.SetMap(_currentMap);
+            _areaTool.SetMap(_currentMap);
             ActiveTileLayer = Math.Min(ActiveTileLayer, _currentTileMap.LayerCount - 1);
             _hud.ShowMessage($"Loaded: {_currentMap.Name}");
         });
@@ -534,6 +548,7 @@ public class EditorGame : Game
                 _entityPainter.SetMap(_currentMap);
                 _spawnTool.SetMap(_currentMap);
                 _triggerTool.SetMap(_currentMap);
+            _areaTool.SetMap(_currentMap);
                 _hud.ShowMessage("Created: new map");
                 break;
             case EditorCommand.LoadMap:
@@ -568,6 +583,9 @@ public class EditorGame : Game
                 break;
             case EditorCommand.ToolTriggers:
                 ActiveTool = Tool.TriggerZone;
+                break;
+            case EditorCommand.ToolAreas:
+                ActiveTool = Tool.AreaZone;
                 break;
             case EditorCommand.PointerBrush:
                 ActivePointerTool = PointerTool.Brush;

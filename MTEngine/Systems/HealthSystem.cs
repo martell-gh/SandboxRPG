@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using MTEngine.Components;
+using MTEngine.Core;
 using MTEngine.ECS;
 
 namespace MTEngine.Systems;
@@ -21,11 +22,20 @@ public class HealthSystem : GameSystem
 
                 if (entity.HasComponent<PlayerTagComponent>())
                     PopupTextSystem.Show(entity, "Ты умер.", Color.OrangeRed, lifetime: 2f);
+
+                PublishDeath(entity);
             }
 
             if (health.IsDead)
                 ApplyDeathState(entity, health);
         }
+    }
+
+    private static void PublishDeath(Entity entity)
+    {
+        if (!ServiceLocator.Has<EventBus>()) return;
+        var dayIndex = ServiceLocator.Has<GameClock>() ? ServiceLocator.Get<GameClock>().DayIndex : 0L;
+        ServiceLocator.Get<EventBus>().Publish(new EntityDied(entity, DeathCause.Unknown, null, dayIndex));
     }
 
     private static void ApplyDeathState(Entity entity, HealthComponent health)

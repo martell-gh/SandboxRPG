@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MTEngine.Metabolism;
+using MTEngine.Npc;
 using MTEngine.Rendering;
 using MTEngine.Systems;
 using MTEngine.UI;
@@ -21,6 +22,7 @@ public class GameEngine : Game
     public AssetManager Assets { get; private set; } = null!;
     public PrototypeManager Prototypes { get; private set; } = new();
     public GameClock Clock { get; private set; } = new(8f);
+    public Calendar Calendar { get; protected set; } = new();
     public EntityFactory EntityFactory { get; private set; } = null!;
 
     public ECSWorld World { get; } = new();
@@ -42,6 +44,8 @@ public class GameEngine : Game
     public SubstanceDebugSystem SubstanceDebugSystem { get; private set; } = new();
     public SubstanceWorkbenchSystem SubstanceWorkbenchSystem { get; private set; } = new();
     public WoundSystem WoundSystem { get; private set; } = new();
+    public AgingSystem AgingSystem { get; private set; } = new();
+    public WorldRegistry WorldRegistry { get; private set; } = new();
 
     private RenderTarget2D? _sceneRT;
     private bool _isApplyingWindowChange;
@@ -72,6 +76,8 @@ public class GameEngine : Game
         ServiceLocator.Register(Camera);
         ServiceLocator.Register(GraphicsDevice);
         ServiceLocator.Register(Clock);
+        ServiceLocator.Register(Calendar);
+        ServiceLocator.Register(WorldRegistry);
         ServiceLocator.Register(SleepSystem);
         ServiceLocator.Register(PopupTextSystem);
         ServiceLocator.Register(UIManager);
@@ -91,6 +97,7 @@ public class GameEngine : Game
         World.AddSystem(MetabolismSystem);
         World.AddSystem(SubstanceDebugSystem);
         World.AddSystem(SubstanceWorkbenchSystem);
+        World.AddSystem(AgingSystem);
         World.AddSystem(UIManager);
 
         base.Initialize();

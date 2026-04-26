@@ -53,9 +53,18 @@ public class Game1 : GameEngine
 
         Prototypes.LoadFromDirectory(GamePaths.Prototypes);
 
+        Calendar = Calendar.LoadFromFile(Path.Combine(GamePaths.Data, "calendar.json"));
+        ServiceLocator.Register(Calendar);
+
         _mapManager = new MapManager(GamePaths.Maps, Prototypes);
         ServiceLocator.Register(_mapManager);
+
+        WorldRegistry.RebuildFromMaps(_mapManager);
+        WorldRegistry.RehydrateDynamicState();
+
         _saveGame = new SaveGameManager(World, _mapManager, Prototypes, Assets, Clock);
+        _saveGame.RegisterSaveObject(Calendar);
+        _saveGame.RegisterSaveObject(WorldRegistry);
         ServiceLocator.Register(_saveGame);
         ServiceLocator.Register<IMapStateSource>(_saveGame);
         ServiceLocator.Register<IWorldStateTracker>(_saveGame);
@@ -157,6 +166,7 @@ public class Game1 : GameEngine
         if (!_gameInitialized)
             return;
 
+        WorldRegistry.CaptureDynamicState();
         _saveGame.SaveToSlot(slotIndex, saveName);
         _menu.ReturnToSaveSlots(slotIndex);
     }
@@ -228,6 +238,7 @@ public class Game1 : GameEngine
 
         _saveGame.RestorePlayerEntities();
         _saveGame.ApplyClockState();
+        WorldRegistry.RehydrateDynamicState();
         _commands.LoadMap(_saveGame.ActiveSession!.CurrentMapId, "default", placePlayerAtSpawn: false);
         _gameInitialized = true;
         CenterCameraOnPlayer();

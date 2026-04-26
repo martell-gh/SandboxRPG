@@ -87,7 +87,7 @@ public class SleepSystem : GameSystem
     private void StopSleep(bool setWakeTime)
     {
         if (setWakeTime)
-            _clock.SetTime(WakeHour);
+            _clock.AdvanceToHour(WakeHour);
 
         _clock.TimeScale = _previousTimeScale > 0f ? _previousTimeScale : 72f;
 
