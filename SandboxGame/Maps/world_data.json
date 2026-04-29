@@ -1,0 +1,107 @@
+{
+  "factions": [
+    {
+      "id": "fac_player",
+      "name": "--fac-player",
+      "relations": [
+        {
+          "factionId": "fac_starks",
+          "value": 11
+        }
+      ]
+    },
+    {
+      "id": "fac_brodyagi",
+      "name": "Brodyagi",
+      "relations": [
+        {
+          "factionId": "fac_lannisters",
+          "value": -90
+        },
+        {
+          "factionId": "fac_starks",
+          "value": 20
+        }
+      ]
+    },
+    {
+      "id": "fac_lannisters",
+      "name": "House of Lannisters",
+      "relations": [
+        {
+          "factionId": "fac_brodyagi",
+          "value": -90
+        },
+        {
+          "factionId": "fac_starks",
+          "value": -30
+        }
+      ]
+    },
+    {
+      "id": "fac_starks",
+      "name": "House of Starks",
+      "relations": [
+        {
+          "factionId": "fac_brodyagi",
+          "value": 20
+        },
+        {
+          "factionId": "fac_lannisters",
+          "value": -30
+        },
+        {
+          "factionId": "fac_player",
+          "value": 11
+        }
+      ]
+    }
+  ],
+  "cities": [
+    {
+      "id": "city_devriver",
+      "name": "DevRiver"
+    },
+    {
+      "id": "city_oakvale",
+      "name": "Oakvale"
+    }
+  ],
+  "startingMapId": "livloc_bowerstone",
+  "startingSpawnId": "default",
+  "startingFactionId": "",
+  "startingOutfit": {
+    "torso": "tinted_shirt",
+    "pants": "work_pants",
+    "shoes": "leather_boots"
+  },
+  "locationGraph": {
+    "nodes": [
+      {
+        "mapId": "livloc_bowerstone",
+        "x": 297,
+        "y": 126
+      },
+      {
+        "mapId": "wild_river",
+        "x": 274,
+        "y": 283
+      },
+      {
+        "mapId": "livloc_oakvale",
+        "x": 275,
+        "y": 439
+      }
+    ],
+    "edges": [
+      {
+        "a": "livloc_bowerstone",
+        "b": "wild_river"
+      },
+      {
+        "a": "wild_river",
+        "b": "livloc_oakvale"
+      }
+    ]
+  }
+}

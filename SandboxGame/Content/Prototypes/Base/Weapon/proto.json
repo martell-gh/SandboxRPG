@@ -1,0 +1,20 @@
+{
+  "id": "base_weapon",
+  "name": "Base Weapon",
+  "category": "entity",
+  "base": "base_item",
+  "abstract": true,
+  "components": {
+    "item": {
+      "name": "Weapon",
+      "size": "Medium",
+      "slots": 2,
+      "tags": ["weapon", "melee"]
+    },
+    "weapon": {},
+    "craftable": {
+      "station": "smithing",
+      "skill": "Smithing"
+    }
+  }
+}

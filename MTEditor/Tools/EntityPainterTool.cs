@@ -17,6 +17,7 @@ public class EntityPainterTool
     {
         public required List<MapEntityData> Before { get; init; }
         public required List<MapEntityData> After { get; init; }
+        public required long Order { get; init; }
     }
 
     private sealed class SpriteMaskData
@@ -45,6 +46,7 @@ public class EntityPainterTool
     }
 
     private MapData _map;
+    private readonly EditorActionTracker _tracker;
     private readonly Dictionary<string, SpriteMaskData> _spriteMaskCache = new();
 
     private Vector2? _leftBrushAnchor;
@@ -56,6 +58,7 @@ public class EntityPainterTool
     private readonly Dictionary<MapEntityData, Vector2> _dragStartPositions = new();
     private readonly Stack<EntitySnapshotAction> _undo = new();
     private readonly Stack<EntitySnapshotAction> _redo = new();
+    private long _redoGeneration = -1;
     private MapEntityData? _hoveredEntity;
     private bool _isDraggingSelection;
     private bool _isBoxSelecting;
@@ -76,9 +79,21 @@ public class EntityPainterTool
     private const int PropertyButtonHeight = 24;
     private const int PropertyLineHeight = 18;
 
-    public EntityPainterTool(MapData map)
+    public long UndoOrder => _undo.Count > 0 ? _undo.Peek().Order : long.MinValue;
+
+    public long RedoOrder
+    {
+        get
+        {
+            InvalidateRedoIfNeeded();
+            return _redo.Count > 0 ? _redo.Peek().Order : long.MinValue;
+        }
+    }
+
+    public EntityPainterTool(MapData map, EditorActionTracker tracker)
     {
         _map = map;
+        _tracker = tracker;
     }
 
     public void SetMap(MapData map)
@@ -97,6 +112,7 @@ public class EntityPainterTool
         _selectedEditorPrototypeId = null;
         _undo.Clear();
         _redo.Clear();
+        _redoGeneration = -1;
     }
 
     public void UpdateBrush(MouseState mouse, MouseState prev, Vector2 worldPos, string selectedEntityId, BrushShape brushShape)
@@ -307,27 +323,21 @@ public class EntityPainterTool
             return false;
 
         var action = _undo.Pop();
-        _redo.Push(new EntitySnapshotAction
-        {
-            Before = CloneEntities(_map.Entities),
-            After = CloneEntities(action.Before)
-        });
+        _redo.Push(action);
+        _redoGeneration = _tracker.CurrentRedoGeneration;
         RestoreEntities(action.Before);
         return true;
     }
 
     public bool TryRedo()
     {
+        InvalidateRedoIfNeeded();
         if (_redo.Count == 0)
             return false;
 
         var action = _redo.Pop();
-        _undo.Push(new EntitySnapshotAction
-        {
-            Before = CloneEntities(_map.Entities),
-            After = CloneEntities(action.Before)
-        });
-        RestoreEntities(action.Before);
+        _undo.Push(action);
+        RestoreEntities(action.After);
         return true;
     }
 
@@ -351,45 +361,68 @@ public class EntityPainterTool
         }
     }
 
-    public void DrawPropertyPanel(SpriteBatch spriteBatch, SpriteFont font, GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
+    public void DrawPropertyPanel(SpriteBatch spriteBatch, GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
     {
-        var layout = BuildPropertyPanelLayout(font, graphics, prototypes, assets);
+        var layout = BuildPropertyPanelLayout(graphics, prototypes, assets);
         if (layout == null)
             return;
 
-        var pixel = assets.GetColorTexture("#ffffff");
-        spriteBatch.Draw(pixel, layout.Bounds, new Color(18, 24, 24, 235));
-        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Y, layout.Bounds.Width, 1), new Color(75, 105, 92));
-        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Bottom - 1, layout.Bounds.Width, 1), new Color(75, 105, 92));
-        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.X, layout.Bounds.Y, 1, layout.Bounds.Height), new Color(75, 105, 92));
-        spriteBatch.Draw(pixel, new Rectangle(layout.Bounds.Right - 1, layout.Bounds.Y, 1, layout.Bounds.Height), new Color(75, 105, 92));
+        MTEditor.UI.EditorTheme.DrawShadow(spriteBatch, layout.Bounds, 6);
+        MTEditor.UI.EditorTheme.FillRect(spriteBatch, layout.Bounds, MTEditor.UI.EditorTheme.Bg);
+        MTEditor.UI.EditorTheme.DrawBorder(spriteBatch, layout.Bounds, MTEditor.UI.EditorTheme.Border);
 
-        spriteBatch.Draw(pixel, layout.HeaderRect, new Color(32, 52, 44));
-        spriteBatch.DrawString(font, SanitizeEditorText("Entity Properties"), new Vector2(layout.HeaderRect.X + 10, layout.HeaderRect.Y + 5), new Color(220, 234, 224));
+        MTEditor.UI.EditorTheme.FillRect(spriteBatch, layout.HeaderRect, MTEditor.UI.EditorTheme.Panel);
+        spriteBatch.Draw(MTEditor.UI.EditorTheme.Pixel,
+            new Rectangle(layout.HeaderRect.X, layout.HeaderRect.Y, 3, layout.HeaderRect.Height),
+            MTEditor.UI.EditorTheme.Accent);
+        spriteBatch.Draw(MTEditor.UI.EditorTheme.Pixel,
+            new Rectangle(layout.HeaderRect.X, layout.HeaderRect.Bottom - 1, layout.HeaderRect.Width, 1),
+            MTEditor.UI.EditorTheme.Border);
 
-        spriteBatch.Draw(pixel, layout.CloseRect, new Color(132, 48, 48));
-        spriteBatch.DrawString(font, SanitizeEditorText("X"), new Vector2(layout.CloseRect.X + 6, layout.CloseRect.Y + 2), Color.White);
+        MTEditor.UI.EditorTheme.DrawText(spriteBatch, MTEditor.UI.EditorTheme.Medium,
+            "Entity Properties",
+            new Vector2(layout.HeaderRect.X + 10, layout.HeaderRect.Y + (layout.HeaderRect.Height - MTEditor.UI.EditorTheme.Medium.MeasureString("Ay").Y) / 2f - 1),
+            MTEditor.UI.EditorTheme.Text);
+
+        MTEditor.UI.EditorTheme.FillRect(spriteBatch, layout.CloseRect, MTEditor.UI.EditorTheme.Error);
+        var xSize = MTEditor.UI.EditorTheme.Small.MeasureString("×");
+        MTEditor.UI.EditorTheme.DrawText(spriteBatch, MTEditor.UI.EditorTheme.Small, "×",
+            new Vector2(layout.CloseRect.X + (layout.CloseRect.Width - xSize.X) / 2f, layout.CloseRect.Y + (layout.CloseRect.Height - xSize.Y) / 2f - 1),
+            Color.White);
 
         for (var i = 0; i < layout.Lines.Count; i++)
         {
             var line = layout.Lines[i];
             var position = new Vector2(layout.Bounds.X + PropertyPanelPadding, layout.HeaderRect.Bottom + 8 + i * PropertyLineHeight);
-            spriteBatch.DrawString(font, SanitizeEditorText(line.Text), position, line.Color);
+            MTEditor.UI.EditorTheme.DrawText(spriteBatch, MTEditor.UI.EditorTheme.Small, SanitizeEditorText(line.Text), position, line.Color);
         }
 
         foreach (var button in layout.Buttons)
         {
-            var fill = !button.Enabled
-                ? new Color(50, 56, 56)
-                : button.Destructive
-                    ? new Color(108, 48, 48)
-                    : new Color(52, 86, 68);
+            Color fill, textColor;
+            if (!button.Enabled)
+            {
+                fill = MTEditor.UI.EditorTheme.Panel;
+                textColor = MTEditor.UI.EditorTheme.TextDisabled;
+            }
+            else if (button.Destructive)
+            {
+                fill = MTEditor.UI.EditorTheme.Error;
+                textColor = Color.White;
+            }
+            else
+            {
+                fill = MTEditor.UI.EditorTheme.Accent;
+                textColor = Color.White;
+            }
 
-            spriteBatch.Draw(pixel, button.Bounds, fill);
-            spriteBatch.Draw(pixel, new Rectangle(button.Bounds.X, button.Bounds.Y, button.Bounds.Width, 1), Color.Black * 0.35f);
-            spriteBatch.Draw(pixel, new Rectangle(button.Bounds.X, button.Bounds.Bottom - 1, button.Bounds.Width, 1), Color.Black * 0.45f);
-            var textColor = button.Enabled ? new Color(236, 244, 238) : new Color(135, 145, 145);
-            spriteBatch.DrawString(font, SanitizeEditorText(button.Label), new Vector2(button.Bounds.X + 8, button.Bounds.Y + 4), textColor);
+            MTEditor.UI.EditorTheme.FillRect(spriteBatch, button.Bounds, fill);
+            MTEditor.UI.EditorTheme.DrawBorder(spriteBatch, button.Bounds, MTEditor.UI.EditorTheme.Border);
+            var labelSize = MTEditor.UI.EditorTheme.Small.MeasureString(SanitizeEditorText(button.Label));
+            MTEditor.UI.EditorTheme.DrawText(spriteBatch, MTEditor.UI.EditorTheme.Small,
+                SanitizeEditorText(button.Label),
+                new Vector2(button.Bounds.X + (button.Bounds.Width - labelSize.X) / 2f, button.Bounds.Y + (button.Bounds.Height - labelSize.Y) / 2f - 1),
+                textColor);
         }
     }
 
@@ -398,7 +431,7 @@ public class EntityPainterTool
         if (_propertyEntity == null)
             return false;
 
-        var layout = BuildPropertyPanelLayout(null, assets.GraphicsDevice, prototypes, assets);
+        var layout = BuildPropertyPanelLayout(assets.GraphicsDevice, prototypes, assets);
         if (layout == null || !layout.Bounds.Contains(mouseScreen))
             return false;
 
@@ -423,7 +456,7 @@ public class EntityPainterTool
         return true;
     }
 
-    private PropertyPanelLayout? BuildPropertyPanelLayout(SpriteFont? font, GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
+    private PropertyPanelLayout? BuildPropertyPanelLayout(GraphicsDevice graphics, PrototypeManager prototypes, AssetManager assets)
     {
         if (_propertyEntity == null || !_map.Entities.Contains(_propertyEntity))
         {
@@ -1073,9 +1106,11 @@ public class EntityPainterTool
         _undo.Push(new EntitySnapshotAction
         {
             Before = before,
-            After = after
+            After = after,
+            Order = _tracker.CommitNewOperation()
         });
         _redo.Clear();
+        _redoGeneration = -1;
     }
 
     private void RestoreEntities(List<MapEntityData> snapshot)
@@ -1090,6 +1125,18 @@ public class EntityPainterTool
         _isDraggingSelection = false;
         _isBoxSelecting = false;
         _propertyEntity = null;
+    }
+
+    private void InvalidateRedoIfNeeded()
+    {
+        if (_redo.Count == 0)
+            return;
+
+        if (_redoGeneration == _tracker.CurrentRedoGeneration)
+            return;
+
+        _redo.Clear();
+        _redoGeneration = -1;
     }
 
     private static List<MapEntityData> CloneEntities(IEnumerable<MapEntityData> entities)

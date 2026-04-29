@@ -1,0 +1,77 @@
+{
+  "id": "valyrian_greatsword",
+  "name": "Valyrian Greatsword",
+  "category": "entity",
+  "base": "greatsword",
+  "components": {
+    "sprite": {
+      "source": "../Greatsword/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Исключительно редкий двуручник из валирийской стали. Очень дорог и почти легендарен."
+    },
+    "item": {
+      "name": "Valyrian Greatsword",
+      "slots": 3,
+      "size": "Large",
+      "twoHanded": true,
+      "tags": [
+        "weapon",
+        "melee",
+        "two-handed",
+        "rare"
+      ]
+    },
+    "qualityTier": {
+      "tier": 1,
+      "label": "Валирийская сталь",
+      "shortLabel": "T1",
+      "tint": "#D9B64A"
+    },
+    "weapon": {
+      "materials": [
+        "valyrian_steel_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 43,
+      "minDamage": 35,
+      "maxDamage": 51,
+      "range": 62,
+      "windup": 0.49,
+      "accuracy": 0.97,
+      "verb": "Рубануть",
+      "blockBonus": 0.2
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 1,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 78,
+      "craftTime": 4.4,
+      "ingredients": [
+        {
+          "prototypeId": "valyrian_steel_ingot",
+          "count": 4
+        },
+        {
+          "prototypeId": "wood",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

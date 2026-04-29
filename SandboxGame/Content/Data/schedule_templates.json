@@ -1,0 +1,59 @@
+{
+  "default_worker": {
+    "slots": [
+      {"start": 0,  "end": 6,  "action": "Sleep",     "targetAreaId": "$house",      "priority": 20},
+      {"start": 6,  "end": 7,  "action": "EatAtHome", "targetAreaId": "$house",      "priority": 12},
+      {"start": 7,  "end": 12, "action": "Work",      "targetAreaId": "$profession", "priority": 18},
+      {"start": 12, "end": 13, "action": "EatAtHome", "targetAreaId": "$house",      "priority": 12},
+      {"start": 13, "end": 18, "action": "Work",      "targetAreaId": "$profession", "priority": 18},
+      {"start": 18, "end": 19, "action": "Free",      "targetAreaId": "",            "priority": 8},
+      {"start": 19, "end": 20, "action": "EatAtHome", "targetAreaId": "$house",      "priority": 12},
+      {"start": 20, "end": 24, "action": "Sleep",     "targetAreaId": "$house",      "priority": 20}
+    ],
+    "freetime": [
+      {"action": "Wander", "priority": 1},
+      {"action": "Socialize", "priority": 1, "dayOnly": true}
+    ]
+  },
+
+  "default_unemployed": {
+    "slots": [
+      {"start": 0,  "end": 7,  "action": "Sleep",  "targetAreaId": "$inn",   "priority": 18},
+      {"start": 7,  "end": 22, "action": "Free",   "targetAreaId": "",        "priority": 8},
+      {"start": 22, "end": 24, "action": "Sleep",  "targetAreaId": "$inn",   "priority": 18}
+    ],
+    "freetime": [
+      {"action": "Wander", "priority": 1},
+      {"action": "Socialize", "priority": 1, "dayOnly": true}
+    ]
+  },
+
+  "default_child": {
+    "slots": [
+      {"start": 0,  "end": 8,  "action": "Sleep",     "targetAreaId": "$house",  "priority": 20},
+      {"start": 8,  "end": 14, "action": "SchoolDay", "targetAreaId": "$school", "priority": 14},
+      {"start": 14, "end": 18, "action": "Free",      "targetAreaId": "",        "priority": 8},
+      {"start": 18, "end": 20, "action": "EatAtHome", "targetAreaId": "$house",  "priority": 12},
+      {"start": 20, "end": 24, "action": "Sleep",     "targetAreaId": "$house",  "priority": 20}
+    ],
+    "freetime": [
+      {"action": "Wander", "priority": 1},
+      {"action": "Socialize", "priority": 1, "dayOnly": true}
+    ]
+  },
+
+  "default_pensioner": {
+    "slots": [
+      {"start": 0,  "end": 8,  "action": "Sleep",     "targetAreaId": "$house", "priority": 20},
+      {"start": 8,  "end": 12, "action": "Wander",    "targetAreaId": "",       "priority": 6},
+      {"start": 12, "end": 13, "action": "EatAtHome", "targetAreaId": "$house", "priority": 12},
+      {"start": 13, "end": 18, "action": "Free",      "targetAreaId": "",       "priority": 8},
+      {"start": 18, "end": 19, "action": "EatAtHome", "targetAreaId": "$house", "priority": 12},
+      {"start": 19, "end": 24, "action": "Sleep",     "targetAreaId": "$house", "priority": 20}
+    ],
+    "freetime": [
+      {"action": "Wander", "priority": 1},
+      {"action": "Socialize", "priority": 1, "dayOnly": true}
+    ]
+  }
+}

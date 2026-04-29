@@ -1,0 +1,35 @@
+{
+  "id": "recipe_note_iron_war_axe",
+  "name": "Recipe Note: Iron War Axe",
+  "category": "entity",
+  "base": "recipe_note",
+  "components": {
+    "sprite": {
+      "source": "../../Materials/ClothBolt/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "color": "#D8C48E"
+    },
+    "item": {
+      "name": "Recipe Note: Iron War Axe",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "document",
+        "recipe"
+      ]
+    },
+    "info": {
+      "description": "Подробная схема ковки железного боевого топора."
+    },
+    "recipeNote": {
+      "recipeId": "iron_war_axe",
+      "recipeTitle": "Iron War Axe",
+      "readSkill": "Smithing",
+      "readRequiredSkill": 1
+    }
+  }
+}

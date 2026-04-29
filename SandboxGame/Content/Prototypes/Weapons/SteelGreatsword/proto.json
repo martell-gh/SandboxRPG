@@ -1,0 +1,76 @@
+{
+  "id": "steel_greatsword",
+  "name": "Steel Greatsword",
+  "category": "entity",
+  "base": "greatsword",
+  "components": {
+    "sprite": {
+      "source": "../Greatsword/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Стальной двуручный меч. Тяжёлый боевой клинок для опытного воина."
+    },
+    "item": {
+      "name": "Steel Greatsword",
+      "slots": 3,
+      "size": "Large",
+      "twoHanded": true,
+      "tags": [
+        "weapon",
+        "melee",
+        "two-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 2,
+      "label": "Сталь",
+      "shortLabel": "T2",
+      "tint": "#8FA7C5"
+    },
+    "weapon": {
+      "materials": [
+        "steel_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 34,
+      "minDamage": 28,
+      "maxDamage": 40,
+      "range": 60,
+      "windup": 0.54,
+      "accuracy": 0.94,
+      "verb": "Рубануть",
+      "blockBonus": 0.16
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 2,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 46,
+      "craftTime": 3.8,
+      "ingredients": [
+        {
+          "prototypeId": "steel_ingot",
+          "count": 4
+        },
+        {
+          "prototypeId": "wood",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

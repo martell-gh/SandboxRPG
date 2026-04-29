@@ -41,6 +41,9 @@ public class MetabolismUI : GameSystem
             ? Math.Clamp(ServiceLocator.Get<IUiScaleSource>().UiScale, 0.75f, 2f)
             : 1f;
 
+    private static SamplerState GetTextFriendlySampler(float uiScale)
+        => SamplerState.LinearClamp;
+
     public override void OnInitialize()
     {
         _input = ServiceLocator.Get<InputManager>();
@@ -121,10 +124,9 @@ public class MetabolismUI : GameSystem
         var health = player.GetComponent<HealthComponent>();
 
         var uiScale = GetUiScale();
-        var sampler = Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp;
         _sb.Begin(
-            samplerState: sampler,
-            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+            samplerState: GetTextFriendlySampler(uiScale),
+            transformMatrix: GameEngine.Instance.GetUiTransform(uiScale));
 
         var panelX = 16;
         var panelY = 16;
@@ -190,7 +192,7 @@ public class MetabolismUI : GameSystem
 
     private void DrawHudBar(int panelX, int y, int barX, int barWidth, string label, float value, float max, Color fillColor, string text)
     {
-        _sb.DrawString(_font, label, new Vector2(panelX, y + 2), Color.White);
+        _sb.DrawString(_font, label, Snap(new Vector2(panelX, y + 2)), Color.White);
 
         var barRect = new Rectangle(barX, y + 2, barWidth, 14);
         _sb.Draw(_pixel, barRect, new Color(35, 35, 35, 220));
@@ -203,7 +205,7 @@ public class MetabolismUI : GameSystem
             _sb.Draw(_pixel, new Rectangle(barRect.X + 1, barRect.Y + 1, fillWidth, barRect.Height - 2), fillColor);
 
         var textSize = _font.MeasureString(text);
-        _sb.DrawString(_font, text, new Vector2(barRect.Right - textSize.X - 4, y + 1), Color.White);
+        _sb.DrawString(_font, text, Snap(new Vector2(barRect.Right - textSize.X - 4, y + 1)), Color.White);
     }
 
     private void DrawCurrencyHud(Entity player)
@@ -218,7 +220,7 @@ public class MetabolismUI : GameSystem
         const int padding = 8;
         const int gap = 8;
 
-        var viewportWidth = Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / GetUiScale()));
+        var viewportWidth = GameEngine.Instance.GetUiLogicalBounds(GetUiScale()).Width;
         var x = viewportWidth - (int)textSize.X - iconSize - padding * 2 - gap - 16;
         var y = 16;
         var width = (int)textSize.X + iconSize + padding * 2 + gap;
@@ -229,8 +231,11 @@ public class MetabolismUI : GameSystem
         var coinRect = new Rectangle(x + padding, y + (height - iconSize) / 2, iconSize, iconSize);
         DrawCoinIcon(coinRect);
 
-        _sb.DrawString(_font, text, new Vector2(coinRect.Right + gap, y + padding - 1), new Color(255, 230, 150));
+        _sb.DrawString(_font, text, Snap(new Vector2(coinRect.Right + gap, y + padding - 1)), new Color(255, 230, 150));
     }
+
+    private static Vector2 Snap(Vector2 position)
+        => new(MathF.Round(position.X), MathF.Round(position.Y));
 
     private void DrawCoinIcon(Rectangle rect)
     {

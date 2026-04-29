@@ -1,4 +1,4 @@
-<Menu Id="pause" Title="PAUSE">
+<Menu Id="pause" Title="--pm-title">
 
   <!-- Layout -->
   <Layout Margin="72" NavWidthPercent="0.28" NavMaxWidth="320" NavContentGap="20" PanelPadding="24" TitleBottomMargin="100" />
@@ -14,7 +14,7 @@
 
   <!-- Nav panel (left) -->
   <NavPanel Fill="#121C16_F0" Border="#486C50" BorderThickness="2"
-            Header="Pause Menu" HeaderDescription=""
+            Header="--pm-nav-header" HeaderDescription=""
             HeaderColor="#FFFFFF" HeaderDescColor="#96AC9C"
             ItemHeight="46" ItemGap="8" ItemStartY="66" />
 
@@ -31,27 +31,27 @@
              AccentBarWidth="4" AccentBarColor="#B4DE80" />
 
   <!-- Hint bar -->
-  <Hint Text="W/S move  Enter select  Esc resume" Color="#96AA96" OffsetX="24" OffsetY="32" Align="right-bottom" />
+  <Hint Text="--pm-hint" Color="#96AA96" OffsetX="24" OffsetY="32" Align="right-bottom" />
 
   <!-- Menu items -->
   <Items>
-    <Item Label="Продолжить"
-          Description="Вернуться в игру."
+    <Item Label="--pm-resume"
+          Description="--pm-resume-desc"
           Action="resume" />
-    <Item Label="Сохранить"
-          Description="Сохранить текущий мир в слот."
+    <Item Label="--pm-save"
+          Description="--pm-save-desc"
           Action="open_save" />
-    <Item Label="Загрузить"
-          Description="Загрузить выбранный слот сохранения."
+    <Item Label="--pm-load"
+          Description="--pm-load-desc"
           Action="open_load" />
-    <Item Label="Настройки"
-          Description="Изменить настройки, не покидая текущую сессию."
+    <Item Label="--pm-settings"
+          Description="--pm-settings-desc"
           Action="open_settings" />
-    <Item Label="Главное меню"
-          Description="Выйти в главное меню."
+    <Item Label="--pm-main-menu"
+          Description="--pm-main-menu-desc"
           Action="main_menu_confirm" />
-    <Item Label="Выход"
-          Description="Закрыть приложение."
+    <Item Label="--pm-exit"
+          Description="--pm-exit-desc"
           Action="exit_confirm" />
   </Items>
 

@@ -2,11 +2,14 @@
   "id": "gluten",
   "name": "Глютен",
   "category": "substance",
+  "base": "base_substance",
   "color": "#CDBF8FFF",
   "defaultAmount": 1,
   "volumePerUnit": 1,
   "absorptionTime": 9,
   "clearanceTime": 70,
-  "smells": ["зернисто"],
+  "smells": [
+    "зернисто"
+  ],
   "preparationHint": "Белковая часть теста и хлебных изделий."
 }

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
@@ -35,6 +36,9 @@ public class VisibilityOcclusionSystem : GameSystem
 
     public override void Draw()
     {
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
+            return;
+
         _graphicsDevice ??= ServiceLocator.Get<GraphicsDevice>();
         _spriteBatch ??= ServiceLocator.Get<SpriteBatch>();
         _camera ??= ServiceLocator.Get<Camera>();
@@ -70,9 +74,15 @@ public class VisibilityOcclusionSystem : GameSystem
         var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 3);
         var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 3);
         var shadowLength = MathF.Max(map.Width, map.Height) * map.TileSize * 2f;
+        var visibleWorldBounds = new Rectangle(
+            (int)topLeft.X - map.TileSize,
+            (int)topLeft.Y - map.TileSize,
+            (int)(bottomRight.X - topLeft.X) + map.TileSize * 2,
+            (int)(bottomRight.Y - topLeft.Y) + map.TileSize * 2);
 
         // Collect silhouette edges facing the player
         OccluderEdgeCollector.Collect(map, playerPos, startX, startY, endX, endY, _edges);
+        EntityOcclusionHelper.AppendVisionBlockerEdges(World, playerPos, visibleWorldBounds, _edges);
 
         _mainVertices.Clear();
         _featherVertices.Clear();
@@ -136,11 +146,8 @@ public class VisibilityOcclusionSystem : GameSystem
         _graphicsDevice.DepthStencilState = previousDepth;
 
         // Redraw visible opaque tiles on top so walls aren't hidden by their own shadows
-        RedrawVisibleOpaqueTiles(map, playerTile, new Rectangle(
-            (int)topLeft.X - map.TileSize,
-            (int)topLeft.Y - map.TileSize,
-            (int)(bottomRight.X - topLeft.X) + map.TileSize * 2,
-            (int)(bottomRight.Y - topLeft.Y) + map.TileSize * 2));
+        RedrawVisibleOpaqueTiles(map, playerTile, visibleWorldBounds);
+        RedrawVisibleVisionBlockers(map, playerPos, visibleWorldBounds);
     }
 
     private static BasicEffect BuildEffect(GraphicsDevice graphicsDevice)
@@ -176,7 +183,9 @@ public class VisibilityOcclusionSystem : GameSystem
             playerTile.Y * map.TileSize + map.TileSize * 0.5f);
 
         map.DrawFilteredWithPrototypes(_spriteBatch, visibleArea, _prototypes, _assets,
-            (x, y, tile) => tile.Opaque && IsOpaqueTileVisible(map, playerWorld, x, y));
+            (x, y, tile) => tile.Opaque
+                            && (tile.ProtoId == null || _prototypes.GetTile(tile.ProtoId)?.HiddenInGame != true)
+                            && IsOpaqueTileVisible(map, playerWorld, x, y));
 
         _spriteBatch.End();
     }
@@ -207,5 +216,50 @@ public class VisibilityOcclusionSystem : GameSystem
         }
 
         return false;
+    }
+
+    private void RedrawVisibleVisionBlockers(TileMap map, Vector2 playerWorld, Rectangle visibleArea)
+    {
+        if (_spriteBatch == null || _camera == null)
+            return;
+
+        _spriteBatch.Begin(
+            sortMode: SpriteSortMode.Deferred,
+            blendState: BlendState.AlphaBlend,
+            samplerState: SamplerState.PointClamp,
+            transformMatrix: _camera.GetViewMatrix());
+
+        var renderables = World.GetEntitiesWith<TransformComponent, SpriteComponent>()
+            .Where(entity => EntityOcclusionHelper.IsVisionBlocker(entity)
+                             && entity.GetComponent<SpriteComponent>()?.Visible == true
+                             && entity.GetComponent<SpriteComponent>()?.Texture != null);
+
+        foreach (var entity in renderables)
+        {
+            var transform = entity.GetComponent<TransformComponent>()!;
+            var sprite = entity.GetComponent<SpriteComponent>()!;
+            if (!EntityOcclusionHelper.TryGetBlockerBounds(entity, out var bounds))
+                continue;
+
+            if (!bounds.Intersects(visibleArea))
+                continue;
+
+            var targetPoint = bounds.Center.ToVector2();
+            if (!EntityOcclusionHelper.HasWorldLineOfSight(map, World, playerWorld, targetPoint, entity))
+                continue;
+
+            _spriteBatch.Draw(
+                sprite.Texture!,
+                transform.Position,
+                sprite.SourceRect,
+                sprite.Color,
+                transform.Rotation,
+                sprite.Origin,
+                transform.Scale,
+                SpriteEffects.None,
+                0f);
+        }
+
+        _spriteBatch.End();
     }
 }

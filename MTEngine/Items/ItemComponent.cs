@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MTEngine.Components;
+using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 
@@ -111,12 +112,14 @@ public class ItemComponent : Component, IInteractionSource
         // Check if actor can hold this item
         if (hands.CanPickUp(Owner!))
         {
-            var label = TwoHanded ? $"Взять ({ItemName}) [2H]" : $"Взять ({ItemName})";
+            var displayName = LocalizationManager.T(ItemName);
+            var label = TwoHanded ? $"Взять ({displayName}) [2H]" : $"Взять ({displayName})";
             yield return new InteractionEntry
             {
                 Id = "item.pickup",
                 Label = label,
                 Priority = 10,
+                IsPrimaryAction = true,
                 Execute = c =>
                 {
                     var h = c.Actor.GetComponent<HandsComponent>();

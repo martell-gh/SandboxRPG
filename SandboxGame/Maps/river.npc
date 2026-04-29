@@ -1,0 +1,116 @@
+[
+  {
+    "id": "npc_001",
+    "proto": "npc_base",
+    "ageYears": 25,
+    "identity": {
+      "firstName": "John",
+      "lastName": "Govno",
+      "gender": "Male",
+      "factionId": "fac_starks",
+      "settlementId": "city_devriver",
+      "districtId": ""
+    },
+    "personality": {
+      "infidelity": -1,
+      "vengefulness": -1,
+      "childWish": -1,
+      "marriageWish": -1,
+      "sociability": -1,
+      "pacifist": false
+    },
+    "skills": {
+      "Smithing": 15
+    },
+    "residence": {
+      "houseId": "area_1",
+      "bedSlotId": "bed@14,24"
+    },
+    "profession": {
+      "slotId": "area_2"
+    },
+    "kin": [],
+    "description": null,
+    "components": {
+      "schedule": {
+        "templateId": "default_worker",
+        "slots": [
+          {
+            "start": 0,
+            "end": 6,
+            "action": "Sleep",
+            "targetAreaId": "$house",
+            "priority": 20
+          },
+          {
+            "start": 6,
+            "end": 7,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 7,
+            "end": 12,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 12,
+            "end": 13,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 13,
+            "end": 16,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 16,
+            "end": 18,
+            "action": "Free",
+            "targetAreaId": "",
+            "priority": 8
+          },
+          {
+            "start": 18,
+            "end": 20,
+            "action": "StayAtHome",
+            "targetAreaId": "$house",
+            "priority": 10
+          },
+          {
+            "start": 20,
+            "end": 24,
+            "action": "Sleep",
+            "targetAreaId": "$house",
+            "priority": 20
+          }
+        ],
+        "freetime": [
+          {
+            "action": "Wander",
+            "priority": 1
+          },
+          {
+            "action": "Socialize",
+            "priority": 1,
+            "dayOnly": true
+          }
+        ]
+      }
+    },
+    "outfit": {
+      "torso": "heavy_armor",
+      "pants": "work_pants",
+      "shoes": "leather_boots"
+    },
+    "hands": [],
+    "inventory": []
+  }
+]

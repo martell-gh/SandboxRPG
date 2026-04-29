@@ -14,9 +14,11 @@ namespace MTEngine.Items;
 public class EquipmentComponent : Component, IInteractionSource
 {
     [DataField("slots")]
+    [SaveField("slots")]
     public string SlotIds { get; set; } = "torso,pants,shoes,back";
 
     [DataField("names")]
+    [SaveField("names")]
     public string SlotNames { get; set; } = "Torso,Pants,Shoes,Back";
 
     private List<EquipmentSlot>? _slots;
@@ -228,6 +230,22 @@ public class EquipmentComponent : Component, IInteractionSource
         }
 
         return Math.Max(0.1f, multiplier);
+    }
+
+    public float GetArmorResistance(Wounds.DamageType type)
+    {
+        var resistance = 0f;
+
+        foreach (var slot in Slots)
+        {
+            var wearable = slot.Item?.GetComponent<WearableComponent>();
+            if (wearable == null || wearable.IsBroken)
+                continue;
+
+            resistance += wearable.GetArmorResistance(type);
+        }
+
+        return Math.Clamp(resistance, 0f, 0.85f);
     }
 
     public IEnumerable<InteractionEntry> GetInteractions(InteractionContext ctx)

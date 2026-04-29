@@ -1,0 +1,30 @@
+{
+  "id": "bog_iron_ingot",
+  "name": "Bog Iron Ingot",
+  "category": "entity",
+  "base": "iron_ingot",
+  "components": {
+    "info": {
+      "description": "Грубый слиток болотного железа. Дешёвый и мягкий металл для самого простого оружия."
+    },
+    "item": {
+      "name": "Bog Iron Ingot",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 20,
+      "stack": 1,
+      "tags": [
+        "material",
+        "metal",
+        "ingot"
+      ]
+    },
+    "qualityTier": {
+      "tier": 4,
+      "label": "Болотное железо",
+      "shortLabel": "T4",
+      "tint": "#8F6A45"
+    }
+  }
+}

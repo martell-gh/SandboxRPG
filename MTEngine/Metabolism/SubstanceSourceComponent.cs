@@ -8,9 +8,11 @@ namespace MTEngine.Metabolism;
 public class SubstanceSourceComponent : Component, IPrototypeInitializable
 {
     [DataField("substances")]
+    [SaveField("substances")]
     public List<SubstanceReference> SubstanceRefs { get; set; } = new();
 
     [DataField("yieldMultiplier")]
+    [SaveField("yieldMultiplier")]
     public float YieldMultiplier { get; set; } = 1f;
 
     public List<SubstanceDose> Substances { get; private set; } = new();

@@ -15,17 +15,48 @@ public class TileAction
 
 public class EditorHistory
 {
-    private readonly Stack<List<TileAction>> _undo = new();
-    private readonly Stack<List<TileAction>> _redo = new();
+    private sealed class TileBatchAction
+    {
+        public required List<TileAction> Changes { get; init; }
+        public required long Order { get; init; }
+    }
+
+    private readonly EditorActionTracker _tracker;
+    private readonly Stack<TileBatchAction> _undo = new();
+    private readonly Stack<TileBatchAction> _redo = new();
     private List<TileAction>? _currentBatch;
+    private long _redoGeneration = -1;
 
     // ячейки изменённые в текущем батче — чтобы не дублировать
     private readonly HashSet<(int, int, int)> _currentBatchCells = new();
 
     public int UndoCount => _undo.Count;
-    public int RedoCount => _redo.Count;
+    public int RedoCount
+    {
+        get
+        {
+            InvalidateRedoIfNeeded();
+            return _redo.Count;
+        }
+    }
+
+    public long UndoOrder => _undo.Count > 0 ? _undo.Peek().Order : long.MinValue;
+
+    public long RedoOrder
+    {
+        get
+        {
+            InvalidateRedoIfNeeded();
+            return _redo.Count > 0 ? _redo.Peek().Order : long.MinValue;
+        }
+    }
 
     public bool IsBatchOpen => _currentBatch != null;
+
+    public EditorHistory(EditorActionTracker tracker)
+    {
+        _tracker = tracker;
+    }
 
     public void BeginBatch()
     {
@@ -59,8 +90,13 @@ public class EditorHistory
 
         if (_currentBatch.Count > 0)
         {
-            _undo.Push(_currentBatch);
+            _undo.Push(new TileBatchAction
+            {
+                Changes = _currentBatch,
+                Order = _tracker.CommitNewOperation()
+            });
             _redo.Clear();
+            _redoGeneration = -1;
             Console.WriteLine($"[History] Committed {_currentBatch.Count} tile changes. Undo stack: {_undo.Count}");
         }
 
@@ -68,36 +104,40 @@ public class EditorHistory
         _currentBatchCells.Clear();
     }
 
-    public void Undo(TileMap tileMap)
+    public bool Undo(TileMap tileMap)
     {
         if (_undo.Count == 0)
         {
             Console.WriteLine("[History] Nothing to undo.");
-            return;
+            return false;
         }
 
         var batch = _undo.Pop();
-        foreach (var action in batch)
+        foreach (var action in batch.Changes)
             tileMap.SetTile(action.X, action.Y, action.OldTile.Clone(), action.Layer);
 
         _redo.Push(batch);
-        Console.WriteLine($"[History] Undid {batch.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");
+        _redoGeneration = _tracker.CurrentRedoGeneration;
+        Console.WriteLine($"[History] Undid {batch.Changes.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");
+        return true;
     }
 
-    public void Redo(TileMap tileMap)
+    public bool Redo(TileMap tileMap)
     {
+        InvalidateRedoIfNeeded();
         if (_redo.Count == 0)
         {
             Console.WriteLine("[History] Nothing to redo.");
-            return;
+            return false;
         }
 
         var batch = _redo.Pop();
-        foreach (var action in batch)
+        foreach (var action in batch.Changes)
             tileMap.SetTile(action.X, action.Y, action.NewTile.Clone(), action.Layer);
 
         _undo.Push(batch);
-        Console.WriteLine($"[History] Redid {batch.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");
+        Console.WriteLine($"[History] Redid {batch.Changes.Count} tiles. Undo:{_undo.Count} Redo:{_redo.Count}");
+        return true;
     }
 
     public void Clear()
@@ -106,5 +146,18 @@ public class EditorHistory
         _redo.Clear();
         _currentBatch = null;
         _currentBatchCells.Clear();
+        _redoGeneration = -1;
+    }
+
+    private void InvalidateRedoIfNeeded()
+    {
+        if (_redo.Count == 0)
+            return;
+
+        if (_redoGeneration == _tracker.CurrentRedoGeneration)
+            return;
+
+        _redo.Clear();
+        _redoGeneration = -1;
     }
 }

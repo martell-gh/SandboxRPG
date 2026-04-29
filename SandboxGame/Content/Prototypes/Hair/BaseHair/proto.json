@@ -1,0 +1,19 @@
+{
+  "id": "base_hair",
+  "name": "Base Hair",
+  "category": "entity",
+  "base": "base_entity",
+  "abstract": true,
+  "components": {
+    "hairStyle": {
+      "displayName": "Base Hair",
+      "gender": "Unisex",
+      "sprite": "sprite.png",
+      "animations": "animations.json",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32
+    }
+  }
+}

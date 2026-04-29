@@ -48,7 +48,12 @@ public class TileMapRenderer : GameSystem
             transformMatrix: _camera.GetViewMatrix()
         );
 
-        TileMap.DrawWithPrototypes(_spriteBatch, visibleArea, _prototypes, _assets);
+        TileMap.DrawFilteredWithPrototypes(
+            _spriteBatch,
+            visibleArea,
+            _prototypes,
+            _assets,
+            (_, _, tile) => tile.ProtoId == null || _prototypes.GetTile(tile.ProtoId)?.HiddenInGame != true);
 
         _spriteBatch.End();
     }

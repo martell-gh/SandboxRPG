@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj": {}
+    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {}
   },
   "projects": {
-    "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj": {
+    "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj",
+        "projectUniqueName": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
         "projectName": "MTEditor",
-        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/mteditor/MTEditor.csproj",
+        "projectPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/MTEditor.csproj",
         "packagesPath": "/Users/more_tel/.nuget/packages/",
-        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/mteditor/obj/",
+        "outputPath": "/Users/more_tel/Desktop/SandboxRPG/MTEditor/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/more_tel/.nuget/NuGet/NuGet.Config"
@@ -47,6 +47,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "FontStashSharp.MonoGame": {
+              "target": "Package",
+              "version": "[1.5.4, )"
+            },
             "MonoGame.Content.Builder.Task": {
               "target": "Package",
               "version": "[3.8.4.1, )"

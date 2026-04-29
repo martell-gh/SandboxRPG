@@ -1,0 +1,76 @@
+{
+  "id": "iron_war_axe",
+  "name": "Iron War Axe",
+  "category": "entity",
+  "base": "base_weapon",
+  "components": {
+    "sprite": {
+      "source": "../Greatsword/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Тяжёлый одноручный боевой топор из железа. Размашистый удар, прочный обух — но требует уверенной руки."
+    },
+    "item": {
+      "name": "Iron War Axe",
+      "slots": 2,
+      "size": "Medium",
+      "tags": [
+        "weapon",
+        "melee",
+        "one-handed",
+        "axe"
+      ]
+    },
+    "qualityTier": {
+      "tier": 3,
+      "label": "Железо",
+      "shortLabel": "T3",
+      "tint": "#BFC6CF"
+    },
+    "weapon": {
+      "materials": [
+        "iron_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 22,
+      "minDamage": 16,
+      "maxDamage": 28,
+      "range": 48,
+      "windup": 0.55,
+      "accuracy": 0.86,
+      "verb": "Рубануть",
+      "blockBonus": 0.05
+    },
+    "craftable": {
+      "recipeFamily": "axe",
+      "recipeTier": 3,
+      "requiresRecipe": true,
+      "discoverableBySmelting": false,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 18,
+      "craftTime": 3.0,
+      "ingredients": [
+        {
+          "prototypeId": "iron_ingot",
+          "count": 3
+        },
+        {
+          "prototypeId": "wood",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

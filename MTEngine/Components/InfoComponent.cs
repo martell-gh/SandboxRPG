@@ -6,7 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using MTEngine.Core;
 using MTEngine.ECS;
 using MTEngine.Interactions;
+using MTEngine.Npc;
 using MTEngine.UI;
+using MTEngine.World;
 
 namespace MTEngine.Components;
 
@@ -24,13 +26,21 @@ public class InfoComponent : Component, IInteractionSource
 
     public IEnumerable<InteractionEntry> GetInteractions(InteractionContext ctx)
     {
+        if (Owner == null)
+            yield break;
+
+        var item = Owner.GetComponent<Items.ItemComponent>();
+        var isHeldByActor = item?.ContainedIn == ctx.Actor;
+        if (ctx.Target != Owner && !(isHeldByActor && ctx.Target == ctx.Actor))
+            yield break;
+
         yield return new InteractionEntry
         {
             Id = "info.examine",
             Label = "Инфо",
             Priority = -10,
             InterruptsCurrentAction = false,
-            Execute = c => OpenInfoWindow(c.Target)
+            Execute = _ => OpenInfoWindow(Owner)
         };
     }
 
@@ -49,9 +59,13 @@ public class InfoComponent : Component, IInteractionSource
         var info = target.GetComponent<InfoComponent>();
         var sprite = target.GetComponent<SpriteComponent>();
         var interactable = target.GetComponent<InteractableComponent>();
+        var identity = target.GetComponent<IdentityComponent>();
+        var age = target.GetComponent<AgeComponent>();
 
-        var name = interactable?.DisplayName ?? target.Name ?? "???";
-        var description = info?.Description ?? "";
+        var name = identity != null && !string.IsNullOrWhiteSpace(identity.FullName)
+            ? identity.FullName
+            : LocalizationManager.T(interactable?.DisplayName ?? target.Name ?? "???");
+        var description = ComposeEntityInfo(identity, age, target) + LocalizationManager.T(info?.Description ?? "");
         var font = GetUiFont(ui);
         const int windowWidth = 420;
         const int leftColumnWidth = 86;
@@ -59,9 +73,9 @@ public class InfoComponent : Component, IInteractionSource
         const int gap = 10;
         const int descriptionWidth = windowWidth - (panelPadding * 2) - leftColumnWidth - gap - 16;
         var wrappedDescription = WrapText(description, font, descriptionWidth, 1f);
-        var descriptionLines = CountLines(wrappedDescription);
-        var descriptionHeight = Math.Max(72, descriptionLines * 18 + 8);
-        var windowHeight = Math.Max(168, descriptionHeight + 28);
+        var descriptionHeight = MeasureWrappedTextHeight(wrappedDescription, font, 1f, 8);
+        var contentHeight = Math.Max(80, descriptionHeight) + panelPadding * 2;
+        var windowHeight = Math.Max(168, XmlWindow.DefaultTitleBarHeight + contentHeight);
 
         // Построить окно: слева вверху картинка + название, справа описание
         var xml = $@"<Window Id=""{windowId}"" Title=""{EscapeXml(name)}"" Width=""{windowWidth}"" Height=""{windowHeight}"" Closable=""true"">
@@ -144,6 +158,16 @@ public class InfoComponent : Component, IInteractionSource
     private static int CountLines(string text)
         => string.IsNullOrEmpty(text) ? 1 : text.Count(ch => ch == '\n') + 1;
 
+    private static int MeasureWrappedTextHeight(string wrappedText, SpriteFont? font, float scale, int extraPadding = 0)
+    {
+        if (font == null)
+            return 72;
+
+        var lineCount = CountLines(wrappedText);
+        var lineHeight = Math.Max(1, (int)MathF.Ceiling(font.LineSpacing * scale));
+        return lineCount * lineHeight + extraPadding;
+    }
+
     private static Point GetCenteredWindowPosition(int windowWidth, int windowHeight)
     {
         if (!ServiceLocator.Has<GraphicsDevice>())
@@ -157,4 +181,167 @@ public class InfoComponent : Component, IInteractionSource
 
     private static string EscapeXml(string text)
         => text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+
+    private static string ComposeEntityInfo(IdentityComponent? identity, AgeComponent? age, Entity target)
+    {
+        if (target.HasComponent<PlayerTagComponent>())
+            return ComposePlayerInfo(identity, age);
+
+        return ComposeNpcInfo(identity, age, target);
+    }
+
+    private static string ComposePlayerInfo(IdentityComponent? identity, AgeComponent? age)
+    {
+        var lines = new List<string>();
+        if (age != null && age.Years > 0)
+            lines.Add($"Возраст: {age.Years} {YearWord(age.Years)}");
+
+        var factionId = identity?.FactionId ?? "";
+        var faction = ResolveFactionName(factionId);
+        lines.Add($"Фракция: {(string.IsNullOrWhiteSpace(faction) ? "нет" : faction)}");
+
+        return lines.Count == 0 ? "" : string.Join("\n", lines) + "\n\n";
+    }
+
+    private static string ComposeNpcInfo(IdentityComponent? identity, AgeComponent? age, Entity target)
+    {
+        if (identity == null)
+            return "";
+
+        var lines = new List<string>();
+        if (!string.IsNullOrWhiteSpace(identity.FullName))
+            lines.Add($"Имя: {identity.FullName}");
+
+        lines.Add($"Пол: {(identity.Gender == Gender.Female ? "женский" : "мужской")}");
+
+        if (age != null && age.Years > 0)
+            lines.Add($"Возраст: {age.Years} {YearWord(age.Years)}");
+
+        if (!string.IsNullOrWhiteSpace(identity.SettlementId))
+        {
+            var residence = identity.SettlementId;
+            if (!string.IsNullOrWhiteSpace(identity.DistrictId))
+                residence += $", {identity.DistrictId}";
+            lines.Add($"Прописан: {residence}");
+        }
+
+        var kin = target.GetComponent<KinComponent>();
+        if (kin != null && kin.Links.Count > 0)
+            lines.Add($"Родня: {kin.Links.Count}");
+
+        var relationships = target.GetComponent<RelationshipsComponent>();
+        if (relationships != null)
+        {
+            var partnerLine = BuildPartnerLine(target, relationships);
+            if (!string.IsNullOrEmpty(partnerLine))
+                lines.Add(partnerLine);
+            else if (relationships.Status == RelationshipStatus.Widowed)
+                lines.Add(identity.Gender == Gender.Female ? "Вдова" : "Вдовец");
+        }
+
+        var playerRelLine = BuildPlayerRelationshipLines(target, relationships);
+        foreach (var line in playerRelLine)
+            lines.Add(line);
+
+        return string.Join("\n", lines) + "\n\n";
+    }
+
+    /// <summary>Returns "Жена: Имя" / "Возлюбленный: Имя" only for active relationships, otherwise empty.</summary>
+    private static string BuildPartnerLine(Entity target, RelationshipsComponent rel)
+    {
+        if (rel.Status is not (RelationshipStatus.Dating or RelationshipStatus.Engaged or RelationshipStatus.Married))
+            return "";
+
+        var (partnerName, partnerGender) = ResolvePartner(target, rel);
+        if (string.IsNullOrWhiteSpace(partnerName))
+            return "";
+
+        var role = PartnerRoleLabel(rel.Status, partnerGender);
+        return $"{role}: {partnerName}";
+    }
+
+    private static (string name, Gender gender) ResolvePartner(Entity target, RelationshipsComponent rel)
+    {
+        var world = target.World;
+        if (rel.PartnerIsPlayer)
+        {
+            var player = world?.GetEntitiesWith<PlayerTagComponent>().FirstOrDefault();
+            var pid = player?.GetComponent<IdentityComponent>();
+            var name = !string.IsNullOrWhiteSpace(pid?.FullName) ? pid!.FullName : "Игрок";
+            return (name, pid?.Gender ?? Gender.Male);
+        }
+
+        if (string.IsNullOrWhiteSpace(rel.PartnerNpcSaveId) || world == null)
+            return ("", Gender.Male);
+
+        foreach (var npc in world.GetEntitiesWith<SaveEntityIdComponent>())
+        {
+            var marker = npc.GetComponent<SaveEntityIdComponent>();
+            if (marker == null || !string.Equals(marker.SaveId, rel.PartnerNpcSaveId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var pid = npc.GetComponent<IdentityComponent>();
+            var name = !string.IsNullOrWhiteSpace(pid?.FullName) ? pid!.FullName : "";
+            return (name, pid?.Gender ?? Gender.Male);
+        }
+
+        return ("", Gender.Male);
+    }
+
+    private static string PartnerRoleLabel(RelationshipStatus status, Gender partnerGender)
+        => (status, partnerGender) switch
+        {
+            (RelationshipStatus.Married, Gender.Female) => "Жена",
+            (RelationshipStatus.Married, Gender.Male)   => "Муж",
+            (RelationshipStatus.Dating or RelationshipStatus.Engaged, Gender.Female) => "Возлюбленная",
+            (RelationshipStatus.Dating or RelationshipStatus.Engaged, Gender.Male)   => "Возлюбленный",
+            _ => "Партнёр"
+        };
+
+    private static IEnumerable<string> BuildPlayerRelationshipLines(Entity target, RelationshipsComponent? rel)
+    {
+        var lines = new List<string>();
+        var playerRel = target.GetComponent<RelationshipWithPlayerComponent>();
+        if (playerRel != null)
+        {
+            if (playerRel.Friendship > 0)
+                lines.Add($"Дружба с вами: {playerRel.Friendship}/100");
+            if (playerRel.Romance > 0)
+                lines.Add($"Романтика с вами: {playerRel.Romance}/100");
+        }
+
+        if (rel != null && rel.PlayerOpinion != 0)
+            lines.Add($"Мнение о вас: {rel.PlayerOpinion:+#;-#;0}");
+
+        return lines;
+    }
+
+    private static string YearWord(int years)
+    {
+        var n = Math.Abs(years) % 100;
+        if (n is >= 11 and <= 14)
+            return "лет";
+
+        return (n % 10) switch
+        {
+            1 => "год",
+            2 or 3 or 4 => "года",
+            _ => "лет"
+        };
+    }
+
+    private static string ResolveFactionName(string factionId)
+    {
+        if (string.IsNullOrWhiteSpace(factionId))
+            return "";
+
+        if (ServiceLocator.Has<MapManager>())
+        {
+            var faction = ServiceLocator.Get<MapManager>().GetFaction(factionId);
+            if (faction != null)
+                return LocalizationManager.T(string.IsNullOrWhiteSpace(faction.Name) ? faction.Id : faction.Name);
+        }
+
+        return factionId;
+    }
 }

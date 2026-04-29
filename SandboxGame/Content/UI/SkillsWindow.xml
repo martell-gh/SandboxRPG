@@ -1,0 +1,139 @@
+<Window Id="skillsView" Title="Навыки" Width="860" Height="410" Closable="true" Draggable="true">
+  <Panel Direction="Vertical" Padding="10" Gap="8">
+    <Panel Direction="Horizontal" Height="24">
+      <Label Text="Все навыки" Color="#8FD1B0" Scale="0.9" Width="640" Height="22" />
+      <Label Name="summaryLabel" Text="" Color="#88FF88" Scale="0.78" Width="180" Height="22" />
+    </Panel>
+    <Separator />
+
+    <Panel Direction="Horizontal" Gap="14" Height="328">
+      <Panel Direction="Vertical" Width="268" Gap="6">
+        <Label Text="Бой и выживание" Color="#BFE8D2" Scale="0.78" Height="18" />
+        <Separator />
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="fortitudeName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="fortitudeValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="fortitudeProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="dodgeName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="dodgeValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="dodgeProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="blockingName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="blockingValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="blockingProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="medicineName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="medicineValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="medicineProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+      </Panel>
+
+      <Panel Direction="Vertical" Width="268" Gap="6">
+        <Label Text="Оружие и улица" Color="#BFE8D2" Scale="0.78" Height="18" />
+        <Separator />
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="handToHandName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="handToHandValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="handToHandProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="oneHandedName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="oneHandedValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="oneHandedProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="twoHandedName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="twoHandedValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="twoHandedProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="rangedName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="rangedValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="rangedProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="thieveryName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="thieveryValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="thieveryProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="socialName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="socialValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="socialProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+      </Panel>
+
+      <Panel Direction="Vertical" Width="268" Gap="6">
+        <Label Text="Ремесло и обмен" Color="#BFE8D2" Scale="0.78" Height="18" />
+        <Separator />
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="tradeName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="tradeValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="tradeProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="craftsmanshipName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="craftsmanshipValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="craftsmanshipProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="smithingName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="smithingValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="smithingProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+
+        <Panel Direction="Vertical" Gap="4" Height="42">
+          <Panel Direction="Horizontal" Height="20">
+            <Label Name="tailoringName" Width="232" Height="20" Scale="0.82" />
+            <Label Name="tailoringValue" Width="28" Height="20" Scale="0.78" />
+          </Panel>
+          <ProgressBar Name="tailoringProgress" Height="12" ShowText="false" BackColor="#23272D" BorderColor="#5C7A5C" />
+        </Panel>
+      </Panel>
+    </Panel>
+  </Panel>
+</Window>

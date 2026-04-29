@@ -1,0 +1,45 @@
+{
+  "id": "crossbow",
+  "name": "Crossbow",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Арбалет. Бьёт точнее и сильнее лука, болт летит быстрее, но после выстрела его надо зарядить."
+    },
+    "item": {
+      "name": "Crossbow",
+      "slots": 3,
+      "size": "Large",
+      "twoHanded": true,
+      "tags": [
+        "weapon",
+        "ranged",
+        "crossbow",
+        "wood",
+        "metal"
+      ]
+    },
+    "rangedWeapon": {
+      "kind": "Crossbow",
+      "projectile": "arrow_projectile",
+      "damageType": "Slash",
+      "minDamage": 11,
+      "maxDamage": 18,
+      "projectileSpeed": 620,
+      "maxRange": 640,
+      "cooldown": 0.42,
+      "accuracy": 0.91,
+      "spreadDegrees": 3.2,
+      "crossbowReloadSeconds": 0.5
+    }
+  }
+}

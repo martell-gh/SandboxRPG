@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -7,9 +8,7 @@ namespace MTEditor.UI;
 
 public class SaveMapDialog
 {
-    private readonly SpriteFont _font;
     private readonly GraphicsDevice _graphics;
-    private Texture2D _pixel;
 
     public bool IsOpen { get; private set; } = false;
 
@@ -19,12 +18,9 @@ public class SaveMapDialog
     private Focus _focus = Focus.Id;
     private Action<string, string>? _onSave;
 
-    public SaveMapDialog(SpriteFont font, GraphicsDevice graphics)
+    public SaveMapDialog(GraphicsDevice graphics)
     {
-        _font = font;
         _graphics = graphics;
-        _pixel = new Texture2D(graphics, 1, 1);
-        _pixel.SetData(new[] { Color.White });
     }
 
     public void Open(string currentId, string currentName, Action<string, string> onSave)
@@ -69,7 +65,7 @@ public class SaveMapDialog
             }
             else
             {
-                var ch = KeyToChar(key, keys.IsKeyDown(Keys.LeftShift));
+                var ch = KeyToChar(key, keys.IsKeyDown(Keys.LeftShift), _focus == Focus.Name);
                 if (ch != '\0')
                 {
                     if (_focus == Focus.Id) _mapId += ch;
@@ -79,61 +75,78 @@ public class SaveMapDialog
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch sb)
     {
         if (!IsOpen) return;
 
         var vp = _graphics.Viewport;
-        spriteBatch.Draw(_pixel, new Rectangle(0, 0, vp.Width, vp.Height), Color.Black * 0.5f);
+        EditorTheme.FillRect(sb, new Rectangle(0, 0, vp.Width, vp.Height), Color.Black * 0.55f);
 
         var dialog = GetDialogRect();
-        spriteBatch.Draw(_pixel, dialog, Color.Black * 0.95f);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y, dialog.Width, 1), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Bottom - 1, dialog.Width, 1), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y, 1, dialog.Height), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.Right - 1, dialog.Y, 1, dialog.Height), Color.DarkGreen);
+        EditorTheme.DrawShadow(sb, dialog, 8);
+        EditorTheme.FillRect(sb, dialog, EditorTheme.Bg);
+        EditorTheme.DrawBorder(sb, dialog, EditorTheme.Border);
 
-        spriteBatch.DrawString(_font, "SAVE MAP", new Vector2(dialog.X + 10, dialog.Y + 8), Color.LimeGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y + 26, dialog.Width, 1), Color.DarkGreen * 0.4f);
+        // Title
+        var title = new Rectangle(dialog.X, dialog.Y, dialog.Width, 26);
+        EditorTheme.FillRect(sb, title, EditorTheme.Panel);
+        sb.Draw(EditorTheme.Pixel, new Rectangle(title.X, title.Bottom - 1, title.Width, 1), EditorTheme.Border);
+        sb.Draw(EditorTheme.Pixel, new Rectangle(title.X, title.Y, 3, title.Height), EditorTheme.Accent);
+        EditorTheme.DrawText(sb, EditorTheme.Medium, "SAVE MAP",
+            new Vector2(title.X + 12, title.Y + (title.Height - EditorTheme.Medium.MeasureString("SAVE MAP").Y) / 2f - 1),
+            EditorTheme.Text);
 
-        // Map ID
-        spriteBatch.DrawString(_font, "Map ID (filename, no spaces):", new Vector2(dialog.X + 10, dialog.Y + 34), Color.Gray);
-        var idRect = GetIdRect();
-        spriteBatch.Draw(_pixel, idRect, _focus == Focus.Id ? Color.DarkGreen * 0.7f : Color.Gray * 0.3f);
-        spriteBatch.DrawString(_font, _mapId + (_focus == Focus.Id ? "_" : ""), new Vector2(idRect.X + 4, idRect.Y + 4), Color.White);
+        var hint = "Tab — next    Enter — save    Esc — cancel";
+        var hintSize = EditorTheme.Tiny.MeasureString(hint);
+        EditorTheme.DrawText(sb, EditorTheme.Tiny, hint,
+            new Vector2(title.Right - hintSize.X - 10, title.Y + (title.Height - hintSize.Y) / 2f - 1),
+            EditorTheme.TextMuted);
 
-        // Map Name
-        spriteBatch.DrawString(_font, "Map Name:", new Vector2(dialog.X + 10, dialog.Y + 80), Color.Gray);
-        var nameRect = GetNameRect();
-        spriteBatch.Draw(_pixel, nameRect, _focus == Focus.Name ? Color.DarkGreen * 0.7f : Color.Gray * 0.3f);
-        spriteBatch.DrawString(_font, _mapName + (_focus == Focus.Name ? "_" : ""), new Vector2(nameRect.X + 4, nameRect.Y + 4), Color.White);
+        // Id field
+        EditorTheme.DrawText(sb, EditorTheme.Small, "Map ID (filename, no spaces)",
+            new Vector2(dialog.X + 14, dialog.Y + 38), EditorTheme.TextDim);
+        DrawField(sb, GetIdRect(), _mapId, _focus == Focus.Id);
 
-        // подсказки
-        spriteBatch.DrawString(_font, "Tab=next  Enter=save  Esc=cancel", new Vector2(dialog.X + 10, dialog.Y + 125), Color.Gray);
+        // Name field
+        EditorTheme.DrawText(sb, EditorTheme.Small, "Map Name",
+            new Vector2(dialog.X + 14, dialog.Y + 92), EditorTheme.TextDim);
+        DrawField(sb, GetNameRect(), _mapName, _focus == Focus.Name);
 
         if (string.IsNullOrWhiteSpace(_mapId))
-            spriteBatch.DrawString(_font, "ID cannot be empty!", new Vector2(dialog.X + 10, dialog.Y + 142), Color.Red);
+        {
+            EditorTheme.DrawText(sb, EditorTheme.Small, "ID cannot be empty",
+                new Vector2(dialog.X + 14, dialog.Bottom - 26), EditorTheme.Error);
+        }
+    }
+
+    private static void DrawField(SpriteBatch sb, Rectangle rect, string text, bool focused)
+    {
+        EditorTheme.FillRect(sb, rect, focused ? EditorTheme.BgDeep : EditorTheme.Panel);
+        EditorTheme.DrawBorder(sb, rect, focused ? EditorTheme.Accent : EditorTheme.Border);
+        EditorTheme.DrawText(sb, EditorTheme.Body, text + (focused ? "│" : ""),
+            new Vector2(rect.X + 6, rect.Y + (rect.Height - EditorTheme.Body.MeasureString("Ay").Y) / 2f - 1),
+            EditorTheme.Text);
     }
 
     private Rectangle GetDialogRect()
     {
         var vp = _graphics.Viewport;
-        return new Rectangle(vp.Width / 2 - 200, vp.Height / 2 - 90, 400, 170);
+        return new Rectangle(vp.Width / 2 - 210, vp.Height / 2 - 100, 420, 180);
     }
 
     private Rectangle GetIdRect()
     {
         var d = GetDialogRect();
-        return new Rectangle(d.X + 10, d.Y + 52, d.Width - 20, 22);
+        return new Rectangle(d.X + 14, d.Y + 56, d.Width - 28, 24);
     }
 
     private Rectangle GetNameRect()
     {
         var d = GetDialogRect();
-        return new Rectangle(d.X + 10, d.Y + 97, d.Width - 20, 22);
+        return new Rectangle(d.X + 14, d.Y + 110, d.Width - 28, 24);
     }
 
-    private static char KeyToChar(Keys key, bool shift)
+    private static char KeyToChar(Keys key, bool shift, bool allowSpaces)
     {
         if (key >= Keys.A && key <= Keys.Z)
             return shift ? (char)('A' + (key - Keys.A)) : (char)('a' + (key - Keys.A));
@@ -143,6 +156,7 @@ public class SaveMapDialog
         {
             Keys.OemMinus => '_',
             Keys.OemPeriod => '.',
+            Keys.Space when allowSpaces => ' ',
             _ => '\0'
         };
     }

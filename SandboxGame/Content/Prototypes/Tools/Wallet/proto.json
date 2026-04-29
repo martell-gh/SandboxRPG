@@ -2,6 +2,7 @@
   "id": "wallet",
   "name": "Wallet",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "../Lamp/sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Wallet",
       "slots": 1,
       "size": "Small",
-      "tags": ["wallet", "money"]
+      "tags": [
+        "wallet",
+        "money"
+      ]
     },
     "info": {
       "description": "Небольшой кошель для монет. Деньги из него можно пересыпать себе."

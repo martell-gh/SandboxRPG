@@ -1,0 +1,76 @@
+{
+  "id": "bog_iron_greatsword",
+  "name": "Bog-Iron Greatsword",
+  "category": "entity",
+  "base": "greatsword",
+  "components": {
+    "sprite": {
+      "source": "../Greatsword/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Грубый двуручник из болотного железа. Тяжёлый, мягкий и быстро тупится."
+    },
+    "item": {
+      "name": "Bog-Iron Greatsword",
+      "slots": 3,
+      "size": "Large",
+      "twoHanded": true,
+      "tags": [
+        "weapon",
+        "melee",
+        "two-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 4,
+      "label": "Болотное железо",
+      "shortLabel": "T4",
+      "tint": "#8F6A45"
+    },
+    "weapon": {
+      "materials": [
+        "bog_iron_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 21,
+      "minDamage": 16,
+      "maxDamage": 25,
+      "range": 56,
+      "windup": 0.64,
+      "accuracy": 0.86,
+      "verb": "Рубануть",
+      "blockBonus": 0.08
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 4,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 8,
+      "craftTime": 3.2,
+      "ingredients": [
+        {
+          "prototypeId": "bog_iron_ingot",
+          "count": 4
+        },
+        {
+          "prototypeId": "wood",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

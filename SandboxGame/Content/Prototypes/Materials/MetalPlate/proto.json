@@ -1,7 +1,8 @@
 {
   "id": "metal_plate",
-  "name": "Metal Plate",
+  "name": "Iron Plate",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,18 +12,26 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "info": {
-      "description": "Кованая металлическая пластина. Основной материал для изготовления брони и инструментов."
+      "description": "Обычная железная пластина. Надёжный, но без изысков кузнечный материал."
     },
     "item": {
-      "name": "Metal Plate",
+      "name": "Iron Plate",
       "size": "Small",
       "slots": 1,
       "stackable": true,
       "maxStack": 20,
       "stack": 1,
-      "tags": ["material", "metal"]
+      "tags": [
+        "material",
+        "metal"
+      ]
+    },
+    "qualityTier": {
+      "tier": 3,
+      "label": "Железо",
+      "shortLabel": "T3",
+      "tint": "#BFC6CF"
     }
   }
 }

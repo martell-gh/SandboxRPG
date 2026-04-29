@@ -1,0 +1,35 @@
+{
+  "id": "training_dummy",
+  "name": "Training Dummy",
+  "category": "entity",
+  "base": "base_furniture",
+  "components": {
+    "sprite": {
+      "source": "../../Actors/Player/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "collider": {
+      "width": 18,
+      "height": 18,
+      "offsetX": -9,
+      "offsetY": -9
+    },
+    "health": {
+      "health": 100,
+      "maxHealth": 100
+    },
+    "trainingDummy": {},
+    "info": {
+      "description": "Деревянный тренировочный манекен. Просто принимает урон и показывает его величину."
+    },
+    "interactable": {
+      "name": "Training Dummy",
+      "range": 72
+    }
+  }
+}

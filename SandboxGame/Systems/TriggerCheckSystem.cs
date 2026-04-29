@@ -40,6 +40,9 @@ public class TriggerCheckSystem : GameSystem
 
     public override void Update(float deltaTime)
     {
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
+            return;
+
         if (_mapManager.CurrentMap == null) return;
 
         var player = World.GetEntitiesWith<TransformComponent, PlayerTagComponent>().FirstOrDefault();

@@ -5,13 +5,16 @@ using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using MTEngine.Combat;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
+using MTEngine.Items;
 using MTEngine.Metabolism;
 using MTEngine.Systems;
 using MTEngine.World;
 using MTEngine.Wounds;
+using SandboxGame.Systems;
 
 namespace SandboxGame.Game;
 
@@ -20,12 +23,14 @@ public class ConsoleCommands
     private readonly GameEngine _engine;
     private readonly MapManager _mapManager;
     private readonly TileMapRenderer _tileMapRenderer;
+    private readonly GodModeSystem _godMode;
 
-    public ConsoleCommands(GameEngine engine, MapManager mapManager, TileMapRenderer tileMapRenderer)
+    public ConsoleCommands(GameEngine engine, MapManager mapManager, TileMapRenderer tileMapRenderer, GodModeSystem godMode = null)
     {
         _engine = engine;
         _mapManager = mapManager;
         _tileMapRenderer = tileMapRenderer;
+        _godMode = godMode;
         DevConsole.OnCommand = HandleCommand;
     }
 
@@ -40,14 +45,18 @@ public class ConsoleCommands
                 DevConsole.Log("  loadmap <id> [spawnId] - load map");
                 DevConsole.Log("  ingamemaps             - list maps marked for world simulation");
                 DevConsole.Log("  ingamemap <id> <on|off|toggle> - change inGame flag on a map");
+                DevConsole.Log("  god [on|off|toggle]    - observer/debug mode");
                 DevConsole.Log("  goto <spawnId>         - teleport");
                 DevConsole.Log("  time                   - show game time");
                 DevConsole.Log("  settime <0-24>         - set time of day");
                 DevConsole.Log("  timescale <x>          - speed of time");
                 DevConsole.Log("  lighting <on|off>      - toggle lighting");
-                DevConsole.Log("  spawn <protoId>        - spawn entity near player");
+                DevConsole.Log("  spawn <protoId> [count] - spawn entity near player (count for stackables)");
                 DevConsole.Log("  heal [value]           - heal player hp or fully heal");
                 DevConsole.Log("  hurt <value>           - damage player hp");
+                DevConsole.Log("  skills                 - list player skills");
+                DevConsole.Log("  skill <id> [value]     - get/set one skill (0-100)");
+                DevConsole.Log("  skilladd <id> <value>  - add to one skill (0-100)");
                 DevConsole.Log("  hunger [value]         - get/set hunger (0-100)");
                 DevConsole.Log("  thirst [value]         - get/set thirst (0-100)");
                 DevConsole.Log("  bladder [value]        - get/set bladder (0-100)");
@@ -155,6 +164,11 @@ public class ConsoleCommands
                 TeleportToSpawn(parts[1]);
                 break;
 
+            case "god":
+            case "godmode":
+                HandleGodModeCommand(parts);
+                break;
+
             case "time":
                 DevConsole.Log($"Time: {_engine.Clock.TimeString}  ({(int)_engine.Clock.Hour}h)  " +
                                $"{(_engine.Clock.IsDay ? "Day" : "Night")}");
@@ -188,8 +202,14 @@ public class ConsoleCommands
                 break;
 
             case "spawn":
-                if (parts.Length < 2) { DevConsole.Log("Usage: spawn <protoId>"); break; }
-                SpawnEntity(parts[1]);
+                if (parts.Length < 2) { DevConsole.Log("Usage: spawn <protoId> [count]"); break; }
+                var spawnCount = 1;
+                if (parts.Length >= 3 && (!int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out spawnCount) || spawnCount < 1))
+                {
+                    DevConsole.Log("Usage: spawn <protoId> [count]");
+                    break;
+                }
+                SpawnEntity(parts[1], spawnCount);
                 break;
 
             case "heal":
@@ -198,6 +218,18 @@ public class ConsoleCommands
 
             case "hurt":
                 HurtPlayer(parts);
+                break;
+
+            case "skills":
+                ShowSkills();
+                break;
+
+            case "skill":
+                HandleSkillCommand(parts);
+                break;
+
+            case "skilladd":
+                HandleSkillAddCommand(parts);
                 break;
 
             case "hunger":
@@ -267,6 +299,38 @@ public class ConsoleCommands
         DevConsole.Log($"Loaded: {mapId} @ {spawnId}");
     }
 
+    private void HandleGodModeCommand(string[] parts)
+    {
+        if (_godMode == null)
+        {
+            DevConsole.Log("God mode system is not available.");
+            return;
+        }
+
+        if (parts.Length < 2 || parts[1].Equals("toggle", StringComparison.OrdinalIgnoreCase))
+        {
+            _godMode.Toggle();
+            return;
+        }
+
+        switch (parts[1].ToLowerInvariant())
+        {
+            case "on":
+            case "1":
+            case "true":
+                _godMode.SetActive(true);
+                break;
+            case "off":
+            case "0":
+            case "false":
+                _godMode.SetActive(false);
+                break;
+            default:
+                DevConsole.Log("Usage: god [on|off|toggle]");
+                break;
+        }
+    }
+
     private void TeleportToSpawn(string spawnId)
     {
         var map = _mapManager.CurrentMap;
@@ -309,7 +373,16 @@ public class ConsoleCommands
         return (player, player.GetComponent<HealthComponent>()!);
     }
 
-    private void SpawnEntity(string protoId)
+    private (Entity, SkillComponent)? GetPlayerSkills()
+    {
+        var player = _engine.World
+            .GetEntitiesWith<PlayerTagComponent, SkillComponent>()
+            .FirstOrDefault();
+        if (player == null) { DevConsole.Log("Player has no skills."); return null; }
+        return (player, player.GetComponent<SkillComponent>()!);
+    }
+
+    private void SpawnEntity(string protoId, int count = 1)
     {
         var proto = _engine.Prototypes.GetEntity(protoId);
         if (proto == null)
@@ -329,17 +402,107 @@ public class ConsoleCommands
 
         var playerTransform = player.GetComponent<TransformComponent>()!;
         var spawnPos = playerTransform.Position + new Vector2(40, 0);
-        var entity = _engine.EntityFactory.CreateFromPrototype(proto, spawnPos);
-        if (entity == null)
+        var remaining = Math.Max(1, count);
+        var spawnedTotal = 0;
+
+        while (remaining > 0)
         {
-            DevConsole.Log($"Failed to spawn: {protoId}");
-            return;
+            var entity = _engine.EntityFactory.CreateFromPrototype(proto, spawnPos);
+            if (entity == null)
+            {
+                DevConsole.Log($"Failed to spawn: {protoId}");
+                return;
+            }
+
+            var item = entity.GetComponent<ItemComponent>();
+            if (item?.Stackable == true)
+            {
+                var stack = Math.Min(remaining, Math.Max(1, item.MaxStack));
+                item.StackCount = stack;
+                spawnedTotal += stack;
+                remaining -= stack;
+            }
+            else
+            {
+                spawnedTotal++;
+                remaining--;
+            }
         }
 
         if (ServiceLocator.Has<IWorldStateTracker>())
             ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
 
-        DevConsole.Log($"Spawned: {protoId}");
+        DevConsole.Log(spawnedTotal > 1 ? $"Spawned: {protoId} x{spawnedTotal}" : $"Spawned: {protoId}");
+    }
+
+    private void ShowSkills()
+    {
+        if (GetPlayerSkills() is not var (_, skills))
+            return;
+
+        foreach (var skill in Enum.GetValues<SkillType>())
+            DevConsole.Log($"  {GetSkillConsoleId(skill)} = {skills.GetSkill(skill):0.##}");
+    }
+
+    private void HandleSkillCommand(string[] parts)
+    {
+        if (parts.Length < 2)
+        {
+            DevConsole.Log("Usage: skill <id> [value]");
+            return;
+        }
+
+        if (!TryResolveSkill(parts[1], out var skill))
+        {
+            DevConsole.Log($"Unknown skill: {parts[1]}");
+            return;
+        }
+
+        if (GetPlayerSkills() is not var (_, skills))
+            return;
+
+        if (parts.Length < 3)
+        {
+            DevConsole.Log($"{GetSkillConsoleId(skill)} = {skills.GetSkill(skill):0.##}");
+            return;
+        }
+
+        if (!TryParseConsoleFloat(parts[2], out var value))
+        {
+            DevConsole.Log("Usage: skill <id> [value]");
+            return;
+        }
+
+        SetSkillValue(skills, skill, value);
+        DevConsole.Log($"{GetSkillConsoleId(skill)} = {skills.GetSkill(skill):0.##}");
+    }
+
+    private void HandleSkillAddCommand(string[] parts)
+    {
+        if (parts.Length < 3)
+        {
+            DevConsole.Log("Usage: skilladd <id> <value>");
+            return;
+        }
+
+        if (!TryResolveSkill(parts[1], out var skill))
+        {
+            DevConsole.Log($"Unknown skill: {parts[1]}");
+            return;
+        }
+
+        if (!TryParseConsoleFloat(parts[2], out var value))
+        {
+            DevConsole.Log("Usage: skilladd <id> <value>");
+            return;
+        }
+
+        if (GetPlayerSkills() is not var (_, skills))
+            return;
+
+        var nextValue = skills.GetSkill(skill) + value;
+        SetSkillValue(skills, skill, nextValue);
+        DevConsole.Log($"{GetSkillConsoleId(skill)} = {skills.GetSkill(skill):0.##}");
     }
 
     private void MetabSetValue(string[] parts, string field)
@@ -482,6 +645,96 @@ public class ConsoleCommands
         }
 
         DevConsole.Log($"Health: {health.Health:0.##}/{health.MaxHealth:0.##}");
+    }
+
+    private static bool TryResolveSkill(string raw, out SkillType skill)
+    {
+        var normalized = NormalizeSkillId(raw);
+        foreach (var candidate in Enum.GetValues<SkillType>())
+        {
+            if (NormalizeSkillId(GetSkillConsoleId(candidate)) == normalized
+                || NormalizeSkillId(candidate.ToString()) == normalized)
+            {
+                skill = candidate;
+                return true;
+            }
+        }
+
+        skill = default;
+        return false;
+    }
+
+    private static string GetSkillConsoleId(SkillType skill) => skill switch
+    {
+        SkillType.HandToHand => "hand_to_hand",
+        SkillType.OneHandedWeapons => "one_handed",
+        SkillType.TwoHandedWeapons => "two_handed",
+        _ => skill.ToString()
+    };
+
+    private static string NormalizeSkillId(string raw)
+        => new string(raw
+            .Trim()
+            .ToLowerInvariant()
+            .Where(char.IsLetterOrDigit)
+            .ToArray());
+
+    private static bool TryParseConsoleFloat(string raw, out float value)
+        => float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+
+    private void SetSkillValue(SkillComponent skills, SkillType skill, float value)
+    {
+        value = Math.Clamp(value, 0f, 100f);
+        ForceSetSkillValue(skills, skill, value);
+
+        if (ServiceLocator.Has<IWorldStateTracker>())
+            ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
+    }
+
+    private static void ForceSetSkillValue(SkillComponent skills, SkillType skill, float value)
+    {
+        switch (skill)
+        {
+            case SkillType.Fortitude:
+                skills.Fortitude = value;
+                break;
+            case SkillType.Dodge:
+                skills.Dodge = value;
+                break;
+            case SkillType.Blocking:
+                skills.Blocking = value;
+                break;
+            case SkillType.HandToHand:
+                skills.HandToHand = value;
+                break;
+            case SkillType.OneHandedWeapons:
+                skills.OneHandedWeapons = value;
+                break;
+            case SkillType.TwoHandedWeapons:
+                skills.TwoHandedWeapons = value;
+                break;
+            case SkillType.Medicine:
+                skills.Medicine = value;
+                break;
+            case SkillType.Thievery:
+                skills.Thievery = value;
+                break;
+            case SkillType.Social:
+                skills.Social = value;
+                break;
+            case SkillType.Trade:
+                skills.Trade = value;
+                break;
+            case SkillType.Craftsmanship:
+                skills.Craftsmanship = value;
+                break;
+            case SkillType.Smithing:
+                skills.Smithing = value;
+                break;
+            case SkillType.Tailoring:
+                skills.Tailoring = value;
+                break;
+        }
     }
 
     private static IEnumerable<PropertyInfo> GetDisplayProperties(Type type)

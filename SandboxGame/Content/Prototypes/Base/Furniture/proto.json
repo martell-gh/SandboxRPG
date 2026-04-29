@@ -1,0 +1,16 @@
+{
+  "id": "base_furniture",
+  "name": "Base Furniture",
+  "category": "entity",
+  "base": "base_entity",
+  "abstract": true,
+  "components": {
+    "info": {
+      "description": ""
+    },
+    "interactable": {
+      "name": "Furniture",
+      "range": 48
+    }
+  }
+}

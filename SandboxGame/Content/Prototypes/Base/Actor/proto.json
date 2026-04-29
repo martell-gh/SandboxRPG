@@ -1,0 +1,29 @@
+{
+  "id": "base_actor",
+  "name": "Base Actor",
+  "category": "entity",
+  "base": "base_entity",
+  "abstract": true,
+  "components": {
+    "collider": {
+      "width": 20,
+      "height": 20,
+      "offsetX": -10,
+      "offsetY": -10
+    },
+    "hands": {
+      "count": 2,
+      "names": "Left,Right"
+    },
+    "equipment": {
+      "slots": "torso,pants,shoes,back",
+      "names": "Torso,Pants,Shoes,Back"
+    },
+    "health": {
+      "health": 100,
+      "maxHealth": 100
+    },
+    "wounds": {},
+    "velocity": { "speed": 100 }
+  }
+}

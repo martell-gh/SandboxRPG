@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -36,9 +37,7 @@ public class TilePalette
 
     private readonly PrototypeManager _prototypes;
     private readonly AssetManager _assets;
-    private readonly SpriteFont _font;
     private readonly GraphicsDevice _graphics;
-    private readonly Texture2D _pixel;
 
     private readonly List<TileEntry> _tileEntries = new();
     private readonly List<PrototypeRow> _prototypeRows = new();
@@ -52,45 +51,63 @@ public class TilePalette
     private Rectangle _tileNextPageButton;
     private Rectangle _tileContentRect;
     private Rectangle _prototypeContentRect;
-    private Rectangle _tileHeaderRect;
-    private Rectangle _prototypeHeaderRect;
     private Rectangle _tileFooterRect;
     private Rectangle _tileWindowRect;
     private Rectangle _prototypeWindowRect;
+    private Rectangle _tileHeaderRect;
+    private Rectangle _prototypeHeaderRect;
     private Rectangle _hoveredTileRect;
     private Rectangle _hoveredPrototypeRect;
 
     public string? SelectedTileId { get; private set; }
     public string? SelectedEntityId { get; private set; }
     public PalettePanel HoveredPanel { get; private set; } = PalettePanel.None;
-    public PalettePanel SelectedPanel { get; private set; } = PalettePanel.Tiles;
     public EditorGame.Tool? PendingToolSwitch { get; private set; }
     public Rectangle Bounds { get; private set; }
 
-    private const int SidebarWidth = 360;
-    private const int WindowGap = 12;
-    private const int OuterPadding = 12;
-    private const int PanelPadding = 12;
-    private const int HeaderHeight = 0;
-    private const int FooterHeight = 34;
-    private const int TitleBlockHeight = 56;
-    private const int TileRowHeight = 54;
-    private const int CategoryRowHeight = 34;
-    private const int PrototypeRowHeight = 56;
-    private const int IconSize = 24;
-    private const int ButtonWidth = 28;
-    private const int TopChrome = 170;
-    private const int BottomChrome = 46;
+    public void ClearSelectedEntity() => SelectedEntityId = null;
+    public void ClearSelectedTile() => SelectedTileId = null;
 
-    public TilePalette(PrototypeManager prototypes, AssetManager assets, SpriteFont font, GraphicsDevice graphics)
+    public void Refresh()
+    {
+        var selectedTileId = SelectedTileId;
+        var selectedEntityId = SelectedEntityId;
+
+        BuildTileEntries();
+        BuildPrototypeRows();
+
+        SelectedTileId = selectedTileId != null && _tileEntries.Any(entry => entry.Tile.Id == selectedTileId)
+            ? selectedTileId
+            : _tileEntries.FirstOrDefault()?.Tile.Id;
+        SelectedEntityId = selectedEntityId != null && _prototypeRows.Any(row => !row.IsCategory && row.Prototype?.Id == selectedEntityId)
+            ? selectedEntityId
+            : _prototypeRows.FirstOrDefault(row => !row.IsCategory)?.Prototype?.Id;
+
+        ClampPages();
+    }
+
+    // UE-style compact sidebar
+    private const int SidebarWidth = 300;
+    private const int WindowGap = 6;
+    private const int OuterPadding = 8;
+    private const int PanelPadding = 6;
+    private const int HeaderHeight = 22;
+    private const int FooterHeight = 22;
+    private const int TileRowHeight = 36;
+    private const int CategoryRowHeight = 22;
+    private const int PrototypeRowHeight = 36;
+    private const int IconSize = 24;
+    private const int ButtonWidth = 22;
+    // top chrome = global menubar + tabs + local menubar
+    private const int TopChrome = 72;
+    // bottom chrome = StatusBar (22)
+    private const int BottomChrome = 22;
+
+    public TilePalette(PrototypeManager prototypes, AssetManager assets, GraphicsDevice graphics)
     {
         _prototypes = prototypes;
         _assets = assets;
-        _font = font;
         _graphics = graphics;
-
-        _pixel = new Texture2D(graphics, 1, 1);
-        _pixel.SetData(new[] { Color.White });
 
         BuildTileEntries();
         BuildPrototypeRows();
@@ -125,16 +142,25 @@ public class TilePalette
             HandleClick(point);
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, EditorGame.Tool activeTool)
     {
         UpdateLayout();
 
-        DrawWindow(spriteBatch, _tileWindowRect, "Tiles", "Terrain and collision tiles");
-        DrawWindow(spriteBatch, _prototypeWindowRect, "Prototypes", "Placeable entity prototypes");
+        var activePanel = GetActivePanel(activeTool);
 
-        DrawTilePanel(spriteBatch);
-        DrawPrototypePanel(spriteBatch);
+        DrawWindow(spriteBatch, _tileWindowRect, _tileHeaderRect, "TILES", activePanel == PalettePanel.Tiles);
+        DrawWindow(spriteBatch, _prototypeWindowRect, _prototypeHeaderRect, "PROTOTYPES", activePanel == PalettePanel.Prototypes);
+
+        DrawTilePanel(spriteBatch, activePanel == PalettePanel.Tiles);
+        DrawPrototypePanel(spriteBatch, activePanel == PalettePanel.Prototypes);
     }
+
+    private static PalettePanel GetActivePanel(EditorGame.Tool activeTool) => activeTool switch
+    {
+        EditorGame.Tool.TilePainter => PalettePanel.Tiles,
+        EditorGame.Tool.EntityPainter => PalettePanel.Prototypes,
+        _ => PalettePanel.None
+    };
 
     private void BuildTileEntries()
     {
@@ -186,43 +212,49 @@ public class TilePalette
     private void UpdateLayout()
     {
         var viewport = _graphics.Viewport;
-        var width = Math.Min(SidebarWidth, Math.Max(280, viewport.Width / 3));
-        var height = viewport.Height - TopChrome - BottomChrome - OuterPadding * 2;
+        var width = Math.Min(SidebarWidth, Math.Max(260, viewport.Width / 3));
+        var availableHeight = viewport.Height - TopChrome - BottomChrome - OuterPadding * 2;
         var top = TopChrome + OuterPadding;
 
         _tileWindowRect = new Rectangle(
             OuterPadding,
             top,
             width,
-            height / 2 - WindowGap / 2);
+            availableHeight / 2 - WindowGap / 2);
 
         _prototypeWindowRect = new Rectangle(
             OuterPadding,
             _tileWindowRect.Bottom + WindowGap,
             width,
-            height - _tileWindowRect.Height - WindowGap);
+            availableHeight - _tileWindowRect.Height - WindowGap);
 
-        _tileHeaderRect = new Rectangle(_tileWindowRect.X + PanelPadding, _tileWindowRect.Y + PanelPadding + TitleBlockHeight + 8, _tileWindowRect.Width - PanelPadding * 2, HeaderHeight);
-        _prototypeHeaderRect = new Rectangle(_prototypeWindowRect.X + PanelPadding, _prototypeWindowRect.Y + PanelPadding + TitleBlockHeight + 8, _prototypeWindowRect.Width - PanelPadding * 2, HeaderHeight);
+        _tileHeaderRect = new Rectangle(
+            _tileWindowRect.X, _tileWindowRect.Y, _tileWindowRect.Width, HeaderHeight);
+        _prototypeHeaderRect = new Rectangle(
+            _prototypeWindowRect.X, _prototypeWindowRect.Y, _prototypeWindowRect.Width, HeaderHeight);
 
-        _tileFooterRect = new Rectangle(_tileWindowRect.X + PanelPadding, _tileWindowRect.Bottom - PanelPadding - FooterHeight, _tileWindowRect.Width - PanelPadding * 2, FooterHeight);
+        _tileFooterRect = new Rectangle(
+            _tileWindowRect.X + PanelPadding,
+            _tileWindowRect.Bottom - PanelPadding - FooterHeight,
+            _tileWindowRect.Width - PanelPadding * 2,
+            FooterHeight);
 
         _tileContentRect = new Rectangle(
             _tileWindowRect.X + PanelPadding,
-            _tileHeaderRect.Bottom + 8,
+            _tileHeaderRect.Bottom + 4,
             _tileWindowRect.Width - PanelPadding * 2,
-            _tileFooterRect.Y - (_tileHeaderRect.Bottom + 16));
+            _tileFooterRect.Y - _tileHeaderRect.Bottom - 8);
 
         _prototypeContentRect = new Rectangle(
             _prototypeWindowRect.X + PanelPadding,
-            _prototypeHeaderRect.Bottom + 8,
+            _prototypeHeaderRect.Bottom + 4,
             _prototypeWindowRect.Width - PanelPadding * 2,
-            _prototypeWindowRect.Bottom - PanelPadding - (_prototypeHeaderRect.Bottom + 16));
+            _prototypeWindowRect.Bottom - PanelPadding - _prototypeHeaderRect.Bottom - 4);
 
         _tileItemsPerPage = Math.Max(1, _tileContentRect.Height / TileRowHeight);
 
-        _tilePrevPageButton = new Rectangle(_tileFooterRect.X, _tileFooterRect.Y + 2, ButtonWidth, FooterHeight - 4);
-        _tileNextPageButton = new Rectangle(_tileFooterRect.Right - ButtonWidth, _tileFooterRect.Y + 2, ButtonWidth, FooterHeight - 4);
+        _tilePrevPageButton = new Rectangle(_tileFooterRect.X, _tileFooterRect.Y, ButtonWidth, _tileFooterRect.Height);
+        _tileNextPageButton = new Rectangle(_tileFooterRect.Right - ButtonWidth, _tileFooterRect.Y, ButtonWidth, _tileFooterRect.Height);
 
         Bounds = Rectangle.Union(_tileWindowRect, _prototypeWindowRect);
         ClampPages();
@@ -277,7 +309,6 @@ public class TilePalette
 
         if (_tileWindowRect.Contains(point))
         {
-            SelectedPanel = PalettePanel.Tiles;
             foreach (var entry in _tileEntries)
             {
                 if (entry.Bounds.IsEmpty || !entry.Bounds.Contains(point))
@@ -291,7 +322,6 @@ public class TilePalette
 
         if (_prototypeWindowRect.Contains(point))
         {
-            SelectedPanel = PalettePanel.Prototypes;
             foreach (var row in _prototypeRows)
             {
                 if (row.Bounds.IsEmpty || !row.Bounds.Contains(point))
@@ -312,20 +342,30 @@ public class TilePalette
         }
     }
 
-    private void DrawWindow(SpriteBatch spriteBatch, Rectangle rect, string title, string subtitle)
+    private void DrawWindow(SpriteBatch sb, Rectangle rect, Rectangle headerRect, string title, bool isActive)
     {
-        var isActive = SelectedPanel == PalettePanel.Tiles && rect == _tileWindowRect
-            || SelectedPanel == PalettePanel.Prototypes && rect == _prototypeWindowRect;
+        // Panel body
+        EditorTheme.FillRect(sb, rect, EditorTheme.Bg);
+        EditorTheme.DrawBorder(sb, rect, EditorTheme.Border);
 
-        var fill = isActive ? new Color(13, 19, 21, 240) : new Color(10, 14, 16, 228);
-        var border = isActive ? new Color(86, 118, 96) : new Color(54, 74, 62);
+        // Header
+        EditorTheme.FillRect(sb, headerRect, isActive ? EditorTheme.PanelActive : EditorTheme.Panel);
+        sb.Draw(EditorTheme.Pixel,
+            new Rectangle(headerRect.X, headerRect.Bottom - 1, headerRect.Width, 1),
+            EditorTheme.Border);
 
-        DrawPanel(spriteBatch, rect, fill, border, 2);
-        DrawText(spriteBatch, title.ToUpperInvariant(), new Vector2(rect.X + PanelPadding, rect.Y + PanelPadding - 2), Color.White);
-        DrawText(spriteBatch, subtitle, new Vector2(rect.X + PanelPadding, rect.Y + PanelPadding + 28), new Color(150, 170, 156));
+        if (isActive)
+            sb.Draw(EditorTheme.Pixel,
+                new Rectangle(headerRect.X, headerRect.Y, 3, headerRect.Height),
+                EditorTheme.Accent);
+
+        var titleSize = EditorTheme.Small.MeasureString(title);
+        EditorTheme.DrawText(sb, EditorTheme.Small, title,
+            new Vector2(headerRect.X + 10, headerRect.Y + (headerRect.Height - titleSize.Y) / 2f - 1),
+            isActive ? Color.White : EditorTheme.TextDim);
     }
 
-    private void DrawTilePanel(SpriteBatch spriteBatch)
+    private void DrawTilePanel(SpriteBatch spriteBatch, bool panelActive)
     {
         var pageStart = _tilePage * _tileItemsPerPage;
         var pageItems = _tileEntries.Skip(pageStart).Take(_tileItemsPerPage).ToList();
@@ -336,11 +376,11 @@ public class TilePalette
 
         foreach (var entry in pageItems)
         {
-            entry.Bounds = new Rectangle(_tileContentRect.X, y, _tileContentRect.Width, TileRowHeight - 4);
+            entry.Bounds = new Rectangle(_tileContentRect.X, y, _tileContentRect.Width, TileRowHeight - 2);
             DrawPaletteRow(
                 spriteBatch,
                 entry.Bounds,
-                entry.Tile.Id == SelectedTileId,
+                panelActive && entry.Tile.Id == SelectedTileId,
                 entry.Bounds == _hoveredTileRect,
                 GetTileTexture(entry.Tile),
                 GetTileSourceRect(entry.Tile),
@@ -352,7 +392,7 @@ public class TilePalette
         DrawPager(spriteBatch, _tileFooterRect, _tilePrevPageButton, _tileNextPageButton, _tilePage, GetTilePageCount());
     }
 
-    private void DrawPrototypePanel(SpriteBatch spriteBatch)
+    private void DrawPrototypePanel(SpriteBatch spriteBatch, bool panelActive)
     {
         var pageRows = _prototypeRows.Skip(_prototypeScrollIndex).ToList();
         var y = _prototypeContentRect.Y;
@@ -363,10 +403,10 @@ public class TilePalette
         foreach (var row in pageRows)
         {
             var height = row.IsCategory ? CategoryRowHeight : PrototypeRowHeight;
-            if (y + height - 4 > _prototypeContentRect.Bottom)
+            if (y + height - 2 > _prototypeContentRect.Bottom)
                 break;
 
-            row.Bounds = new Rectangle(_prototypeContentRect.X, y, _prototypeContentRect.Width, height - 4);
+            row.Bounds = new Rectangle(_prototypeContentRect.X, y, _prototypeContentRect.Width, height - 2);
 
             if (row.IsCategory)
             {
@@ -378,7 +418,7 @@ public class TilePalette
                 DrawPaletteRow(
                     spriteBatch,
                     row.Bounds,
-                    row.Prototype!.Id == SelectedEntityId,
+                    panelActive && row.Prototype!.Id == SelectedEntityId,
                     row.Bounds == _hoveredPrototypeRect,
                     GetEntityTexture(row.Prototype!),
                     GetEntitySourceRect(row.Prototype!),
@@ -390,63 +430,74 @@ public class TilePalette
         }
     }
 
-    private void DrawPaletteRow(SpriteBatch spriteBatch, Rectangle rect, bool selected, bool hovered, Texture2D texture, Rectangle? src, string title, string subtitle)
+    private void DrawPaletteRow(SpriteBatch sb, Rectangle rect, bool selected, bool hovered,
+                                Texture2D texture, Rectangle? src, string title, string subtitle)
     {
-        var bg = selected
-            ? new Color(56, 88, 67, 230)
-            : hovered ? new Color(30, 43, 37, 226)
-            : new Color(18, 25, 24, 220);
-        var border = selected ? new Color(154, 198, 128) : hovered ? new Color(86, 118, 96) : new Color(56, 78, 64);
+        Color bg;
+        if (selected) bg = EditorTheme.Accent;
+        else if (hovered) bg = EditorTheme.PanelHover;
+        else bg = EditorTheme.PanelAlt;
 
-        DrawPanel(spriteBatch, rect, bg, border, 1);
+        EditorTheme.FillRect(sb, rect, bg);
+        if (selected)
+            sb.Draw(EditorTheme.Pixel, new Rectangle(rect.X, rect.Y, 2, rect.Height), Color.White);
 
-        var iconRect = new Rectangle(rect.X + 8, rect.Y + (rect.Height - IconSize) / 2, IconSize, IconSize);
-        spriteBatch.Draw(texture, iconRect, src, Color.White);
-        var textX = iconRect.Right + 10;
-        var titleY = rect.Y + 7;
-        DrawText(spriteBatch, title, new Vector2(textX, titleY), Color.White);
+        var iconRect = new Rectangle(rect.X + 6, rect.Y + (rect.Height - IconSize) / 2, IconSize, IconSize);
+        sb.Draw(texture, iconRect, src, Color.White);
 
+        var textX = iconRect.Right + 8;
+        var textColor = selected ? Color.White : EditorTheme.Text;
+        var subColor  = selected ? new Color(220, 230, 255) : EditorTheme.TextMuted;
+
+        var titleSize = EditorTheme.Small.MeasureString(title);
+        var subSize = EditorTheme.Tiny.MeasureString(subtitle);
+        var textBlockH = titleSize.Y + subSize.Y + 1;
+        var ty = rect.Y + (rect.Height - textBlockH) / 2f - 1;
+
+        EditorTheme.DrawText(sb, EditorTheme.Small, title, new Vector2(textX, ty), textColor);
         if (!string.IsNullOrWhiteSpace(subtitle))
-            DrawText(spriteBatch, subtitle, new Vector2(textX, titleY + 20), new Color(132, 152, 140));
+            EditorTheme.DrawText(sb, EditorTheme.Tiny, subtitle, new Vector2(textX, ty + titleSize.Y), subColor);
     }
 
-    private void DrawCategoryRow(SpriteBatch spriteBatch, Rectangle rect, bool hovered, bool expanded, string label)
+    private void DrawCategoryRow(SpriteBatch sb, Rectangle rect, bool hovered, bool expanded, string label)
     {
-        var bg = hovered ? new Color(31, 43, 37, 224) : new Color(20, 29, 26, 220);
-        DrawPanel(spriteBatch, rect, bg, new Color(56, 78, 64), 1);
-        DrawText(spriteBatch, expanded ? $"v {label}" : $"> {label}", new Vector2(rect.X + 10, rect.Y + 7), new Color(210, 220, 170));
+        EditorTheme.FillRect(sb, rect, hovered ? EditorTheme.PanelHover : EditorTheme.Panel);
+        sb.Draw(EditorTheme.Pixel,
+            new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1),
+            EditorTheme.Divider);
+        var arrow = expanded ? "▾" : "▸";
+        var labelText = $"{arrow} {label.ToUpperInvariant()}";
+        var size = EditorTheme.Small.MeasureString(labelText);
+        EditorTheme.DrawText(sb, EditorTheme.Small, labelText,
+            new Vector2(rect.X + 8, rect.Y + (rect.Height - size.Y) / 2f - 1),
+            EditorTheme.TextDim);
     }
 
-    private void DrawPager(SpriteBatch spriteBatch, Rectangle footerRect, Rectangle prevButton, Rectangle nextButton, int currentPage, int totalPages)
+    private void DrawPager(SpriteBatch sb, Rectangle footerRect, Rectangle prevButton, Rectangle nextButton, int currentPage, int totalPages)
     {
-        DrawPanel(spriteBatch, footerRect, new Color(16, 22, 20, 220), new Color(62, 92, 70), 1);
-        DrawPagerButton(spriteBatch, prevButton, "<", currentPage > 0);
-        DrawPagerButton(spriteBatch, nextButton, ">", currentPage < totalPages - 1);
+        EditorTheme.FillRect(sb, footerRect, EditorTheme.Panel);
+        sb.Draw(EditorTheme.Pixel,
+            new Rectangle(footerRect.X, footerRect.Y, footerRect.Width, 1),
+            EditorTheme.Border);
 
-        var label = $"Page {currentPage + 1}/{Math.Max(1, totalPages)}";
-        var size = _font.MeasureString(label);
-        DrawText(spriteBatch, label, new Vector2(footerRect.Center.X - size.X / 2f, footerRect.Y + 7), new Color(190, 208, 192));
+        DrawPagerButton(sb, prevButton, "◀", currentPage > 0);
+        DrawPagerButton(sb, nextButton, "▶", currentPage < totalPages - 1);
+
+        var label = $"{currentPage + 1} / {Math.Max(1, totalPages)}";
+        var size = EditorTheme.Small.MeasureString(label);
+        EditorTheme.DrawText(sb, EditorTheme.Small, label,
+            new Vector2(footerRect.Center.X - size.X / 2f, footerRect.Y + (footerRect.Height - size.Y) / 2f - 1),
+            EditorTheme.TextDim);
     }
 
-    private void DrawPagerButton(SpriteBatch spriteBatch, Rectangle rect, string label, bool enabled)
+    private void DrawPagerButton(SpriteBatch sb, Rectangle rect, string label, bool enabled)
     {
-        DrawPanel(spriteBatch, rect, enabled ? new Color(34, 48, 40, 220) : new Color(20, 24, 22, 180), new Color(74, 102, 84), 1);
-        var size = _font.MeasureString(label);
-        DrawText(spriteBatch, label, new Vector2(rect.Center.X - size.X / 2f, rect.Y + 6), enabled ? Color.White : Color.Gray);
-    }
-
-    private void DrawPanel(SpriteBatch spriteBatch, Rectangle rect, Color fill, Color border, int borderThickness)
-    {
-        spriteBatch.Draw(_pixel, rect, fill);
-        spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, borderThickness), border);
-        spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - borderThickness, rect.Width, borderThickness), border);
-        spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, borderThickness, rect.Height), border);
-        spriteBatch.Draw(_pixel, new Rectangle(rect.Right - borderThickness, rect.Y, borderThickness, rect.Height), border);
-    }
-
-    private void DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color)
-    {
-        spriteBatch.DrawString(_font, text, position, color);
+        EditorTheme.FillRect(sb, rect, enabled ? EditorTheme.PanelAlt : EditorTheme.Panel);
+        EditorTheme.DrawBorder(sb, rect, EditorTheme.Border);
+        var size = EditorTheme.Small.MeasureString(label);
+        EditorTheme.DrawText(sb, EditorTheme.Small, label,
+            new Vector2(rect.Center.X - size.X / 2f, rect.Y + (rect.Height - size.Y) / 2f - 1),
+            enabled ? EditorTheme.Text : EditorTheme.TextDisabled);
     }
 
     private int GetTilePageCount()

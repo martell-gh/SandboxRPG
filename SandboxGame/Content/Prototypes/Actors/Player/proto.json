@@ -2,8 +2,8 @@
   "id": "player",
   "name": "Player",
   "category": "entity",
+  "base": "base_actor",
   "components": {
-    "transform": { "x": 0, "y": 0 },
     "sprite": {
       "source": "sprite.png",
       "srcX": 0,
@@ -13,31 +13,31 @@
       "layerDepth": 0.5,
       "ySort": true
     },
-    "collider": {
-      "width": 20,
-      "height": 20,
-      "offsetX": -10,
-      "offsetY": -10
-    },
-    "hands": {
-      "count": 2,
-      "names": "Left,Right"
-    },
-    "equipment": {
-      "slots": "torso,pants,shoes,back",
-      "names": "Torso,Pants,Shoes,Back"
-    },
-    "health": {
-      "health": 100,
-      "maxHealth": 100
-    },
     "currency": {
       "amount": 25,
       "name": "Монеты",
       "symbol": "мон."
     },
-    "wounds": {},
-    "velocity": { "speed": 100 },
+    "combatMode": {},
+    "skills": {
+      "fortitude": 6,
+      "dodge": 5,
+      "blocking": 4,
+      "handToHand": 8,
+      "oneHandedWeapons": 3,
+      "twoHandedWeapons": 6,
+      "rangedWeapons": 3,
+      "medicine": 4,
+      "thievery": 2,
+      "social": 5,
+      "trade": 4,
+      "craftsmanship": 4,
+      "smithing": 1,
+      "tailoring": 2
+    },
+    "age": {
+      "ageYears": 25
+    },
     "metabolism": {
       "hunger": 85,
       "thirst": 90,

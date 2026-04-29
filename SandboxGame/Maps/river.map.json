@@ -4,7 +4,12 @@
   "width": 50,
   "height": 50,
   "tileSize": 32,
-  "ingame": true,
+  "ingame": false,
+  "locationKind": "settlement",
+  "factionId": "fac_starks",
+  "cityId": "city_devriver",
+  "wantedTags": [],
+  "unwantedTags": [],
   "spawnPoints": [
     {
       "id": "top",
@@ -352,6 +357,12 @@
       "x": 8,
       "y": 31,
       "protoId": "wall",
+      "layer": 0
+    },
+    {
+      "x": 9,
+      "y": 10,
+      "protoId": "grass",
       "layer": 0
     },
     {
@@ -5051,7 +5062,11 @@
       "y": 564.7146,
       "protoId": "leather_patch",
       "worldSpace": true,
-      "componentOverrides": {},
+      "componentOverrides": {
+        "item": {
+          "stack": 20
+        }
+      },
       "containedEntities": []
     },
     {
@@ -5093,6 +5108,159 @@
       "worldSpace": true,
       "componentOverrides": {},
       "containedEntities": []
+    },
+    {
+      "x": 304,
+      "y": 752,
+      "protoId": "woodDoor",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 496,
+      "y": 688,
+      "protoId": "woodDoor",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 784,
+      "y": 624,
+      "protoId": "anvil",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 816,
+      "y": 688,
+      "protoId": "tailor_bench",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 624,
+      "y": 784,
+      "protoId": "materials_pouch",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 656,
+      "y": 784,
+      "protoId": "medical_pouch",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 688,
+      "y": 784,
+      "protoId": "ration_bag",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 592,
+      "y": 560,
+      "protoId": "training_dummy",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 592,
+      "y": 816,
+      "protoId": "pocket_npc",
+      "worldSpace": true,
+      "componentOverrides": {
+        "currency": {
+          "amount": 100
+        }
+      },
+      "containedEntities": [
+        {
+          "x": 592,
+          "y": 816,
+          "protoId": "apple",
+          "worldSpace": true,
+          "componentOverrides": {},
+          "containedEntities": []
+        }
+      ]
+    },
+    {
+      "x": 504.79504,
+      "y": 520.77856,
+      "protoId": "valyrian_steel_ingot",
+      "worldSpace": true,
+      "componentOverrides": {
+        "item": {
+          "stack": 20
+        }
+      },
+      "containedEntities": []
+    },
+    {
+      "x": 528.3507,
+      "y": 521.66736,
+      "protoId": "metal_plate",
+      "worldSpace": true,
+      "componentOverrides": {
+        "item": {
+          "stack": 20
+        }
+      },
+      "containedEntities": []
+    },
+    {
+      "x": 517.6841,
+      "y": 539.00073,
+      "protoId": "steel_ingot",
+      "worldSpace": true,
+      "componentOverrides": {
+        "item": {
+          "stack": 20
+        }
+      },
+      "containedEntities": []
+    },
+    {
+      "x": 698.5709,
+      "y": 726.85565,
+      "protoId": "recipe_note",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 666.53296,
+      "y": 686.66644,
+      "protoId": "recipe_note_iron_war_axe",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 336,
+      "y": 784,
+      "protoId": "anvil",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 528,
+      "y": 816,
+      "protoId": "bed",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
     }
   ],
   "triggers": [
@@ -5117,6 +5285,110 @@
         "targetMapId": "river_startloc",
         "spawnPointId": "down"
       }
+    }
+  ],
+  "areas": [
+    {
+      "id": "area_2",
+      "kind": "profession",
+      "properties": {
+        "professionId": "blacksmith"
+      },
+      "tiles": [
+        {
+          "x": 8,
+          "y": 24
+        },
+        {
+          "x": 8,
+          "y": 25
+        },
+        {
+          "x": 9,
+          "y": 26
+        },
+        {
+          "x": 10,
+          "y": 26
+        },
+        {
+          "x": 10,
+          "y": 25
+        },
+        {
+          "x": 10,
+          "y": 24
+        },
+        {
+          "x": 9,
+          "y": 24
+        },
+        {
+          "x": 8,
+          "y": 26
+        },
+        {
+          "x": 9,
+          "y": 25
+        }
+      ],
+      "points": [
+        {
+          "id": "work_anchor",
+          "x": 9,
+          "y": 25
+        }
+      ]
+    },
+    {
+      "id": "area_1",
+      "kind": "house",
+      "properties": {},
+      "tiles": [
+        {
+          "x": 12,
+          "y": 25
+        },
+        {
+          "x": 12,
+          "y": 26
+        },
+        {
+          "x": 13,
+          "y": 25
+        },
+        {
+          "x": 13,
+          "y": 24
+        },
+        {
+          "x": 14,
+          "y": 24
+        },
+        {
+          "x": 14,
+          "y": 25
+        },
+        {
+          "x": 14,
+          "y": 26
+        },
+        {
+          "x": 13,
+          "y": 26
+        },
+        {
+          "x": 12,
+          "y": 24
+        }
+      ],
+      "points": [
+        {
+          "id": "bed_slot_a",
+          "x": 13,
+          "y": 25
+        }
+      ]
     }
   ]
 }

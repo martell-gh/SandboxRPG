@@ -1,0 +1,11 @@
+{
+  "id": "base_substance",
+  "name": "Base Substance",
+  "category": "substance",
+  "abstract": true,
+  "color": "#FFFFFFFF",
+  "defaultAmount": 1,
+  "volumePerUnit": 1,
+  "absorptionTime": 5,
+  "clearanceTime": 60
+}

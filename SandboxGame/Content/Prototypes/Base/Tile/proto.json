@@ -1,0 +1,10 @@
+{
+  "id": "base_tile",
+  "name": "Base Tile",
+  "category": "tile",
+  "abstract": true,
+  "solid": false,
+  "transparent": true,
+  "opaque": false,
+  "color": "#ffffff"
+}

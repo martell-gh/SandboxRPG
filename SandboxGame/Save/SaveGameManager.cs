@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Xna.Framework;
+using MTEngine.Crafting;
 using MTEngine.Components;
 using MTEngine.Core;
 using MTEngine.ECS;
@@ -62,7 +63,7 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
     public void StartNewGame()
     {
         _clock.TimeScale = 72f;
-        _clock.SetTime(8f);
+        _clock.TotalSecondsAbsolute = 8f * 3600f;
 
         ActiveSession = new SaveSessionData
         {
@@ -273,9 +274,10 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
         if (ActiveSession == null)
             return null;
 
-        return ActiveSession.Maps.TryGetValue(mapId, out var state) && state.HasCapturedState
-            ? CloneMap(state.Map)
-            : null;
+        if (!ActiveSession.Maps.TryGetValue(mapId, out var state) || !state.HasCapturedState)
+            return null;
+
+        return CloneMap(state.Map);
     }
 
     public IReadOnlyList<EntitySaveData>? GetMapEntityStates(string mapId)
@@ -286,6 +288,23 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
         return ActiveSession.Maps.TryGetValue(mapId, out var state) && state.HasCapturedState
             ? state.Entities
             : null;
+    }
+
+    public bool ShouldResetMapRuntimeState(MapData sourceMap) => false;
+
+    public void ResetMapRuntimeState(MapData sourceMap)
+    {
+        if (ActiveSession == null)
+            return;
+
+        ActiveSession.Maps[sourceMap.Id] = new MapRuntimeStateData
+        {
+            Map = CloneMap(sourceMap),
+            HasCapturedState = false,
+            Entities = new List<EntitySaveData>()
+        };
+        HasUnsavedChanges = true;
+        ActiveSession.UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void CaptureCurrentMapState()
@@ -321,10 +340,10 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
         var currentEntities = _world.GetEntities().ToList();
         foreach (var entity in currentEntities)
             _world.DestroyEntity(entity);
-        _world.Update(0f);
+        _world.FlushEntityChanges();
 
         RestoreEntities(ActiveSession.PlayerEntities, markAsMapEntities: false);
-        _world.Update(0f);
+        _world.FlushEntityChanges();
     }
 
     public void RestoreMapEntities(string mapId)
@@ -459,13 +478,15 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
             if (proto != null)
                 RefreshVisualComponents(entity, proto);
 
+            entity.GetComponent<DoorComponent>()?.SyncState();
+
             if (markAsMapEntities && !entity.HasComponent<MapEntityTagComponent>())
                 entity.AddComponent(new MapEntityTagComponent());
 
             map[save.SaveId] = entity;
         }
 
-        _world.Update(0f);
+        _world.FlushEntityChanges();
 
         foreach (var save in list)
         {
@@ -564,6 +585,16 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
     {
         entity.GetComponent<SpriteComponent>()?.InitializeFromPrototype(proto, _assets);
         entity.GetComponent<WearableComponent>()?.InitializeFromPrototype(proto, _assets);
+        entity.GetComponent<QualityTierComponent>()?.ApplyPresentation(entity);
+        entity.GetComponent<RecipeNoteComponent>()?.RefreshPresentation();
+
+        var genderedAppearance = entity.GetComponent<MTEngine.Npc.GenderedAppearanceComponent>();
+        var identity = entity.GetComponent<MTEngine.Npc.IdentityComponent>();
+        if (genderedAppearance != null && identity != null)
+        {
+            genderedAppearance.InitializeFromPrototype(proto, _assets);
+            genderedAppearance.ApplyForGender(identity.Gender);
+        }
     }
 
     private static Component CreateComponentFromPrototypeOrSave(ComponentSaveData save, EntityPrototype? proto)
@@ -745,9 +776,4 @@ public class SaveGameManager : IMapStateSource, IWorldStateTracker
 
     private string GetLegacySlotPath(int slotIndex)
         => Path.Combine(SaveDirectory, $"slot_{slotIndex}.json");
-}
-
-public class SaveEntityIdComponent : Component
-{
-    public string SaveId { get; set; } = Guid.NewGuid().ToString("N");
 }

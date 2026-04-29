@@ -6,10 +6,15 @@ namespace MTEngine.Core;
 
 public static class DevConsole
 {
+    private const double MiniLineVisibleSeconds = 5.0;
+    private const double MiniLineFadeSeconds = 1.25;
+    private const int MiniLineLimit = 10;
+
     public static bool DevMode { get; set; } = true;
     public static bool IsOpen { get; private set; } = false;
 
     private static readonly List<string> _history = new();
+    private static readonly List<DateTime> _historyTimes = new();
     private static readonly List<string> _commandHistory = new();
     private static string _input = "";
     private static int _scrollOffset = 0;
@@ -36,11 +41,16 @@ public static class DevConsole
     public static void Log(string message)
     {
         _history.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+        _historyTimes.Add(DateTime.UtcNow);
         ClampScrollOffset();
         Console.WriteLine($"[DEV] {message}");
     }
 
-    public static void Clear() => _history.Clear();
+    public static void Clear()
+    {
+        _history.Clear();
+        _historyTimes.Clear();
+    }
 
     public static void Update()
     {
@@ -134,19 +144,44 @@ public static class DevConsole
 
     private static void DrawMiniConsole()
     {
+        var visibleLines = GetVisibleMiniLines();
+        if (visibleLines.Count == 0)
+            return;
+
         _spriteBatch!.Begin();
 
-        // последние 10 строк
-        var lines = _history.TakeLast(10).ToList();
         float y = 10f;
-        foreach (var line in lines)
+        foreach (var (line, alpha) in visibleLines)
         {
-            _spriteBatch.DrawString(_font!, line, new Vector2(11, y + 1), Color.Black * 0.5f);
-            _spriteBatch.DrawString(_font!, line, new Vector2(10, y), Color.LimeGreen);
+            _spriteBatch.DrawString(_font!, line, new Vector2(11, y + 1), Color.Black * (0.5f * alpha));
+            _spriteBatch.DrawString(_font!, line, new Vector2(10, y), Color.LimeGreen * alpha);
             y += 16f;
         }
 
         _spriteBatch.End();
+    }
+
+    private static List<(string Line, float Alpha)> GetVisibleMiniLines()
+    {
+        var now = DateTime.UtcNow;
+        var result = new List<(string Line, float Alpha)>();
+        var start = Math.Max(0, _history.Count - MiniLineLimit);
+
+        for (var i = start; i < _history.Count; i++)
+        {
+            var createdAt = i < _historyTimes.Count ? _historyTimes[i] : now;
+            var age = (now - createdAt).TotalSeconds;
+            if (age >= MiniLineVisibleSeconds + MiniLineFadeSeconds)
+                continue;
+
+            var alpha = age <= MiniLineVisibleSeconds
+                ? 1f
+                : 1f - (float)((age - MiniLineVisibleSeconds) / MiniLineFadeSeconds);
+
+            result.Add((_history[i], MathHelper.Clamp(alpha, 0f, 1f)));
+        }
+
+        return result;
     }
 
     private static void DrawFullConsole()

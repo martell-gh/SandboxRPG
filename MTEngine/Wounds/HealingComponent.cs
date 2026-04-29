@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using MTEngine.Combat;
 using MTEngine.Components;
 using MTEngine.ECS;
 using MTEngine.Interactions;
@@ -21,19 +22,27 @@ public class HealingComponent : Component, IInteractionSource
 {
     /// <summary>Тип урона, который лечит этот предмет.</summary>
     [DataField("damageType")]
+    [SaveField("damageType")]
     public DamageType HealsDamageType { get; set; } = DamageType.Slash;
 
     /// <summary>Количество урона, которое снимает за одно использование.</summary>
     [DataField("healAmount")]
+    [SaveField("healAmount")]
     public float HealAmount { get; set; } = 20f;
 
     /// <summary>Может ли останавливать кровотечение (и на сколько HP/сек).</summary>
     [DataField("stopBleedAmount")]
+    [SaveField("stopBleedAmount")]
     public float StopBleedAmount { get; set; }
 
     /// <summary>Название действия в меню (например "Перевязать", "Наложить мазь").</summary>
     [DataField("useLabel")]
+    [SaveField("useLabel")]
     public string UseLabel { get; set; } = "Лечить";
+
+    [DataField("requiredSkill")]
+    [SaveField("requiredSkill")]
+    public float RequiredSkill { get; set; }
 
     public IEnumerable<InteractionEntry> GetInteractions(InteractionContext ctx)
     {
@@ -69,16 +78,28 @@ public class HealingComponent : Component, IInteractionSource
         var targetWounds = target.GetComponent<WoundComponent>();
         if (targetWounds == null) return;
 
+        var skills = actor.GetComponent<SkillComponent>();
+        var medicine = skills?.GetSkill(SkillType.Medicine) ?? 0f;
+        var fumbleChance = SkillChecks.GetMedicineFumbleChance(medicine, RequiredSkill);
+        if (Random.Shared.NextSingle() < fumbleChance)
+        {
+            PopupTextSystem.Show(target, "Лечение не помогло.", Color.Gray, lifetime: 1.2f);
+            skills?.Improve(SkillType.Medicine, 0.08f);
+            ConsumeItem(actor);
+            return;
+        }
+
         float healed = 0f;
         float bleedStopped = 0f;
+        var efficiency = SkillChecks.GetMedicineEfficiency(medicine);
 
         // Лечим урон
         if (HealAmount > 0f)
-            healed = WoundComponent.HealDamage(target, HealsDamageType, HealAmount);
+            healed = WoundComponent.HealDamage(target, HealsDamageType, HealAmount * efficiency);
 
         // Останавливаем кровотечение
         if (StopBleedAmount > 0f)
-            bleedStopped = WoundComponent.StopBleeding(target, StopBleedAmount);
+            bleedStopped = WoundComponent.StopBleeding(target, StopBleedAmount * efficiency);
 
         // Попап с результатом
         var parts = new List<string>();
@@ -91,10 +112,12 @@ public class HealingComponent : Component, IInteractionSource
         {
             var text = string.Join(", ", parts);
             PopupTextSystem.Show(target, text, Color.LightGreen, lifetime: 1.5f);
+            skills?.Improve(SkillType.Medicine, 0.24f);
         }
         else
         {
             PopupTextSystem.Show(target, "Не помогло.", Color.Gray, lifetime: 1f);
+            skills?.Improve(SkillType.Medicine, 0.06f);
         }
 
         // Расходуем предмет

@@ -1,0 +1,17 @@
+{
+  "id": "arrow_projectile",
+  "name": "Arrow",
+  "category": "entity",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 24,
+      "height": 8,
+      "layerDepth": 0.62,
+      "ySort": true
+    },
+    "rangedProjectile": {}
+  }
+}

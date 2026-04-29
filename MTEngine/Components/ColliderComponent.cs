@@ -7,14 +7,17 @@ namespace MTEngine.Components;
 public class ColliderComponent : Component
 {
     [DataField("width")]
+    [SaveField("width")]
     public int Width { get; set; } = 12;
 
     [DataField("height")]
+    [SaveField("height")]
     public int Height { get; set; } = 12;
 
     public Vector2 Offset { get; set; } = new Vector2(2, 2);
 
     [DataField("offsetX")]
+    [SaveField("offsetX")]
     public float OffsetX
     {
         get => Offset.X;
@@ -22,6 +25,7 @@ public class ColliderComponent : Component
     }
 
     [DataField("offsetY")]
+    [SaveField("offsetY")]
     public float OffsetY
     {
         get => Offset.Y;

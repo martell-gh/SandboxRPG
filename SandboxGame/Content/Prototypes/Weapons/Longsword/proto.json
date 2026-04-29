@@ -1,0 +1,75 @@
+{
+  "id": "longsword",
+  "name": "Iron Longsword",
+  "category": "entity",
+  "base": "base_weapon",
+  "components": {
+    "sprite": {
+      "source": "../Greatsword/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Обычный одноручный меч из железа. Верный клинок без выдающихся свойств."
+    },
+    "item": {
+      "name": "Iron Longsword",
+      "slots": 2,
+      "size": "Medium",
+      "tags": [
+        "weapon",
+        "melee",
+        "one-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 3,
+      "label": "Железо",
+      "shortLabel": "T3",
+      "tint": "#BFC6CF"
+    },
+    "weapon": {
+      "materials": [
+        "iron_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 18,
+      "minDamage": 14,
+      "maxDamage": 22,
+      "range": 52,
+      "windup": 0.42,
+      "accuracy": 0.93,
+      "verb": "Резануть",
+      "blockBonus": 0.06
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 3,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 20,
+      "craftTime": 2.8,
+      "ingredients": [
+        {
+          "prototypeId": "iron_ingot",
+          "count": 3
+        },
+        {
+          "prototypeId": "wood",
+          "count": 1
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

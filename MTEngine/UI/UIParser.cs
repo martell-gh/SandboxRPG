@@ -6,11 +6,12 @@ namespace MTEngine.UI;
 
 /// <summary>
 /// Parses XML files into XmlWindow instances.
+/// All elements inherit theme from the window.
 ///
 /// Supported elements:
 ///   Window           — root, becomes XmlWindow
 ///   Label            — text label
-///   Button           — clickable button
+///   Button           — clickable button (themed with hover/press states)
 ///   Image            — texture image
 ///   Panel            — container (Vertical/Horizontal)
 ///   ScrollPanel      — scrollable vertical panel
@@ -20,35 +21,25 @@ namespace MTEngine.UI;
 ///
 /// Common attributes:
 ///   Name, Width, Height, Margin, HAlign, VAlign, Visible, Tooltip
-///
-/// Example:
-///   <Window Id="crafting" Title="Crafting" Width="320" Height="260" Closable="true">
-///     <Panel Direction="Vertical" Padding="6" Gap="4">
-///       <Label Name="header" Text="Recipes" Color="#00FF00" />
-///       <Separator />
-///       <ScrollPanel Name="list" Height="150" Gap="2" />
-///       <Button Name="craft" Text="Craft!" Width="100" Height="26" />
-///     </Panel>
-///   </Window>
 /// </summary>
 public static class UIParser
 {
-    public static XmlWindow LoadFromFile(string path)
+    public static XmlWindow LoadFromFile(string path, UITheme? theme = null)
     {
         if (!File.Exists(path))
             throw new FileNotFoundException($"UI XML not found: {path}");
 
         var doc = XDocument.Load(path);
-        return Parse(doc);
+        return Parse(doc, theme);
     }
 
-    public static XmlWindow LoadFromString(string xml)
+    public static XmlWindow LoadFromString(string xml, UITheme? theme = null)
     {
         var doc = XDocument.Parse(xml);
-        return Parse(doc);
+        return Parse(doc, theme);
     }
 
-    private static XmlWindow Parse(XDocument doc)
+    private static XmlWindow Parse(XDocument doc, UITheme? theme)
     {
         var root = doc.Root ?? throw new Exception("Empty XML document");
         if (root.Name.LocalName != "Window")
@@ -62,11 +53,25 @@ public static class UIParser
             Height = AttrInt(root, "Height", 200),
             Closable = AttrBool(root, "Closable", true),
             Draggable = AttrBool(root, "Draggable", true),
+            Theme = theme,
         };
+
+        // Per-window color overrides
+        var bgColor = AttrColorNullable(root, "BackColor");
+        if (bgColor.HasValue) window.OverrideBackgroundColor = bgColor;
+
+        var titleColor = AttrColorNullable(root, "TitleBarColor");
+        if (titleColor.HasValue) window.OverrideTitleBarColor = titleColor;
+
+        var titleTextColor = AttrColorNullable(root, "TitleTextColor");
+        if (titleTextColor.HasValue) window.OverrideTitleTextColor = titleTextColor;
+
+        var borderColor = AttrColorNullable(root, "BorderColor");
+        if (borderColor.HasValue) window.OverrideBorderColor = borderColor;
 
         foreach (var childXml in root.Elements())
         {
-            var el = ParseElement(childXml, window);
+            var el = ParseElement(childXml, window, theme);
             if (el != null)
                 window.Root.Add(el);
         }
@@ -74,18 +79,18 @@ public static class UIParser
         return window;
     }
 
-    private static UIElement? ParseElement(XElement xml, XmlWindow window)
+    private static UIElement? ParseElement(XElement xml, XmlWindow window, UITheme? theme)
     {
         UIElement? el = xml.Name.LocalName switch
         {
             "Label" => ParseLabel(xml),
-            "Button" => ParseButton(xml),
+            "Button" => ParseButton(xml, theme),
             "Image" => ParseImage(xml),
-            "Panel" => ParsePanel(xml, window),
-            "ScrollPanel" => ParseScrollPanel(xml, window),
-            "ProgressBar" => ParseProgressBar(xml),
-            "TextInput" => ParseTextInput(xml),
-            "Separator" => ParseSeparator(xml),
+            "Panel" => ParsePanel(xml, window, theme),
+            "ScrollPanel" => ParseScrollPanel(xml, window, theme),
+            "ProgressBar" => ParseProgressBar(xml, theme),
+            "TextInput" => ParseTextInput(xml, theme),
+            "Separator" => ParseSeparator(xml, theme),
             _ => null
         };
 
@@ -109,14 +114,36 @@ public static class UIParser
         Scale = AttrFloat(xml, "Scale", 1f),
     };
 
-    private static UIButton ParseButton(XElement xml) => new()
+    private static UIButton ParseButton(XElement xml, UITheme? theme)
     {
-        Text = Attr(xml, "Text", ""),
-        TextColor = AttrColor(xml, "TextColor", Color.White),
-        BackColor = AttrColor(xml, "BackColor", new Color(45, 65, 45)),
-        HoverColor = AttrColor(xml, "HoverColor", new Color(65, 95, 65)),
-        BorderColor = AttrColor(xml, "BorderColor", new Color(70, 110, 70)),
-    };
+        var btn = new UIButton
+        {
+            Text = Attr(xml, "Text", ""),
+            TextScale = AttrFloat(xml, "TextScale", 1f),
+            Theme = theme,
+        };
+
+        // Per-button color overrides (only set if explicitly specified in XML)
+        var textColor = AttrColorNullable(xml, "TextColor");
+        if (textColor.HasValue) btn.OverrideTextColor = textColor;
+
+        var backColor = AttrColorNullable(xml, "BackColor");
+        if (backColor.HasValue) btn.OverrideBackColor = backColor;
+
+        var hoverColor = AttrColorNullable(xml, "HoverColor");
+        if (hoverColor.HasValue) btn.OverrideHoverColor = hoverColor;
+
+        var pressColor = AttrColorNullable(xml, "PressColor");
+        if (pressColor.HasValue) btn.OverridePressColor = pressColor;
+
+        var borderColor = AttrColorNullable(xml, "BorderColor");
+        if (borderColor.HasValue) btn.OverrideBorderColor = borderColor;
+
+        var hoverBorderColor = AttrColorNullable(xml, "HoverBorderColor");
+        if (hoverBorderColor.HasValue) btn.OverrideHoverBorderColor = hoverBorderColor;
+
+        return btn;
+    }
 
     private static UIImage ParseImage(XElement xml) => new()
     {
@@ -124,7 +151,7 @@ public static class UIParser
         Tint = AttrColor(xml, "Tint", Color.White),
     };
 
-    private static UIPanel ParsePanel(XElement xml, XmlWindow window)
+    private static UIPanel ParsePanel(XElement xml, XmlWindow window, UITheme? theme)
     {
         var panel = new UIPanel
         {
@@ -136,14 +163,14 @@ public static class UIParser
 
         foreach (var childXml in xml.Elements())
         {
-            var child = ParseElement(childXml, window);
+            var child = ParseElement(childXml, window, theme);
             if (child != null) panel.Add(child);
         }
 
         return panel;
     }
 
-    private static UIScrollPanel ParseScrollPanel(XElement xml, XmlWindow window)
+    private static UIScrollPanel ParseScrollPanel(XElement xml, XmlWindow window, UITheme? theme)
     {
         var panel = new UIScrollPanel
         {
@@ -152,40 +179,59 @@ public static class UIParser
             Padding = AttrInt(xml, "Padding", 0),
             BackColor = AttrColorNullable(xml, "BackColor"),
             ScrollStep = AttrInt(xml, "ScrollStep", 20),
+            Theme = theme,
         };
 
         foreach (var childXml in xml.Elements())
         {
-            var child = ParseElement(childXml, window);
+            var child = ParseElement(childXml, window, theme);
             if (child != null) panel.Add(child);
         }
 
         return panel;
     }
 
-    private static UIProgressBar ParseProgressBar(XElement xml) => new()
+    private static UIProgressBar ParseProgressBar(XElement xml, UITheme? theme)
     {
-        Value = AttrFloat(xml, "Value", 1f),
-        MaxValue = AttrFloat(xml, "MaxValue", 1f),
-        FillColor = AttrColor(xml, "FillColor", new Color(80, 180, 80)),
-        BackColor = AttrColor(xml, "BackColor", new Color(30, 30, 30)),
-        BorderColor = AttrColor(xml, "BorderColor", new Color(70, 110, 70)),
-        ShowText = AttrBool(xml, "ShowText", true),
-        TextFormat = AttrNullable(xml, "TextFormat"),
-    };
+        var bar = new UIProgressBar
+        {
+            Value = AttrFloat(xml, "Value", 1f),
+            MaxValue = AttrFloat(xml, "MaxValue", 1f),
+            FillColor = AttrColor(xml, "FillColor", new Color(80, 180, 80)),
+            ShowText = AttrBool(xml, "ShowText", true),
+            TextFormat = AttrNullable(xml, "TextFormat"),
+            Theme = theme,
+        };
 
-    private static UITextInput ParseTextInput(XElement xml) => new()
+        var backColor = AttrColorNullable(xml, "BackColor");
+        if (backColor.HasValue) bar.OverrideBackColor = backColor;
+
+        var borderColor = AttrColorNullable(xml, "BorderColor");
+        if (borderColor.HasValue) bar.OverrideBorderColor = borderColor;
+
+        return bar;
+    }
+
+    private static UITextInput ParseTextInput(XElement xml, UITheme? theme) => new()
     {
         Placeholder = Attr(xml, "Placeholder", ""),
         MaxLength = AttrInt(xml, "MaxLength", 256),
-        TextColor = AttrColor(xml, "TextColor", Color.White),
+        Theme = theme,
     };
 
-    private static UISeparator ParseSeparator(XElement xml) => new()
+    private static UISeparator ParseSeparator(XElement xml, UITheme? theme)
     {
-        Color = AttrColor(xml, "Color", new Color(70, 110, 70, 100)),
-        Thickness = AttrInt(xml, "Thickness", 1),
-    };
+        var sep = new UISeparator
+        {
+            Thickness = AttrInt(xml, "Thickness", 1),
+            Theme = theme,
+        };
+
+        var color = AttrColorNullable(xml, "Color");
+        if (color.HasValue) sep.OverrideColor = color;
+
+        return sep;
+    }
 
     // ── Common attributes ───────────────────────────────────────────
 

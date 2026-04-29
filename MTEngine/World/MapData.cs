@@ -72,6 +72,23 @@ public class MapData
     [JsonPropertyName("ingame")]
     public bool InGame { get; set; }
 
+    [JsonPropertyName("locationKind")]
+    public string LocationKind { get; set; } = LocationKinds.Wilds;
+
+    [JsonPropertyName("factionId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? FactionId { get; set; }
+
+    [JsonPropertyName("cityId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CityId { get; set; }
+
+    [JsonPropertyName("wantedTags")]
+    public List<string> WantedTags { get; set; } = new();
+
+    [JsonPropertyName("unwantedTags")]
+    public List<string> UnwantedTags { get; set; } = new();
+
     [JsonPropertyName("spawnPoints")]
     public List<SpawnPoint> SpawnPoints { get; set; } = new();
 
@@ -84,12 +101,17 @@ public class MapData
     [JsonPropertyName("triggers")]
     public List<TriggerZoneData> Triggers { get; set; } = new();
 
+    [JsonPropertyName("areas")]
+    public List<AreaZoneData> Areas { get; set; } = new();
+
     public (bool valid, string error) Validate()
     {
         if (string.IsNullOrWhiteSpace(Id))
             return (false, "Map id is empty");
         if (string.IsNullOrWhiteSpace(Name))
             return (false, "Map name is empty");
+        if (string.IsNullOrWhiteSpace(LocationKind))
+            return (false, "Map location kind is empty");
         if (SpawnPoints.Count == 0)
             return (false, "No spawn points! Add at least one.");
         if (SpawnPoints.Any(s => string.IsNullOrWhiteSpace(s.Id)))
@@ -102,6 +124,14 @@ public class MapData
             return (false, "Trigger has empty id");
         if (Triggers.Any(t => t.Tiles.Count == 0))
             return (false, "Trigger has no tiles");
+        if (Areas.Any(a => string.IsNullOrWhiteSpace(a.Id)))
+            return (false, "Area has empty id");
+        if (Areas.Any(a => string.IsNullOrWhiteSpace(a.Kind)))
+            return (false, "Area has empty kind");
+        if (Areas.Any(a => a.Tiles.Count == 0))
+            return (false, "Area has no tiles");
+        if (Areas.SelectMany(a => a.Points).Any(p => string.IsNullOrWhiteSpace(p.Id)))
+            return (false, "Area point has empty id");
         return (true, "");
     }
 }

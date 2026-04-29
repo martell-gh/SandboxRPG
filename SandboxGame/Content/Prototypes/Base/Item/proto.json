@@ -1,0 +1,17 @@
+{
+  "id": "base_item",
+  "name": "Base Item",
+  "category": "entity",
+  "base": "base_entity",
+  "abstract": true,
+  "components": {
+    "item": {
+      "name": "Item",
+      "size": "Small",
+      "slots": 1
+    },
+    "info": {
+      "description": ""
+    }
+  }
+}

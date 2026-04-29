@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +64,7 @@ public class MapEntitySpawner
         entity.AddComponent(new MapEntityTagComponent());
         ApplyComponentOverrides(entity, entry.ComponentOverrides);
 
-        if (parentStorage != null && !parentStorage.TryInsert(entity))
+        if (parentStorage != null && !parentStorage.TryInsertInitial(entity))
             Console.WriteLine($"[MapEntitySpawner] Failed to insert '{entry.ProtoId}' into storage '{parentStorage.StorageName}'.");
 
         var storage = entity.GetComponent<StorageComponent>();
@@ -70,6 +72,9 @@ public class MapEntitySpawner
         {
             foreach (var containedEntry in entry.ContainedEntities)
                 SpawnMapEntity(containedEntry, map, storage);
+
+            if (storage.Contents.Count > 0)
+                storage.MarkInitialContentsResolved();
         }
 
         return entity;
@@ -105,5 +110,52 @@ public class MapEntitySpawner
         }
 
         return new Vector2(entry.X, entry.Y);
+    }
+
+    private void HydrateRestoredStoragesFromMap(MapData map)
+    {
+        foreach (var entry in map.Entities)
+        {
+            var restored = FindRestoredEntity(entry, map);
+            if (restored?.GetComponent<StorageComponent>() is not { } storage)
+                continue;
+
+            if (storage.Contents.Count > 0)
+            {
+                storage.MarkInitialContentsResolved();
+                continue;
+            }
+
+            var hydrated = storage.TryRestoreSpawnContentsIfMissing();
+
+            foreach (var containedEntry in entry.ContainedEntities)
+            {
+                if (SpawnMapEntity(containedEntry, map, storage) != null)
+                    hydrated = true;
+            }
+
+            if (hydrated || storage.Contents.Count > 0)
+                storage.MarkInitialContentsResolved();
+        }
+    }
+
+    private Entity? FindRestoredEntity(MapEntityData entry, MapData map)
+    {
+        var targetPosition = GetEntryWorldPosition(entry, map);
+
+        foreach (var entity in _world.GetEntitiesWith<MapEntityTagComponent>())
+        {
+            if (!string.Equals(entity.PrototypeId, entry.ProtoId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var transform = entity.GetComponent<MTEngine.Components.TransformComponent>();
+            if (transform == null)
+                continue;
+
+            if (Vector2.DistanceSquared(transform.Position, targetPosition) <= 1f)
+                return entity;
+        }
+
+        return null;
     }
 }

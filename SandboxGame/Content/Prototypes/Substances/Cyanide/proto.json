@@ -2,12 +2,15 @@
   "id": "cyanide",
   "name": "Цианид",
   "category": "substance",
+  "base": "base_substance",
   "color": "#B8FFF2FF",
   "defaultAmount": 1,
   "volumePerUnit": 1,
   "absorptionTime": 3,
   "clearanceTime": 25,
-  "smells": ["горько"],
+  "smells": [
+    "горько"
+  ],
   "preparationHint": "Опасное вещество: следы почти не заметны, большие дозы быстро ломают организм.",
   "responseProfiles": [
     {
@@ -16,7 +19,12 @@
       "minAmount": 2,
       "maxAmount": 6,
       "effects": [
-        { "id": "cyanide_trace_popup", "type": "popup", "message": "Во рту появляется странная горечь.", "color": "#B8FFF2FF" }
+        {
+          "id": "cyanide_trace_popup",
+          "type": "popup",
+          "message": "Во рту появляется странная горечь.",
+          "color": "#B8FFF2FF"
+        }
       ]
     },
     {
@@ -25,8 +33,18 @@
       "minAmount": 6,
       "maxAmount": 15,
       "effects": [
-        { "id": "cyanide_sick_hunger", "type": "needDeltaOverTime", "need": "hunger", "magnitude": -30, "duration": 18 },
-        { "id": "cyanide_sick_speed", "type": "speedMultiplier", "magnitude": -0.2 }
+        {
+          "id": "cyanide_sick_hunger",
+          "type": "needDeltaOverTime",
+          "need": "hunger",
+          "magnitude": -30,
+          "duration": 18
+        },
+        {
+          "id": "cyanide_sick_speed",
+          "type": "speedMultiplier",
+          "magnitude": -0.2
+        }
       ]
     },
     {
@@ -34,9 +52,24 @@
       "name": "Катастрофа",
       "minAmount": 15,
       "effects": [
-        { "id": "cyanide_catastrophe_speed", "type": "speedMultiplier", "magnitude": -0.55 },
-        { "id": "cyanide_catastrophe_thirst", "type": "needDeltaOverTime", "need": "thirst", "magnitude": -40, "duration": 10 },
-        { "id": "cyanide_catastrophe_popup", "type": "popup", "message": "Доза цианида становится смертельно опасной...", "color": "#A8E6FFFF" }
+        {
+          "id": "cyanide_catastrophe_speed",
+          "type": "speedMultiplier",
+          "magnitude": -0.55
+        },
+        {
+          "id": "cyanide_catastrophe_thirst",
+          "type": "needDeltaOverTime",
+          "need": "thirst",
+          "magnitude": -40,
+          "duration": 10
+        },
+        {
+          "id": "cyanide_catastrophe_popup",
+          "type": "popup",
+          "message": "Доза цианида становится смертельно опасной...",
+          "color": "#A8E6FFFF"
+        }
       ]
     }
   ]

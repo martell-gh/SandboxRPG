@@ -2,6 +2,7 @@
   "id": "lamp",
   "name": "Lamp",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,15 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Lamp",
       "slots": 1,
       "size": "Small",
-      "tags": ["tool", "lamp", "light"]
+      "tags": [
+        "tool",
+        "lamp",
+        "light"
+      ]
     },
     "info": {
       "description": "Масляная лампа. Освещает путь в тёмное время суток. Можно включать и выключать."

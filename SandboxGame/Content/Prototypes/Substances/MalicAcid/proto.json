@@ -2,12 +2,16 @@
   "id": "malic_acid",
   "name": "Яблочная кислота",
   "category": "substance",
+  "base": "base_substance",
   "color": "#9EE26BFF",
   "defaultAmount": 1,
   "volumePerUnit": 1,
   "absorptionTime": 5,
   "clearanceTime": 35,
-  "smells": ["кисло", "свежо"],
+  "smells": [
+    "кисло",
+    "свежо"
+  ],
   "preparationHint": "Кислый компонент яблок и похожих плодов.",
   "responseProfiles": [
     {
@@ -16,8 +20,17 @@
       "minAmount": 8,
       "maxAmount": 18,
       "effects": [
-        { "id": "malic_acid_slow", "type": "slowMultiplier", "magnitude": 0.15 },
-        { "id": "malic_acid_popup", "type": "popup", "message": "Ноги неприятно ватные от кислоты.", "color": "#9EE26BFF" }
+        {
+          "id": "malic_acid_slow",
+          "type": "slowMultiplier",
+          "magnitude": 0.15
+        },
+        {
+          "id": "malic_acid_popup",
+          "type": "popup",
+          "message": "Ноги неприятно ватные от кислоты.",
+          "color": "#9EE26BFF"
+        }
       ]
     }
   ]

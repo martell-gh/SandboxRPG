@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using MTEngine.Components;
 using MTEngine.ECS;
+using MTEngine.Rendering;
 using MTEngine.World;
 
 namespace MTEngine.Systems;
@@ -31,6 +32,7 @@ public class CollisionSystem : GameSystem
 
             var bounds = collider.GetBounds(transform.Position);
             var resolved = ResolveCollision(bounds, transform.Position);
+            resolved = ResolveEntityCollision(entity, bounds, transform.Position, resolved);
             transform.Position = resolved;
         }
     }
@@ -90,7 +92,53 @@ public class CollisionSystem : GameSystem
         return resolved;
     }
 
-    public bool CanMoveTo(Rectangle bounds)
+    private Vector2 ResolveEntityCollision(Entity mover, Rectangle originalBounds, Vector2 originalPosition, Vector2 resolvedPosition)
+    {
+        var currentBounds = new Rectangle(
+            (int)(resolvedPosition.X + originalBounds.X - originalPosition.X),
+            (int)(resolvedPosition.Y + originalBounds.Y - originalPosition.Y),
+            originalBounds.Width,
+            originalBounds.Height);
+
+        foreach (var entity in World.GetEntities())
+        {
+            if (entity == mover || !EntityOcclusionHelper.IsMovementBlocker(entity))
+                continue;
+
+            if (!EntityOcclusionHelper.TryGetBlockerBounds(entity, out var blockerBounds))
+                continue;
+
+            if (!currentBounds.Intersects(blockerBounds))
+                continue;
+
+            var intersect = Rectangle.Intersect(currentBounds, blockerBounds);
+
+            if (intersect.Width < intersect.Height)
+            {
+                if (currentBounds.Center.X < blockerBounds.Center.X)
+                    resolvedPosition.X -= intersect.Width;
+                else
+                    resolvedPosition.X += intersect.Width;
+            }
+            else
+            {
+                if (currentBounds.Center.Y < blockerBounds.Center.Y)
+                    resolvedPosition.Y -= intersect.Height;
+                else
+                    resolvedPosition.Y += intersect.Height;
+            }
+
+            currentBounds = new Rectangle(
+                (int)(resolvedPosition.X + originalBounds.X - originalPosition.X),
+                (int)(resolvedPosition.Y + originalBounds.Y - originalPosition.Y),
+                originalBounds.Width,
+                originalBounds.Height);
+        }
+
+        return resolvedPosition;
+    }
+
+    public bool CanMoveTo(Rectangle bounds, Entity? ignoreEntity = null)
     {
         if (_tileMap == null) return true;
 
@@ -102,6 +150,16 @@ public class CollisionSystem : GameSystem
         for (int tx = startX; tx <= endX; tx++)
             for (int ty = startY; ty <= endY; ty++)
                 if (_tileMap.IsSolid(tx, ty)) return false;
+
+        foreach (var entity in World.GetEntities())
+        {
+            if (entity == ignoreEntity || !EntityOcclusionHelper.IsMovementBlocker(entity))
+                continue;
+
+            if (EntityOcclusionHelper.TryGetBlockerBounds(entity, out var blockerBounds)
+                && bounds.Intersects(blockerBounds))
+                return false;
+        }
 
         return true;
     }

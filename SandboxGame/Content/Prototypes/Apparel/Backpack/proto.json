@@ -2,6 +2,7 @@
   "id": "backpack",
   "name": "Backpack",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,20 +12,29 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Backpack",
       "size": "Medium",
       "slots": 2,
-      "tags": ["container", "backpack", "wearable-storage"]
+      "tags": [
+        "container",
+        "backpack",
+        "wearable-storage"
+      ]
     },
     "wearable": {
       "slot": "back",
       "durability": 70,
       "maxDurability": 70,
-      "materials": ["cloth_bolt", "leather_patch"],
+      "materials": [
+        "cloth_bolt",
+        "leather_patch"
+      ],
       "icon": "icon.png",
-      "equippedAnimations": "equipped_animations.json"
+      "equippedSpriteMale": "man_equipped.png",
+      "equippedSpriteFemale": "woman_equipped.png",
+      "equippedAnimationsMale": "man_equipped_animations.json",
+      "equippedAnimationsFemale": "woman_equipped_animations.json"
     },
     "info": {
       "description": "Вместительный заплечный мешок из грубой ткани и кожи. Позволяет носить с собой припасы и снаряжение."
@@ -33,7 +43,25 @@
       "name": "Backpack",
       "slots": 8,
       "maxItemSize": 3,
-      "blacklist": ["wearable-storage"]
+      "blacklist": [
+        "wearable-storage"
+      ]
+    },
+    "craftable": {
+      "station": "tailoring",
+      "skill": "Tailoring",
+      "requiredSkill": 14,
+      "craftTime": 2.1,
+      "ingredients": [
+        {
+          "prototypeId": "cloth_bolt",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
     }
   }
 }

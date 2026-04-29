@@ -2,6 +2,7 @@
   "id": "crimson_vial",
   "name": "Crimson Vial",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,15 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Crimson Vial",
       "slots": 1,
       "size": "Small",
-      "tags": ["container", "glass", "vial"]
+      "tags": [
+        "container",
+        "glass",
+        "vial"
+      ]
     },
     "info": {
       "description": "Стеклянный пузырёк тёмно-красного цвета. Используется алхимиками для хранения зелий и эссенций."
@@ -31,7 +35,10 @@
       "fillSprite75": "fill75.png",
       "fillSprite100": "fill100.png",
       "contents": [
-        { "id": "khryashchitin", "amount": 30 }
+        {
+          "id": "khryashchitin",
+          "amount": 30
+        }
       ]
     }
   }

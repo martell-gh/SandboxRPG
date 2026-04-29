@@ -1,0 +1,36 @@
+{
+  "id": "materials_pouch",
+  "name": "Materials Pouch",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../../Apparel/Backpack/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "item": {
+      "name": "Сумка для материалов",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "container",
+        "materials-storage"
+      ]
+    },
+    "storage": {
+      "name": "Сумка для материалов",
+      "slots": 8,
+      "maxItemSize": 1,
+      "allowedTags": [
+        "material"
+      ]
+    },
+    "info": {
+      "description": "Плотная сумка для переноски заготовок и ремесленных материалов. Принимает только предметы с тегом material."
+    }
+  }
+}

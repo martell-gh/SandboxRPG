@@ -12,6 +12,13 @@ public class GameSettings : IKeyBindingSource, IUiScaleSource
 {
     public bool DevMode { get; set; }
     public float UiScale { get; set; } = 1f;
+    public int ScreenWidth { get; set; } = 1280;
+    public int ScreenHeight { get; set; } = 720;
+
+    public string StartMapId { get; set; } = "";
+    public string StartSpawnId { get; set; } = "";
+    public string LocalizationId { get; set; } = LocalizationManager.RussianId;
+
     public Dictionary<string, string> KeyBindings { get; set; } = new();
 
     [JsonIgnore]
@@ -33,6 +40,8 @@ public class GameSettings : IKeyBindingSource, IUiScaleSource
         ["Use"] = Keys.E,
         ["Drop"] = Keys.Q,
         ["SwapHand"] = Keys.Tab,
+        ["CombatMode"] = Keys.C,
+        ["Skills"] = Keys.K,
         ["Metabolism"] = Keys.M,
         ["Pause"] = Keys.Escape,
         ["DevMode"] = Keys.F3,
@@ -51,6 +60,8 @@ public class GameSettings : IKeyBindingSource, IUiScaleSource
         ["Use"] = "Использовать",
         ["Drop"] = "Бросить",
         ["SwapHand"] = "Сменить руку",
+        ["CombatMode"] = "Боевой режим",
+        ["Skills"] = "Навыки",
         ["Metabolism"] = "Статус",
         ["Pause"] = "Пауза",
         ["DevMode"] = "Режим разработчика",
@@ -76,6 +87,9 @@ public class GameSettings : IKeyBindingSource, IUiScaleSource
     {
         DevMode = true;
         UiScale = 1f;
+        ScreenWidth = 1280;
+        ScreenHeight = 720;
+        LocalizationId = LocalizationManager.RussianId;
         KeyBindings.Clear();
         foreach (var (action, key) in DefaultKeys)
             KeyBindings[action] = key.ToString();
@@ -110,6 +124,8 @@ public class GameSettings : IKeyBindingSource, IUiScaleSource
                         if (!settings.KeyBindings.ContainsKey(action))
                             settings.KeyBindings[action] = key.ToString();
                     }
+                    if (string.IsNullOrWhiteSpace(settings.LocalizationId))
+                        settings.LocalizationId = LocalizationManager.RussianId;
                     return settings;
                 }
             }

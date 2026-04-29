@@ -9,6 +9,8 @@ public class EntityPrototype
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public string Category { get; set; } = "";
+    public string BaseId { get; set; } = "";
+    public bool Abstract { get; set; }
     public JsonObject? Components { get; set; }
     public string? AnimationsPath { get; set; }
     public string? SpritePath { get; set; }
@@ -30,12 +32,27 @@ public class EntityPrototype
             var node = JsonNode.Parse(json)?.AsObject();
             if (node == null) return null;
 
+            return LoadFromNode(node, protoPath);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[EntityPrototype] Error: {e.Message}");
+            return null;
+        }
+    }
+
+    public static EntityPrototype? LoadFromNode(JsonObject node, string protoPath)
+    {
+        try
+        {
             var dir = Path.GetDirectoryName(protoPath)!;
             var proto = new EntityPrototype
             {
                 Id = node["id"]?.GetValue<string>() ?? "",
                 Name = node["name"]?.GetValue<string>() ?? "",
                 Category = node["category"]?.GetValue<string>() ?? "",
+                BaseId = node["base"]?.GetValue<string>() ?? "",
+                Abstract = node["abstract"]?.GetValue<bool>() ?? false,
                 Components = node["components"]?.AsObject(),
                 DirectoryPath = dir
             };
@@ -84,7 +101,7 @@ public class EntityPrototype
         }
         catch (Exception e)
         {
-            Console.WriteLine($"[EntityPrototype] Error: {e.Message}");
+            Console.WriteLine($"[EntityPrototype] Error loading {protoPath}: {e.Message}");
             return null;
         }
     }

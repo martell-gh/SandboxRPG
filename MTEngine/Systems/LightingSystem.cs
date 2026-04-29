@@ -43,6 +43,9 @@ public class LightingSystem : GameSystem
 
     public void BuildLightMap(GraphicsDevice gd)
     {
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
+            return;
+
         if (!IsEnabled) return;
 
         _sb ??= ServiceLocator.Get<SpriteBatch>();
@@ -73,6 +76,9 @@ public class LightingSystem : GameSystem
 
     public void ApplyLightMap(GraphicsDevice gd)
     {
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
+            return;
+
         if (!IsEnabled || _lightRT == null) return;
 
         _sb ??= ServiceLocator.Get<SpriteBatch>();
@@ -146,6 +152,11 @@ public class LightingSystem : GameSystem
         var endX = Math.Min(map.Width - 1, (int)MathF.Ceiling(bottomRight.X / map.TileSize) + 3);
         var endY = Math.Min(map.Height - 1, (int)MathF.Ceiling(bottomRight.Y / map.TileSize) + 3);
         var shadowLength = MathF.Max(map.Width, map.Height) * map.TileSize * 2f;
+        var visibleWorldBounds = new Rectangle(
+            (int)topLeft.X - map.TileSize,
+            (int)topLeft.Y - map.TileSize,
+            (int)(bottomRight.X - topLeft.X) + map.TileSize * 2,
+            (int)(bottomRight.Y - topLeft.Y) + map.TileSize * 2);
 
         _shadowEffect ??= BuildShadowEffect(gd);
         _shadowEffect.View = _camera.GetViewMatrix();
@@ -157,6 +168,7 @@ public class LightingSystem : GameSystem
             return;
 
         OccluderEdgeCollector.Collect(map, lightPos, startX, startY, endX, endY, _edges);
+        EntityOcclusionHelper.AppendVisionBlockerEdges(World, lightPos, visibleWorldBounds, _edges);
 
         _shadowVertices.Clear();
         _shadowFeatherVertices.Clear();

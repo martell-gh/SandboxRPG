@@ -1,10 +1,15 @@
 {
   "id": "river_startloc",
   "name": "River_start",
-  "width": 50,
-  "height": 50,
+  "width": 45,
+  "height": 45,
   "tileSize": 32,
-  "ingame": true,
+  "ingame": false,
+  "locationKind": "wilds",
+  "factionId": "fac_starks",
+  "cityId": "city_oakvale",
+  "wantedTags": [],
+  "unwantedTags": [],
   "spawnPoints": [
     {
       "id": "default",
@@ -5207,6 +5212,30 @@
         }
       },
       "containedEntities": []
+    },
+    {
+      "x": 496,
+      "y": 688,
+      "protoId": "woodDoor",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 368,
+      "y": 816,
+      "protoId": "woodDoor",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
+    },
+    {
+      "x": 608.2384,
+      "y": 560.47406,
+      "protoId": "training_dummy",
+      "worldSpace": true,
+      "componentOverrides": {},
+      "containedEntities": []
     }
   ],
   "triggers": [
@@ -5256,5 +5285,6 @@
         "spawnPointId": "top"
       }
     }
-  ]
+  ],
+  "areas": []
 }

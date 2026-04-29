@@ -2,6 +2,7 @@
   "id": "herbal_salve",
   "name": "Herbal Salve",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,7 +12,6 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Травяная мазь",
       "size": "Small",
@@ -19,7 +19,10 @@
       "stackable": true,
       "maxStack": 5,
       "stack": 1,
-      "tags": ["medical", "salve"]
+      "tags": [
+        "medical",
+        "salve"
+      ]
     },
     "info": {
       "description": "Густая мазь из целебных трав и мёда. Снимает боль и заживляет ожоги. Рецепт известен знахарям с древних времён."
@@ -28,7 +31,24 @@
       "damageType": "Burn",
       "healAmount": 30,
       "stopBleedAmount": 0,
-      "useLabel": "Наложить мазь"
+      "useLabel": "Наложить мазь",
+      "requiredSkill": 18
+    },
+    "craftable": {
+      "station": "medicine",
+      "skill": "Medicine",
+      "requiredSkill": 18,
+      "craftTime": 2.2,
+      "ingredients": [
+        {
+          "prototypeId": "medicinal_herbs",
+          "count": 3
+        },
+        {
+          "prototypeId": "cloth_bolt",
+          "count": 1
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,1766 @@
+{
+  "id": "wild_river",
+  "name": "WildRiver",
+  "width": 50,
+  "height": 50,
+  "tileSize": 32,
+  "ingame": true,
+  "locationKind": "wilds",
+  "wantedTags": [],
+  "unwantedTags": [],
+  "spawnPoints": [
+    {
+      "id": "default",
+      "x": 23,
+      "y": 14
+    },
+    {
+      "id": "fromBowerstone",
+      "x": 23,
+      "y": 9
+    },
+    {
+      "id": "fromOakvale",
+      "x": 23,
+      "y": 19
+    }
+  ],
+  "tiles": [
+    {
+      "x": 15,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 15,
+      "y": 13,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 15,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 15,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 15,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 7,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 12,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 13,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 16,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 12,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 13,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 17,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 12,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 18,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 19,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 20,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 21,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 22,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 23,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 24,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 25,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 26,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 27,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 6,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 8,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 9,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 10,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 14,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 15,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 16,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 28,
+      "y": 21,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 7,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 11,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 12,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 13,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 17,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 18,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 19,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 29,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 7,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 12,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 13,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 30,
+      "y": 20,
+      "protoId": "grass",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 7,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 12,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 13,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 14,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 15,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 16,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 31,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 8,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 9,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 10,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 11,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 17,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 18,
+      "protoId": "water",
+      "layer": 0
+    },
+    {
+      "x": 32,
+      "y": 19,
+      "protoId": "water",
+      "layer": 0
+    }
+  ],
+  "entities": [],
+  "triggers": [
+    {
+      "id": "trigger_1",
+      "tiles": [
+        {
+          "x": 17,
+          "y": 7
+        },
+        {
+          "x": 18,
+          "y": 7
+        },
+        {
+          "x": 19,
+          "y": 7
+        },
+        {
+          "x": 20,
+          "y": 7
+        },
+        {
+          "x": 21,
+          "y": 7
+        },
+        {
+          "x": 22,
+          "y": 7
+        },
+        {
+          "x": 25,
+          "y": 7
+        },
+        {
+          "x": 26,
+          "y": 7
+        },
+        {
+          "x": 27,
+          "y": 7
+        },
+        {
+          "x": 28,
+          "y": 7
+        },
+        {
+          "x": 29,
+          "y": 7
+        },
+        {
+          "x": 24,
+          "y": 7
+        },
+        {
+          "x": 23,
+          "y": 7
+        },
+        {
+          "x": 18,
+          "y": 6
+        },
+        {
+          "x": 19,
+          "y": 6
+        },
+        {
+          "x": 20,
+          "y": 6
+        },
+        {
+          "x": 21,
+          "y": 6
+        },
+        {
+          "x": 22,
+          "y": 6
+        },
+        {
+          "x": 23,
+          "y": 6
+        },
+        {
+          "x": 24,
+          "y": 6
+        },
+        {
+          "x": 25,
+          "y": 6
+        },
+        {
+          "x": 26,
+          "y": 6
+        },
+        {
+          "x": 27,
+          "y": 6
+        },
+        {
+          "x": 28,
+          "y": 6
+        }
+      ],
+      "action": {
+        "type": "location_transition",
+        "targetMapId": "livloc_bowerstone",
+        "spawnPointId": "fromRiver"
+      }
+    },
+    {
+      "id": "trigger_2",
+      "tiles": [
+        {
+          "x": 18,
+          "y": 20
+        },
+        {
+          "x": 19,
+          "y": 20
+        },
+        {
+          "x": 20,
+          "y": 20
+        },
+        {
+          "x": 21,
+          "y": 20
+        },
+        {
+          "x": 22,
+          "y": 20
+        },
+        {
+          "x": 24,
+          "y": 20
+        },
+        {
+          "x": 25,
+          "y": 20
+        },
+        {
+          "x": 26,
+          "y": 20
+        },
+        {
+          "x": 27,
+          "y": 20
+        },
+        {
+          "x": 28,
+          "y": 20
+        },
+        {
+          "x": 29,
+          "y": 20
+        },
+        {
+          "x": 30,
+          "y": 20
+        },
+        {
+          "x": 23,
+          "y": 20
+        },
+        {
+          "x": 19,
+          "y": 21
+        },
+        {
+          "x": 20,
+          "y": 21
+        },
+        {
+          "x": 21,
+          "y": 21
+        },
+        {
+          "x": 22,
+          "y": 21
+        },
+        {
+          "x": 23,
+          "y": 21
+        },
+        {
+          "x": 25,
+          "y": 21
+        },
+        {
+          "x": 26,
+          "y": 21
+        },
+        {
+          "x": 27,
+          "y": 21
+        },
+        {
+          "x": 28,
+          "y": 21
+        },
+        {
+          "x": 24,
+          "y": 21
+        }
+      ],
+      "action": {
+        "type": "location_transition",
+        "targetMapId": "livloc_oakvale",
+        "spawnPointId": "fromRiver"
+      }
+    }
+  ],
+  "areas": []
+}

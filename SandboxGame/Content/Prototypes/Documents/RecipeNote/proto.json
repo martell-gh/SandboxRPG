@@ -1,0 +1,30 @@
+{
+  "id": "recipe_note",
+  "name": "Recipe Note",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../../Materials/ClothBolt/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "color": "#E2D4A8"
+    },
+    "item": {
+      "name": "Recipe Note",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "document",
+        "recipe"
+      ]
+    },
+    "info": {
+      "description": "Рукописная запись с ремесленной схемой."
+    },
+    "recipeNote": {}
+  }
+}

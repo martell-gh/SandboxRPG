@@ -1,0 +1,53 @@
+{
+  "id": "npc_base",
+  "name": "NPC",
+  "category": "entity",
+  "base": "base_actor",
+  "components": {
+    "sprite": {
+      "source": "man_sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "velocity": {
+      "speed": 70
+    },
+    "npc": {},
+    "identity": {
+      "firstName": "",
+      "lastName": "",
+      "gender": "Male"
+    },
+    "personality": {},
+    "npcSkills": {},
+    "residence": {},
+    "kin": {},
+    "relationships": {},
+    "age": {
+      "ageYears": 25
+    },
+    "schedule": {
+      "templateId": "default_unemployed"
+    },
+    "interactable": {
+      "name": "NPC",
+      "range": 64
+    },
+    "info": {
+      "description": "Житель."
+    },
+    "genderedAppearance": {
+      "maleSprite": "man_sprite.png",
+      "femaleSprite": "woman_sprite.png"
+    },
+    "hair": {
+      "styleId": "hair_short_messy",
+      "color": "#4C311FFF"
+    }
+  },
+  "animations": "../Player/animations.json"
+}

@@ -17,4 +17,11 @@ public class InteractionContext
 
     /// <summary>The game world — use to query other entities, distances, etc.</summary>
     public required ECS.World World { get; init; }
+
+    /// <summary>
+    /// The entity the user originally clicked on. Set when a self/item context is synthesized
+    /// from a held item so components can decide whether to surface self-only actions in a
+    /// menu attached to a different target.
+    /// </summary>
+    public Entity? OriginalTarget { get; init; }
 }

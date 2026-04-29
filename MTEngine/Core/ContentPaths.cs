@@ -8,6 +8,8 @@ public static class ContentPaths
     public static readonly string MapsRoot = Path.Combine("SandboxGame", "Maps");
 
     public static string PrototypesRoot => Path.Combine(ContentRoot, "Prototypes");
+    public static string DataRoot => Path.Combine(ContentRoot, "Data");
+    public static string LocalizationRoot => Path.Combine(ContentRoot, "Localization");
     public static string TilesRoot => Path.Combine(PrototypesRoot, "Tiles");
     public static string ActorsRoot => Path.Combine(PrototypesRoot, "Actors");
     public static string SubstancesRoot => Path.Combine(PrototypesRoot, "Substances");
@@ -18,6 +20,8 @@ public static class ContentPaths
     public static string AbsoluteContentRoot => ResolveDirectory(ContentRoot);
     public static string AbsoluteMapsRoot => ResolveDirectory(MapsRoot);
     public static string AbsolutePrototypesRoot => ResolveDirectory(PrototypesRoot);
+    public static string AbsoluteDataRoot => ResolveDirectory(DataRoot);
+    public static string AbsoluteLocalizationRoot => ResolveDirectory(LocalizationRoot);
     public static string AbsoluteTilesRoot => ResolveDirectory(TilesRoot);
     public static string AbsoluteActorsRoot => ResolveDirectory(ActorsRoot);
     public static string AbsoluteSubstancesRoot => ResolveDirectory(SubstancesRoot);

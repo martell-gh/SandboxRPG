@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MTEngine.Core;
+using MTEngine.World;
 using SandboxGame.Save;
 using SandboxGame.Settings;
 
@@ -27,7 +29,9 @@ public enum MenuScreen
     SaveSlots,
     LoadSlots,
     SaveNamePrompt,
-    Confirm
+    Confirm,
+    CharacterCreator,
+    NewGameMaps
 }
 
 public enum SettingsSection
@@ -81,19 +85,50 @@ public class MenuSystem
     private int _pendingSaveSlotIndex;
     private bool _saveNamePromptIsRename;
     private bool _confirmAsModal;
+    private bool _resolutionDropdownOpen;
+    private bool _languageDropdownOpen;
+    private bool _pendingResolutionConfirmation;
+    private float _pendingResolutionSeconds;
+    private DateTime _pendingResolutionDeadlineUtc;
+    private Point _pendingResolutionPrevious;
+    private Point _pendingResolutionTarget;
     private Action? _confirmAccept;
     private Action? _confirmCancel;
+    private readonly List<ResolutionOption> _availableResolutionOptions = new();
+    private readonly PlayerCharacterDraft _characterDraft = new();
+    private int _characterHairColorIndex = 2;
+    private int _characterSkinColorIndex = 1;
+    /// <summary>0=down,1=left,2=up,3=right.</summary>
+    private int _previewFacing;
+    private Rectangle _rotateButtonRect;
+    private Rectangle _skinTabRect;
+    private Rectangle _hairTabRect;
+    private HsvColorPicker? _colorPicker;
+    private HsvColorPicker.Picker? _activePicker;
+    /// <summary>0=skin, 1=hair. Какому полю draft пикер применяет результат.</summary>
+    private int _colorTarget;
+    private string _lastPickerSourceColor = "";
 
     private const float MinUiScale = 0.75f;
     private const float MaxUiScale = 2f;
     private const float UiScaleStep = 0.05f;
 
+    private readonly record struct ResolutionOption(Point WindowSize, Point PixelSize)
+    {
+        public string Label => $"{PixelSize.X}x{PixelSize.Y}";
+    }
+
     public GameState GameState { get; set; } = GameState.MainMenu;
     public MenuScreen CurrentScreen { get; private set; } = MenuScreen.Main;
     public Func<IReadOnlyList<SaveSlotSummary>>? SaveSlotProvider { get; set; }
     public Func<int, string>? SaveNameSuggestionProvider { get; set; }
+    public Func<IReadOnlyList<MapCatalogEntry>>? MapCatalogProvider { get; set; }
+    public Func<string, IReadOnlyList<CharacterCreatorHairOption>>? HairOptionsProvider { get; set; }
+    public CharacterPreviewRenderer? CharacterPreview { get; set; }
+    public Func<(bool Ok, string Message)>? StartLocationValidator { get; set; }
 
-    public event Action? OnStartGame;
+    public event Action<string>? OnStartGameWithMap;
+    public event Action<PlayerCharacterDraft>? OnStartGameRequested;
     public event Action? OnLoadRiver;
     public event Action? OnExitGame;
     public event Action? OnResumeGame;
@@ -102,6 +137,7 @@ public class MenuSystem
     public event Action<int, string>? OnRenameSlotRequested;
     public event Action<int>? OnDeleteSlotRequested;
     public event Action<int>? OnLoadSlotSelected;
+    public event Action<int, int>? OnResolutionChanged;
 
     public bool IsBlockingInput => GameState != GameState.Playing || CurrentScreen != MenuScreen.None;
 
@@ -118,6 +154,7 @@ public class MenuSystem
         _pixel = new Texture2D(gd, 1, 1);
         _pixel.SetData(new[] { Color.White });
         _mainMenuBackground = _pixel;
+        RefreshResolutionOptions();
         LoadMenuDefinitions();
     }
 
@@ -134,7 +171,7 @@ public class MenuSystem
             _pauseMenuDef = MenuDefinition.LoadFromFile(pausePath);
 
         // маппинг строковых action -> делегатов
-        _actionMap["start_game"] = () => OnStartGame?.Invoke();
+        _actionMap["start_game"] = OpenCharacterCreator;
         _actionMap["load_river"] = () => OnLoadRiver?.Invoke();
         _actionMap["open_load"] = OpenLoadSlots;
         _actionMap["open_save"] = OpenSaveSlots;
@@ -240,6 +277,8 @@ public class MenuSystem
         if (CurrentScreen == MenuScreen.None)
             return;
 
+        UpdatePendingResolutionConfirmation();
+
         var kb = Keyboard.GetState();
 
         if (_waitingForKey != null)
@@ -281,6 +320,7 @@ public class MenuSystem
             MenuScreen.Main => _mainMenuDef ?? _defaultDef,
             MenuScreen.Pause => _pauseMenuDef ?? _defaultDef,
             MenuScreen.Settings or MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.Confirm
+                or MenuScreen.CharacterCreator or MenuScreen.NewGameMaps
                 => (_returnTo == MenuScreen.Main ? _mainMenuDef : _pauseMenuDef) ?? _defaultDef,
             _ => _defaultDef
         };
@@ -324,8 +364,8 @@ public class MenuSystem
 
         sb.Begin(
             blendState: BlendState.AlphaBlend,
-            samplerState: Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
-            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+            samplerState: GetTextFriendlySampler(uiScale),
+            transformMatrix: GameEngine.Instance.GetUiTransform(uiScale));
 
         DrawBackground(sb, vp, def.Background);
         DrawPanel(sb, pageRect, def.PagePanel.Fill, def.PagePanel.Border, def.PagePanel.BorderThickness);
@@ -333,9 +373,9 @@ public class MenuSystem
         DrawPanel(sb, contentRect, def.ContentPanel.Fill, def.ContentPanel.Border, def.ContentPanel.BorderThickness);
 
         var tb = def.TitleBar;
-        var titleSafe = SanitizeText(title);
+        var titleSafe = DisplayText(title);
         var titleSize = _font.MeasureString(titleSafe);
-        sb.DrawString(_font, titleSafe, new Vector2(pageRect.X + tb.OffsetX, pageRect.Y + tb.OffsetY), tb.Color);
+        sb.DrawString(_font, titleSafe, Snap(new Vector2(pageRect.X + tb.OffsetX, pageRect.Y + tb.OffsetY)), tb.Color);
         sb.Draw(_pixel, new Rectangle(pageRect.X + tb.OffsetX, pageRect.Y + tb.OffsetY + (int)titleSize.Y + tb.SeparatorGap, pageRect.Width - tb.OffsetX * 2, tb.SeparatorHeight), tb.SeparatorColor);
 
         if (CurrentScreen == MenuScreen.Settings)
@@ -347,10 +387,10 @@ public class MenuSystem
         var hint = GetScreenHintText(hintDef);
         if (!string.IsNullOrEmpty(hint))
         {
-            var hintSafe = SanitizeText(hint);
+            var hintSafe = DisplayText(hint);
             var hintSize = _font.MeasureString(hintSafe);
             var hintPos = ResolveHintPosition(pageRect, hintDef, hintSize);
-            sb.DrawString(_font, hintSafe, hintPos, hintDef.Color);
+            sb.DrawString(_font, hintSafe, Snap(hintPos), hintDef.Color);
         }
 
         sb.End();
@@ -360,8 +400,8 @@ public class MenuSystem
     {
         sb.Begin(
             blendState: BlendState.AlphaBlend,
-            samplerState: Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
-            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+            samplerState: GetTextFriendlySampler(uiScale),
+            transformMatrix: GameEngine.Instance.GetUiTransform(uiScale));
 
         sb.Draw(_pixel, viewportRect, new Color(0, 0, 0, 110));
 
@@ -413,6 +453,16 @@ public class MenuSystem
 
         if (IsNewPress(kb, Keys.Down) || IsNewPress(kb, Keys.S))
             _selectedIndex = (_selectedIndex + 1) % _menuItems.Count;
+
+        if (CurrentScreen == MenuScreen.CharacterCreator)
+        {
+            if (IsNewPress(kb, Keys.Left) || IsNewPress(kb, Keys.A))
+                AdjustCharacterCreatorSelection(-1);
+            if (IsNewPress(kb, Keys.Right) || IsNewPress(kb, Keys.D))
+                AdjustCharacterCreatorSelection(1);
+
+            HandleCharacterCreatorMouse();
+        }
 
         var hoverPos = GetScaledMousePosition();
         _hoveredIndex = -1;
@@ -484,7 +534,11 @@ public class MenuSystem
                 BuildMenuItems();
             }
         }
-        else if (IsNewPress(kb, Keys.Escape) && (CurrentScreen == MenuScreen.SaveSlots || CurrentScreen == MenuScreen.LoadSlots))
+        else if (IsNewPress(kb, Keys.Escape)
+                 && (CurrentScreen == MenuScreen.SaveSlots
+                     || CurrentScreen == MenuScreen.LoadSlots
+                     || CurrentScreen == MenuScreen.CharacterCreator
+                     || CurrentScreen == MenuScreen.NewGameMaps))
         {
             CurrentScreen = _returnTo;
             BuildMenuItems();
@@ -693,6 +747,10 @@ public class MenuSystem
         {
             DrawSaveNamePrompt(sb, contentRect, cp);
         }
+        else if (CurrentScreen == MenuScreen.CharacterCreator)
+        {
+            DrawCharacterCreatorDetails(sb, contentRect, cp);
+        }
         else if (_menuItems.Count > 0 && _selectedIndex >= 0 && _selectedIndex < _menuItems.Count)
         {
             var item = _menuItems[_selectedIndex];
@@ -703,6 +761,126 @@ public class MenuSystem
                 DrawMultilineText(sb, item.Description!, new Vector2(card.X + cp.CardPadding, card.Y + 52), card.Width - cp.CardPadding * 2, cp.DescriptionColor);
         }
     }
+
+    private void DrawCharacterCreatorDetails(SpriteBatch sb, Rectangle contentRect, MenuContentPanelDef cp)
+    {
+        // Целевая высота карты: 460 (вмещает ×1.5 превью + rotate-кнопку + цветовой пикер).
+        var card = new Rectangle(
+            contentRect.X + cp.CardOffsetX,
+            contentRect.Y + cp.CardOffsetY,
+            contentRect.Width - cp.CardOffsetX * 2,
+            Math.Min(460, contentRect.Height - cp.CardOffsetY - 28));
+
+        DrawPanel(sb, card, cp.CardFill, cp.CardBorder, cp.CardBorderThickness);
+
+        // Превью ×1.5 (104×148 → 156×222).
+        var preview = new Rectangle(card.X + cp.CardPadding, card.Y + 22, 156, 222);
+        DrawPanel(sb, preview, new Color(12, 20, 16, 235), new Color(64, 92, 70), 1);
+
+        var facing = FacingVector(_previewFacing);
+        var renderedRealPreview = CharacterPreview?.Render(sb, preview, _characterDraft, facing) == true;
+        if (!renderedRealPreview)
+        {
+            const string fallbackText = "Preview unavailable";
+            var fallbackSize = _font.MeasureString(fallbackText);
+            DrawText(sb, fallbackText,
+                new Vector2(preview.Center.X - fallbackSize.X / 2f, preview.Center.Y - fallbackSize.Y / 2f),
+                cp.DescriptionColor);
+        }
+
+        // Кнопка поворота под превью.
+        _rotateButtonRect = new Rectangle(preview.X, preview.Bottom + 8, preview.Width, 30);
+        var rotHover = _rotateButtonRect.Contains(GetScaledMousePosition());
+        DrawPanel(sb,
+            _rotateButtonRect,
+            rotHover ? new Color(60, 88, 70, 230) : new Color(28, 50, 36, 220),
+            new Color(96, 140, 104),
+            1);
+        var rotLabel = $"Повернуть ({FacingLabel(_previewFacing)})";
+        var rotSize = _font.MeasureString(SanitizeText(rotLabel));
+        DrawText(sb, rotLabel,
+            new Vector2(_rotateButtonRect.Center.X - rotSize.X / 2f, _rotateButtonRect.Y + 6),
+            cp.LabelColor);
+
+        // Правая колонка: пол / прическа / переключатели цвета.
+        var x = preview.Right + 22;
+        var y = card.Y + 24;
+        DrawText(sb, GetGenderLabel(_characterDraft.Gender), new Vector2(x, y), cp.LabelColor);
+        y += 28;
+        DrawText(sb, $"Возраст: {_characterDraft.AgeYears}", new Vector2(x, y), cp.DescriptionColor);
+        y += 28;
+        DrawText(sb, GetSelectedHairOption().Label, new Vector2(x, y), cp.DescriptionColor);
+        y += 32;
+
+        _skinTabRect = DrawCreatorColorTab(sb, x, y, "Кожа", 0, AssetManager.ParseHexColor(_characterDraft.SkinColor, Color.White), cp);
+        _hairTabRect = DrawCreatorColorTab(sb, x + 130, y, "Волосы", 1, AssetManager.ParseHexColor(_characterDraft.HairColor, Color.White), cp);
+        y += 38;
+
+        // HSV color picker (всегда виден).
+        EnsureColorPicker();
+        var pickerArea = new Rectangle(x, y, Math.Max(200, card.Right - x - cp.CardPadding), 168);
+        DrawColorPickerPanel(sb, pickerArea);
+
+        var startState = StartLocationValidator?.Invoke() ?? (true, "Стартовая карта настроена.");
+        var startText = startState.Ok ? "Стартовая карта берётся из MTEditor -> Global Settings." : startState.Message;
+        DrawMultilineText(sb, startText,
+            new Vector2(x, pickerArea.Bottom + 10),
+            Math.Max(120, card.Right - x - cp.CardPadding),
+            cp.DescriptionColor);
+    }
+
+    private Rectangle DrawCreatorColorTab(SpriteBatch sb, int x, int y, string label, int target, Color colorValue, MenuContentPanelDef cp)
+    {
+        var rect = new Rectangle(x, y, 120, 28);
+        var active = _colorTarget == target;
+        DrawPanel(sb, rect,
+            active ? new Color(60, 92, 72, 230) : new Color(24, 40, 30, 210),
+            active ? new Color(120, 180, 130) : new Color(60, 92, 72),
+            1);
+        var swatch = new Rectangle(rect.X + 6, rect.Y + 6, 16, 16);
+        sb.Draw(_pixel, swatch, colorValue);
+        DrawPanel(sb, swatch, Color.Transparent, cp.CardBorder, 1);
+        DrawText(sb, label, new Vector2(swatch.Right + 8, rect.Y + 6), active ? cp.LabelColor : cp.DescriptionColor);
+        return rect;
+    }
+
+    private void EnsureColorPicker()
+    {
+        _colorPicker ??= new HsvColorPicker(_gd);
+        var sourceHex = _colorTarget == 1 ? _characterDraft.HairColor : _characterDraft.SkinColor;
+        if (_activePicker == null || !string.Equals(sourceHex, _lastPickerSourceColor, StringComparison.OrdinalIgnoreCase))
+        {
+            _activePicker = _colorPicker.BuildPicker(AssetManager.ParseHexColor(sourceHex, Color.White), Rectangle.Empty);
+            _lastPickerSourceColor = sourceHex;
+        }
+    }
+
+    private void DrawColorPickerPanel(SpriteBatch sb, Rectangle area)
+    {
+        if (_colorPicker == null || _activePicker == null)
+            return;
+
+        _colorPicker.Layout(_activePicker, area);
+        _colorPicker.Draw(sb, _activePicker, _pixel);
+    }
+
+    private static Vector2 FacingVector(int idx) => idx switch
+    {
+        0 => new Vector2(0, 1),   // down
+        1 => new Vector2(-1, 0),  // left
+        2 => new Vector2(0, -1),  // up
+        3 => new Vector2(1, 0),   // right
+        _ => new Vector2(0, 1)
+    };
+
+    private static string FacingLabel(int idx) => idx switch
+    {
+        0 => "к нам",
+        1 => "влево",
+        2 => "от нас",
+        3 => "вправо",
+        _ => ""
+    };
 
     private void DrawSaveNamePrompt(SpriteBatch sb, Rectangle contentRect, MenuContentPanelDef cp)
     {
@@ -812,7 +990,7 @@ public class MenuSystem
             DrawText(sb, item.Label, new Vector2(bounds.X + 14, bounds.Y + 9), textColor);
             if (!string.IsNullOrWhiteSpace(item.Value))
             {
-                var safeValue = SanitizeText(item.Value!);
+                var safeValue = DisplayText(item.Value!);
                 var valueSize = _font.MeasureString(safeValue);
                 var valueColor = _waitingForKey == item.Tag ? Color.Yellow : new Color(162, 214, 164);
                 sb.DrawString(_font, safeValue, new Vector2(bounds.Right - valueSize.X - 14, bounds.Y + 9), valueColor);
@@ -872,12 +1050,12 @@ public class MenuSystem
 
     private void DrawText(SpriteBatch sb, string text, Vector2 position, Color color)
     {
-        sb.DrawString(_font, SanitizeText(text), position, color);
+        sb.DrawString(_font, DisplayText(text), Snap(position), color);
     }
 
     private void DrawMultilineText(SpriteBatch sb, string text, Vector2 position, int maxWidth, Color color)
     {
-        var words = SanitizeText(text).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var words = DisplayText(text).Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var line = string.Empty;
         var y = position.Y;
 
@@ -886,7 +1064,7 @@ public class MenuSystem
             var candidate = string.IsNullOrEmpty(line) ? word : $"{line} {word}";
             if (_font.MeasureString(candidate).X > maxWidth && !string.IsNullOrEmpty(line))
             {
-                sb.DrawString(_font, line, new Vector2(position.X, y), color);
+                sb.DrawString(_font, line, Snap(new Vector2(position.X, y)), color);
                 line = word;
                 y += 20;
             }
@@ -897,7 +1075,189 @@ public class MenuSystem
         }
 
         if (!string.IsNullOrEmpty(line))
-            sb.DrawString(_font, line, new Vector2(position.X, y), color);
+            sb.DrawString(_font, line, Snap(new Vector2(position.X, y)), color);
+    }
+
+    private static Vector2 Snap(Vector2 position)
+        => new(MathF.Round(position.X), MathF.Round(position.Y));
+
+    private static SamplerState GetTextFriendlySampler(float uiScale)
+        => SamplerState.PointClamp;
+
+    // Fractions of the native display used to generate windowed options that
+    // always match the user's monitor aspect ratio (16:9, 16:10, 21:9, …).
+    private static readonly float[] ResolutionScaleSteps =
+    {
+        1.00f, 0.90f, 0.80f, 0.75f, 0.66f, 0.60f, 0.50f, 0.40f, 0.33f, 0.25f
+    };
+
+    private void RefreshResolutionOptions()
+    {
+        _availableResolutionOptions.Clear();
+
+        var nativeSize = GameEngine.Instance.GetNativeDisplayPixelSize();
+        var nativePxW = nativeSize.X;
+        var nativePxH = nativeSize.Y;
+
+        bool Fits(Point size)
+            => size.X >= GameEngine.MinResolutionWidth
+            && size.Y >= GameEngine.MinResolutionHeight
+            && size.X <= nativePxW
+            && size.Y <= nativePxH;
+
+        void Add(Point pixelSize)
+        {
+            if (!Fits(pixelSize))
+                return;
+
+            var option = new ResolutionOption(
+                GameEngine.Instance.GetWindowSizeForPixelSize(pixelSize),
+                pixelSize);
+
+            if (!_availableResolutionOptions.Contains(option))
+                _availableResolutionOptions.Add(option);
+        }
+
+        Add(new Point(nativePxW, nativePxH));
+
+        foreach (var step in ResolutionScaleSteps)
+        {
+            var w = (int)MathF.Round(nativePxW * step);
+            var h = (int)MathF.Round(nativePxH * step);
+            if ((w & 1) == 1) w--;
+            if ((h & 1) == 1) h--;
+            Add(new Point(w, h));
+        }
+
+        Add(GameEngine.Instance.GetPixelSizeForWindowSize(GameEngine.Instance.GetUiClientSize()));
+        Add(GameEngine.Instance.GetPixelSizeForWindowSize(new Point(_settings.ScreenWidth, _settings.ScreenHeight)));
+
+        _availableResolutionOptions.Sort((a, b) =>
+        {
+            var areaCompare = (a.PixelSize.X * a.PixelSize.Y).CompareTo(b.PixelSize.X * b.PixelSize.Y);
+            return areaCompare != 0 ? areaCompare : a.PixelSize.X.CompareTo(b.PixelSize.X);
+        });
+    }
+
+    private void ToggleResolutionDropdown()
+    {
+        RefreshResolutionOptions();
+        _resolutionDropdownOpen = !_resolutionDropdownOpen;
+        RebuildSettingsContent();
+    }
+
+    private void ToggleLanguageDropdown()
+    {
+        _languageDropdownOpen = !_languageDropdownOpen;
+        RebuildSettingsContent();
+    }
+
+    private IReadOnlyList<LocalizationLanguage> GetLocalizationOptions()
+    {
+        var loc = GetLocalizationManager();
+        if (loc is { Languages.Count: > 0 })
+            return loc.Languages;
+
+        return new[]
+        {
+            new LocalizationLanguage { Id = LocalizationManager.RussianId, Name = "Русский" },
+            new LocalizationLanguage { Id = LocalizationManager.EnglishId, Name = "English" }
+        };
+    }
+
+    private void ApplyLanguage(LocalizationLanguage language)
+    {
+        _settings.LocalizationId = language.Id;
+        _settings.Save();
+        GetLocalizationManager()?.SetLanguage(language.Id);
+        _languageDropdownOpen = false;
+        BuildMenuItems();
+        RebuildSettingsContent();
+    }
+
+    private static LocalizationManager? GetLocalizationManager()
+        => ServiceLocator.Has<LocalizationManager>() ? ServiceLocator.Get<LocalizationManager>() : null;
+
+    private void ApplyResolutionOption(ResolutionOption resolution)
+    {
+        if (_settings.ScreenWidth == resolution.WindowSize.X && _settings.ScreenHeight == resolution.WindowSize.Y)
+        {
+            _resolutionDropdownOpen = false;
+            RebuildSettingsContent();
+            return;
+        }
+
+        _pendingResolutionPrevious = new Point(_settings.ScreenWidth, _settings.ScreenHeight);
+        _pendingResolutionTarget = resolution.WindowSize;
+        _pendingResolutionConfirmation = true;
+        _pendingResolutionSeconds = 7f;
+        _pendingResolutionDeadlineUtc = DateTime.UtcNow.AddSeconds(_pendingResolutionSeconds);
+        _settings.ScreenWidth = resolution.WindowSize.X;
+        _settings.ScreenHeight = resolution.WindowSize.Y;
+        _resolutionDropdownOpen = false;
+        OnResolutionChanged?.Invoke(resolution.WindowSize.X, resolution.WindowSize.Y);
+        RefreshResolutionOptions();
+        var savedReturnTo = _returnTo;
+        OpenConfirmation(
+            "Подтвердить разрешение",
+            BuildPendingResolutionDescription(),
+            () => { ConfirmPendingResolutionChange(); _returnTo = savedReturnTo; },
+            () => { RevertPendingResolutionChange(); _returnTo = savedReturnTo; });
+    }
+
+    private void ConfirmPendingResolutionChange()
+    {
+        if (!_pendingResolutionConfirmation)
+            return;
+
+        _pendingResolutionConfirmation = false;
+        _pendingResolutionSeconds = 0f;
+        _pendingResolutionDeadlineUtc = default;
+        _settings.Save();
+        RebuildSettingsContent();
+    }
+
+    private void RevertPendingResolutionChange()
+    {
+        if (!_pendingResolutionConfirmation)
+            return;
+
+        _pendingResolutionConfirmation = false;
+        _pendingResolutionSeconds = 0f;
+        _pendingResolutionDeadlineUtc = default;
+        _settings.ScreenWidth = _pendingResolutionPrevious.X;
+        _settings.ScreenHeight = _pendingResolutionPrevious.Y;
+        OnResolutionChanged?.Invoke(_pendingResolutionPrevious.X, _pendingResolutionPrevious.Y);
+        RefreshResolutionOptions();
+        RebuildSettingsContent();
+    }
+
+    private void UpdatePendingResolutionConfirmation()
+    {
+        if (!_pendingResolutionConfirmation || CurrentScreen != MenuScreen.Confirm)
+            return;
+
+        _pendingResolutionSeconds = Math.Max(0f, (float)(_pendingResolutionDeadlineUtc - DateTime.UtcNow).TotalSeconds);
+        _overlayDescription = BuildPendingResolutionDescription();
+
+        if (_pendingResolutionSeconds <= 0f)
+        {
+            RevertPendingResolutionChange();
+            var action = _confirmCancel;
+            _confirmAccept = null;
+            _confirmCancel = null;
+            CurrentScreen = _returnTo;
+            _confirmAsModal = false;
+            if (CurrentScreen != MenuScreen.None)
+                BuildMenuItems();
+            action?.Invoke();
+        }
+    }
+
+    private string BuildPendingResolutionDescription()
+    {
+        var pixelSize = GameEngine.Instance.GetPixelSizeForWindowSize(_pendingResolutionTarget);
+        return $"Оставить {pixelSize.X}x{pixelSize.Y}? Разрешение вернётся обратно через {Math.Max(0, (int)MathF.Ceiling(_pendingResolutionSeconds))} сек.";
     }
 
     private void BuildMenuItems()
@@ -963,6 +1323,49 @@ public class MenuSystem
                     _selectedIndex = Math.Clamp(_pendingSaveSlotIndex - 1, 0, Math.Max(0, _menuItems.Count - 1));
                     BuildMenuItems();
                 }));
+            return;
+        }
+
+        if (CurrentScreen == MenuScreen.CharacterCreator)
+        {
+            BuildCharacterCreatorItems();
+            return;
+        }
+
+        if (CurrentScreen == MenuScreen.NewGameMaps)
+        {
+            var allMaps = MapCatalogProvider?.Invoke() ?? Array.Empty<MapCatalogEntry>();
+            var maps = allMaps.Where(m => m.InGame).ToList();
+            if (maps.Count == 0)
+            {
+                _menuItems.Add(new MenuItem(
+                    "Нет игровых карт",
+                    Description: "Откройте MTEditor и пометьте хотя бы одну карту как игровую.",
+                    Action: null));
+            }
+            else
+            {
+                foreach (var map in maps)
+                {
+                    var mapId = map.Id;
+                    _menuItems.Add(new MenuItem(
+                        map.Name,
+                        Description: $"Идентификатор: {map.Id}",
+                        Action: () => OnStartGameWithMap?.Invoke(mapId)));
+                }
+            }
+
+            _menuItems.Add(new MenuItem(
+                "Назад",
+                Description: "Вернуться в главное меню.",
+                Action: () =>
+                {
+                    CurrentScreen = _returnTo;
+                    BuildMenuItems();
+                }));
+
+            if (_selectedIndex >= _menuItems.Count)
+                _selectedIndex = 0;
             return;
         }
 
@@ -1059,6 +1462,35 @@ public class MenuSystem
         BuildMenuItems();
     }
 
+    private void OpenCharacterCreator()
+    {
+        _returnTo = CurrentScreen;
+        CurrentScreen = MenuScreen.CharacterCreator;
+        _overlayTitle = "Создание персонажа";
+        _overlayDescription = "Выберите базовую внешность героя перед входом в мир.";
+        _overlayNavHeader = "Персонаж";
+        _overlayNavDescription = "A/D or Left/Right меняют выбранный параметр.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        EnsureCharacterHairSelection();
+        BuildMenuItems();
+    }
+
+    private void OpenNewGameMaps()
+    {
+        _returnTo = CurrentScreen;
+        CurrentScreen = MenuScreen.NewGameMaps;
+        _overlayTitle = "Выбор карты";
+        _overlayDescription = "Выберите карту, с которой начнётся новая игра.";
+        _overlayNavHeader = "Карты";
+        _overlayNavDescription = "Доступны только карты, помеченные в редакторе как игровые.";
+        _selectedIndex = 0;
+        _hoveredIndex = -1;
+        _prevKb = Keyboard.GetState();
+        BuildMenuItems();
+    }
+
     public void ReturnToSaveSlots(int selectedSlotIndex)
     {
         CurrentScreen = MenuScreen.SaveSlots;
@@ -1135,6 +1567,200 @@ public class MenuSystem
         BuildMenuItems();
     }
 
+    private void BuildCharacterCreatorItems()
+    {
+        EnsureCharacterHairSelection();
+        var startState = StartLocationValidator?.Invoke() ?? (true, "Стартовая карта настроена.");
+        var hairLabel = GetSelectedHairOption().Label;
+
+        _menuItems.Add(new MenuItem(
+            "Пол",
+            Value: GetGenderLabel(_characterDraft.Gender),
+            Description: "Меняет пол персонажа. Причёски ниже фильтруются под выбранный пол.",
+            Action: () => { ToggleCharacterGender(); BuildMenuItems(); }));
+        _menuItems.Add(new MenuItem(
+            "Возраст",
+            Value: $"{_characterDraft.AgeYears}",
+            Description: $"Возраст персонажа на старте. Минимум: {PlayerCharacterDraft.MinAgeYears}.",
+            Action: () => { AdjustCharacterAge(1); BuildMenuItems(); }));
+        _menuItems.Add(new MenuItem(
+            "Причёска",
+            Value: hairLabel,
+            Description: "Выберите один из hair-прототипов, доступных для этого пола.",
+            Action: () => { CycleHairStyle(1); BuildMenuItems(); }));
+        _menuItems.Add(new MenuItem(
+            "Начать игру",
+            Description: startState.Ok
+                ? "Создать персонажа и загрузить стартовую карту из Global Settings."
+                : startState.Message,
+            Action: startState.Ok ? () => OnStartGameRequested?.Invoke(_characterDraft.Clone()) : null));
+        _menuItems.Add(new MenuItem(
+            "Назад",
+            Description: "Вернуться в главное меню.",
+            Action: () =>
+            {
+                CurrentScreen = _returnTo;
+                BuildMenuItems();
+            }));
+    }
+
+    private void HandleCharacterCreatorMouse()
+    {
+        var pos = GetScaledMousePosition();
+
+        if (_input.LeftClicked)
+        {
+            if (_rotateButtonRect.Contains(pos))
+            {
+                _previewFacing = (_previewFacing + 1) % 4;
+                return;
+            }
+
+            if (_skinTabRect.Contains(pos))
+            {
+                _colorTarget = 0;
+                _activePicker = null;
+                return;
+            }
+
+            if (_hairTabRect.Contains(pos))
+            {
+                _colorTarget = 1;
+                _activePicker = null;
+                return;
+            }
+        }
+
+        // Drag по hue/sv: реагируем пока кнопка зажата.
+        if (_input.LeftDown && _colorPicker != null && _activePicker != null
+            && _colorPicker.HandleMouse(_activePicker, pos, leftDown: true))
+        {
+            var color = _colorPicker.CurrentColor(_activePicker);
+            var hex = $"#{color.R:X2}{color.G:X2}{color.B:X2}FF";
+            if (_colorTarget == 1)
+                _characterDraft.HairColor = hex;
+            else
+                _characterDraft.SkinColor = hex;
+            _lastPickerSourceColor = hex;
+        }
+    }
+
+    private void AdjustCharacterCreatorSelection(int delta)
+    {
+        if (CurrentScreen != MenuScreen.CharacterCreator || _selectedIndex < 0)
+            return;
+
+        switch (_selectedIndex)
+        {
+            case 0:
+                ToggleCharacterGender();
+                break;
+            case 1:
+                AdjustCharacterAge(delta);
+                break;
+            case 2:
+                CycleHairStyle(delta);
+                break;
+            default:
+                return;
+        }
+
+        BuildMenuItems();
+    }
+
+    private void ToggleCharacterGender()
+    {
+        _characterDraft.Gender = string.Equals(_characterDraft.Gender, "Female", StringComparison.OrdinalIgnoreCase)
+            ? "Male"
+            : "Female";
+        EnsureCharacterHairSelection();
+    }
+
+    private void AdjustCharacterAge(int delta)
+    {
+        _characterDraft.AgeYears = Math.Clamp(
+            _characterDraft.AgeYears + delta,
+            PlayerCharacterDraft.MinAgeYears,
+            PlayerCharacterDraft.MaxAgeYears);
+    }
+
+    private void CycleHairStyle(int delta)
+    {
+        var options = GetHairOptionsForCurrentGender();
+        if (options.Count == 0)
+            return;
+
+        var index = options.FindIndex(option => string.Equals(option.Id, _characterDraft.HairStyleId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+            index = 0;
+
+        index = PositiveModulo(index + delta, options.Count);
+        _characterDraft.HairStyleId = options[index].Id;
+    }
+
+    private void EnsureCharacterHairSelection()
+    {
+        _characterDraft.Gender = string.Equals(_characterDraft.Gender, "Female", StringComparison.OrdinalIgnoreCase)
+            ? "Female"
+            : "Male";
+        _characterDraft.AgeYears = Math.Clamp(_characterDraft.AgeYears, PlayerCharacterDraft.MinAgeYears, PlayerCharacterDraft.MaxAgeYears);
+
+        _characterHairColorIndex = FindPresetIndex(CharacterCreatorDefaults.HairColors, _characterDraft.HairColor, _characterHairColorIndex);
+        _characterSkinColorIndex = FindPresetIndex(CharacterCreatorDefaults.SkinColors, _characterDraft.SkinColor, _characterSkinColorIndex);
+
+        var options = GetHairOptionsForCurrentGender();
+        if (options.Count == 0)
+        {
+            _characterDraft.HairStyleId = "";
+            return;
+        }
+
+        if (options.Any(option => string.Equals(option.Id, _characterDraft.HairStyleId, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        _characterDraft.HairStyleId = options[0].Id;
+    }
+
+    private List<CharacterCreatorHairOption> GetHairOptionsForCurrentGender()
+    {
+        var provided = HairOptionsProvider?.Invoke(_characterDraft.Gender) ?? CharacterCreatorDefaults.EmptyHairOptions;
+        var options = provided
+            .Where(option => option != null)
+            .GroupBy(option => option.Id ?? "", StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+
+        if (options.All(option => !string.IsNullOrEmpty(option.Id)))
+            options.Insert(0, new CharacterCreatorHairOption { Id = "", Label = "Без волос", Gender = "Unisex" });
+
+        return options;
+    }
+
+    private CharacterCreatorHairOption GetSelectedHairOption()
+    {
+        var options = GetHairOptionsForCurrentGender();
+        return options.FirstOrDefault(option => string.Equals(option.Id, _characterDraft.HairStyleId, StringComparison.OrdinalIgnoreCase))
+               ?? options.FirstOrDefault()
+               ?? new CharacterCreatorHairOption { Id = "", Label = "Без волос", Gender = "Unisex" };
+    }
+
+    private static string GetGenderLabel(string gender)
+        => string.Equals(gender, "Female", StringComparison.OrdinalIgnoreCase) ? "Женский" : "Мужской";
+
+    private static int FindPresetIndex(IReadOnlyList<string> presets, string value, int fallback)
+    {
+        for (var i = 0; i < presets.Count; i++)
+        {
+            if (string.Equals(presets[i], value, StringComparison.OrdinalIgnoreCase))
+                return i;
+        }
+
+        return Math.Clamp(fallback, 0, Math.Max(0, presets.Count - 1));
+    }
+
+    private static int PositiveModulo(int value, int divisor)
+        => divisor <= 0 ? 0 : ((value % divisor) + divisor) % divisor;
+
     private void BuildSettingsNavigation()
     {
         _settingsNavItems.Clear();
@@ -1166,8 +1792,27 @@ public class MenuSystem
                         _settings.Save();
                         RebuildSettingsContent();
                     }));
+                var loc = GetLocalizationManager();
+                var currentLanguageName = loc?.GetLanguageName(_settings.LocalizationId) ?? _settings.LocalizationId;
                 _settingsContentItems.Add(new MenuItem(
-                    "Режим разработчика",
+                    LocalizationManager.T("--ui-settings-language"),
+                    Value: _languageDropdownOpen ? "^" : currentLanguageName,
+                    Description: "Выбор активной папки из Content/Localization.",
+                    Action: ToggleLanguageDropdown));
+                if (_languageDropdownOpen)
+                {
+                    foreach (var language in GetLocalizationOptions())
+                    {
+                        var isCurrent = string.Equals(language.Id, _settings.LocalizationId, StringComparison.OrdinalIgnoreCase);
+                        _settingsContentItems.Add(new MenuItem(
+                            isCurrent ? $"> {language.Name}" : $"  {language.Name}",
+                            Value: language.Id,
+                            Description: $"Content/Localization/{language.Id}",
+                            Action: () => ApplyLanguage(language)));
+                    }
+                }
+                _settingsContentItems.Add(new MenuItem(
+                    "--mm-devmode",
                     Value: _settings.DevMode ? "ON" : "OFF",
                     Description: "Controls access to dev-only UI, console and developer map entry.",
                     Action: () =>
@@ -1232,7 +1877,8 @@ public class MenuSystem
         return CurrentScreen switch
         {
             MenuScreen.Settings => "SETTINGS",
-            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm => _overlayTitle,
+            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt
+                or MenuScreen.Confirm or MenuScreen.CharacterCreator => _overlayTitle,
             _ => def.Title
         };
     }
@@ -1241,14 +1887,18 @@ public class MenuSystem
     {
         return CurrentScreen switch
         {
-            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm => _overlayTitle,
+            MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt
+                or MenuScreen.Confirm or MenuScreen.CharacterCreator => _overlayTitle,
             _ => def.Title
         };
     }
 
     private string GetContentDescription(string? selectedDescription)
     {
-        if (CurrentScreen is MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.Confirm)
+        if (CurrentScreen == MenuScreen.Confirm)
+            return _overlayDescription;
+
+        if (CurrentScreen is MenuScreen.SaveSlots or MenuScreen.LoadSlots or MenuScreen.SaveNamePrompt or MenuScreen.CharacterCreator)
             return string.IsNullOrWhiteSpace(selectedDescription) ? _overlayDescription : selectedDescription;
 
         return selectedDescription ?? string.Empty;
@@ -1270,6 +1920,7 @@ public class MenuSystem
             MenuScreen.LoadSlots => "W/S move  Enter load  R rename  Del delete  Esc back",
             MenuScreen.SaveNamePrompt => "Type name  Enter save  Backspace erase  Esc back",
             MenuScreen.Confirm => "W/S move  Enter confirm  Esc cancel",
+            MenuScreen.CharacterCreator => "W/S move  A/D change  Enter apply/start  Esc back",
             _ => hintDef.Text
         };
     }
@@ -1319,16 +1970,18 @@ public class MenuSystem
     private static string SanitizeText(string text)
     {
         return text
+            .Replace('↻', 'R')
             .Replace('—', '-')
             .Replace('–', '-')
             .Replace('−', '-')
             .Replace('←', '<')
             .Replace('→', '>')
             .Replace('↑', '^')
-            .Replace('↓', 'v')
-            .Replace('Ё', 'Е')
-            .Replace('ё', 'е');
+            .Replace('↓', 'v');
     }
+
+    private static string DisplayText(string? text)
+        => SanitizeText(LocalizationManager.T(text));
 
     private void ScrollSettingsContent(int delta)
     {
@@ -1352,21 +2005,15 @@ public class MenuSystem
         => Math.Clamp(_settings.UiScale, MinUiScale, MaxUiScale);
 
     private Rectangle GetScaledViewportBounds()
-    {
-        var scale = GetUiScale();
-        return new Rectangle(
-            0,
-            0,
-            Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / scale)),
-            Math.Max(1, (int)MathF.Round(_gd.Viewport.Height / scale)));
-    }
+        => GameEngine.Instance.GetUiLogicalBounds(GetUiScale());
 
     private Point GetScaledMousePosition()
     {
         var scale = GetUiScale();
+        var mouse = _input.MousePosition;
         return new Point(
-            (int)MathF.Round(_input.MousePosition.X / scale),
-            (int)MathF.Round(_input.MousePosition.Y / scale));
+            (int)MathF.Round(mouse.X / scale),
+            (int)MathF.Round(mouse.Y / scale));
     }
 
     private MenuItem? GetSelectedSettingsSliderItem()

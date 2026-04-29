@@ -41,3 +41,10 @@
 /tmp/mteditor-verify/MTEditor.runtimeconfig.json
 /tmp/mteditor-verify/MTEditor.dll
 /tmp/mteditor-verify/MTEditor.pdb
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/Content/Fonts/Inter-Regular.ttf
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/Cyotek.Drawing.BitmapFont.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/FontStashSharp.Base.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/FontStashSharp.MonoGame.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/StbImageSharp.dll
+/Users/more_tel/Desktop/SandboxRPG/MTEditor/bin/Debug/net8.0/StbTrueTypeSharp.dll

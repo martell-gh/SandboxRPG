@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MTEngine.Core;
 using System.Text;
 
 namespace MTEngine.UI;
@@ -22,7 +23,8 @@ public class UILabel : UIElement
         if (!Visible || string.IsNullOrEmpty(Text))
             return;
 
-        var wrapped = WrapText(font, Text, Math.Max(1, Bounds.Width), Scale);
+        var text = LocalizationManager.T(Text);
+        var wrapped = WrapText(font, text, Math.Max(1, Bounds.Width), Scale);
         var lineHeight = Math.Max(1, (int)MathF.Ceiling(font.LineSpacing * Scale));
         var maxLines = Bounds.Height > 0
             ? Math.Max(1, Bounds.Height / lineHeight)
@@ -34,7 +36,7 @@ public class UILabel : UIElement
             sb.DrawString(
                 font,
                 lines[i],
-                new Vector2(Bounds.X, Bounds.Y + i * lineHeight),
+                new Vector2(MathF.Round(Bounds.X), MathF.Round(Bounds.Y + i * lineHeight)),
                 Color,
                 0f,
                 Vector2.Zero,

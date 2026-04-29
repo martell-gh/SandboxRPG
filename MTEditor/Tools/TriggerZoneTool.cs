@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,7 +17,6 @@ public class TriggerZoneTool
     private MapManager _mapManager;
     private Texture2D _pixel;
     private GraphicsDevice _graphics;
-    private SpriteFont _font;
 
     private TriggerZoneData? _selectedTrigger;
 
@@ -60,15 +60,14 @@ public class TriggerZoneTool
 
     public TriggerZoneData? SelectedTrigger => _selectedTrigger;
 
-    public TriggerZoneTool(MapData map, MapManager mapManager, GraphicsDevice graphics, SpriteFont font)
+    public TriggerZoneTool(MapData map, MapManager mapManager, GraphicsDevice graphics)
     {
         _map = map;
         _mapManager = mapManager;
         _graphics = graphics;
-        _font = font;
         _pixel = new Texture2D(graphics, 1, 1);
         _pixel.SetData(new[] { Color.White });
-        _mapSelectDialog = new MapSelectDialog(font, graphics);
+        _mapSelectDialog = new MapSelectDialog(graphics);
     }
 
     public void SetMap(MapData map)
@@ -278,7 +277,7 @@ public class TriggerZoneTool
 
     // === Drawing ===
 
-    public void Draw(SpriteBatch spriteBatch, AssetManager assets, SpriteFont font)
+    public void Draw(SpriteBatch spriteBatch, AssetManager assets)
     {
         foreach (var trigger in _map.Triggers)
         {
@@ -323,70 +322,79 @@ public class TriggerZoneTool
                 var minX = trigger.Tiles.Min(t => t.X);
                 var minY = trigger.Tiles.Min(t => t.Y);
                 var labelPos = new Vector2(minX * ts + 2, minY * ts - 14);
-                spriteBatch.DrawString(font, trigger.Id, labelPos, color);
+                EditorTheme.DrawText(spriteBatch, EditorTheme.Small, trigger.Id, labelPos, color);
             }
         }
     }
 
-    public void DrawUI(SpriteBatch spriteBatch, SpriteFont font)
+    public void DrawUI(SpriteBatch spriteBatch)
     {
         var panel = GetPanelRect();
-        spriteBatch.Draw(_pixel, panel, Color.Black * 0.88f);
+        EditorTheme.FillRect(spriteBatch, panel, EditorTheme.Bg);
+        EditorTheme.DrawBorder(spriteBatch, panel, EditorTheme.Border);
 
-        var y = panel.Y + Pad;
+        var headerRect = new Rectangle(panel.X, panel.Y, panel.Width, 22);
+        EditorTheme.FillRect(spriteBatch, headerRect, EditorTheme.Panel);
+        spriteBatch.Draw(EditorTheme.Pixel, new Rectangle(headerRect.X, headerRect.Y, 3, headerRect.Height), EditorTheme.Accent);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small, "TRIGGER ZONE TOOL",
+            new Vector2(panel.X + 10, panel.Y + 5), EditorTheme.Text);
+
+        var y = panel.Y + 28;
         var x = panel.X + Pad;
         var fieldX = x + LabelWidth;
 
-        // Title
-        spriteBatch.DrawString(font, "TRIGGER ZONE TOOL [4]", new Vector2(x, y), Color.LimeGreen);
-        y += LineH + 6;
-
         // Trigger ID
-        DrawLabel(spriteBatch, font, "Trigger ID:", x, y);
+        DrawLabel(spriteBatch, "Trigger ID", x, y);
         var idRect = new Rectangle(fieldX, y, FieldWidth, LineH);
-        DrawInputField(spriteBatch, font, idRect, _inputId, _typingId);
+        DrawInputField(spriteBatch, idRect, _inputId, _typingId);
         y += LineH + 8;
 
         // Action Type
-        DrawLabel(spriteBatch, font, "Action:", x, y);
-        spriteBatch.DrawString(font, $"[/]  {ActionTypeLabels[_selectedActionTypeIndex]}", new Vector2(fieldX, y), Color.Cyan);
+        DrawLabel(spriteBatch, "Action", x, y);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small,
+            $"[ / ]  {ActionTypeLabels[_selectedActionTypeIndex]}",
+            new Vector2(fieldX, y + 2), EditorTheme.Accent);
         y += LineH + 8;
 
         // Location Transition params
         if (ActionTypeValues[_selectedActionTypeIndex] == TriggerActionTypes.LocationTransition)
         {
-            // Target Map — кнопка + текущее значение
-            DrawLabel(spriteBatch, font, "Target Map:", x, y);
+            DrawLabel(spriteBatch, "Target Map", x, y);
             var btnRect = _selectMapButtonRect = new Rectangle(fieldX, y, FieldWidth, LineH);
             var hasMap = !string.IsNullOrWhiteSpace(_inputTargetMap);
-            spriteBatch.Draw(_pixel, btnRect, hasMap ? Color.DarkGreen * 0.6f : Color.Gray * 0.4f);
-            var mapText = hasMap ? _inputTargetMap : "-- select map --";
-            spriteBatch.DrawString(font, mapText, new Vector2(btnRect.X + 4, btnRect.Y + 1), hasMap ? Color.White : Color.Gray);
+            EditorTheme.FillRect(spriteBatch, btnRect, hasMap ? EditorTheme.AccentDim : EditorTheme.Panel);
+            EditorTheme.DrawBorder(spriteBatch, btnRect, EditorTheme.Border);
+            var mapText = hasMap ? _inputTargetMap : "— select map —";
+            EditorTheme.DrawText(spriteBatch, EditorTheme.Small, mapText,
+                new Vector2(btnRect.X + 6, btnRect.Y + 2), hasMap ? Color.White : EditorTheme.TextMuted);
             y += LineH + 8;
 
-            // Spawn Point
-            DrawLabel(spriteBatch, font, "Spawn Point:", x, y);
+            DrawLabel(spriteBatch, "Spawn Point", x, y);
             var spawnRect = new Rectangle(fieldX, y, FieldWidth, LineH);
-            DrawInputField(spriteBatch, font, spawnRect, _inputSpawnPoint, _typingSpawnPoint);
+            DrawInputField(spriteBatch, spawnRect, _inputSpawnPoint, _typingSpawnPoint);
             y += LineH + 8;
         }
 
-        // help
-        var modeHelp = "Brush: LClick=paint  RClick=erase";
-        spriteBatch.DrawString(font, modeHelp, new Vector2(x, y), Color.Gray);
-        y += LineH;
-        spriteBatch.DrawString(font, "Mouse: LClick=select/add  RClick=trim  MClick=pick", new Vector2(x, y), Color.Gray);
-        y += LineH + 2;
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Tiny, "Brush: LClick paint, RClick erase",
+            new Vector2(x, y), EditorTheme.TextMuted);
+        y += 14;
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Tiny, "Select: LClick add, RClick trim, MClick pick",
+            new Vector2(x, y), EditorTheme.TextMuted);
+        y += 16;
 
         if (_selectedTrigger != null)
         {
-            spriteBatch.DrawString(font, $"Selected: {_selectedTrigger.Id} ({_selectedTrigger.Tiles.Count} tiles)", new Vector2(x, y), Color.Yellow);
+            EditorTheme.DrawText(spriteBatch, EditorTheme.Small,
+                $"Selected: {_selectedTrigger.Id} ({_selectedTrigger.Tiles.Count} tiles)",
+                new Vector2(x, y), EditorTheme.Warning);
             y += LineH;
-            spriteBatch.DrawString(font, "Enter=apply  Delete=remove trigger", new Vector2(x, y), Color.Gray);
+            EditorTheme.DrawText(spriteBatch, EditorTheme.Tiny, "Enter — apply    Delete — remove",
+                new Vector2(x, y), EditorTheme.TextMuted);
             y += LineH;
         }
 
-        spriteBatch.DrawString(font, $"Triggers: {_map.Triggers.Count}", new Vector2(x, y), Color.Cyan);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small,
+            $"Triggers: {_map.Triggers.Count}", new Vector2(x, y), EditorTheme.Accent);
 
         // диалог выбора карты поверх всего
         _mapSelectDialog.Draw(spriteBatch);
@@ -519,15 +527,17 @@ public class TriggerZoneTool
         return ZoneColors[hash % ZoneColors.Length];
     }
 
-    private void DrawLabel(SpriteBatch spriteBatch, SpriteFont font, string text, int x, int y)
+    private void DrawLabel(SpriteBatch spriteBatch, string text, int x, int y)
     {
-        spriteBatch.DrawString(font, text, new Vector2(x, y), Color.White);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small, text, new Vector2(x, y + 2), EditorTheme.TextDim);
     }
 
-    private void DrawInputField(SpriteBatch spriteBatch, SpriteFont font, Rectangle rect, string text, bool active)
+    private void DrawInputField(SpriteBatch spriteBatch, Rectangle rect, string text, bool active)
     {
-        spriteBatch.Draw(_pixel, rect, active ? Color.DarkGreen * 0.8f : Color.Gray * 0.4f);
-        spriteBatch.DrawString(font, text + (active ? "_" : ""), new Vector2(rect.X + 4, rect.Y + 1), Color.White);
+        EditorTheme.FillRect(spriteBatch, rect, active ? EditorTheme.BgDeep : EditorTheme.Panel);
+        EditorTheme.DrawBorder(spriteBatch, rect, active ? EditorTheme.Accent : EditorTheme.Border);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small, text + (active ? "│" : ""),
+            new Vector2(rect.X + 6, rect.Y + 2), EditorTheme.Text);
     }
 
     private void DrawTileBorder(SpriteBatch spriteBatch, Rectangle rect, Color color)

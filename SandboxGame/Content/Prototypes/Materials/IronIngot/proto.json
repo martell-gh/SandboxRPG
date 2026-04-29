@@ -1,0 +1,38 @@
+{
+  "id": "iron_ingot",
+  "name": "Iron Ingot",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../MetalPlate/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Обычный железный слиток. Основа для добротного, но простого оружия."
+    },
+    "item": {
+      "name": "Iron Ingot",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 20,
+      "stack": 1,
+      "tags": [
+        "material",
+        "metal",
+        "ingot"
+      ]
+    },
+    "qualityTier": {
+      "tier": 3,
+      "label": "Железо",
+      "shortLabel": "T3",
+      "tint": "#BFC6CF"
+    }
+  }
+}

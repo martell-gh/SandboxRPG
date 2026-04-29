@@ -1,0 +1,36 @@
+{
+  "id": "medical_pouch",
+  "name": "Medical Pouch",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../../Apparel/Backpack/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "item": {
+      "name": "Медицинская сумка",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "container",
+        "medical-storage"
+      ]
+    },
+    "storage": {
+      "name": "Медицинская сумка",
+      "slots": 6,
+      "maxItemSize": 1,
+      "allowedTags": [
+        "medical"
+      ]
+    },
+    "info": {
+      "description": "Небольшая сумка для бинтов, припарок и мазей. В неё помещаются только медицинские предметы."
+    }
+  }
+}

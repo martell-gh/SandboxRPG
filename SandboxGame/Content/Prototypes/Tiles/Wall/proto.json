@@ -2,6 +2,7 @@
   "id": "wall",
   "name": "Wall",
   "category": "tile",
+  "base": "base_tile",
   "solid": true,
   "transparent": true,
   "opaque": true,

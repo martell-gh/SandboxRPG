@@ -2,6 +2,7 @@
   "id": "chest",
   "name": "Chest",
   "category": "entity",
+  "base": "base_furniture",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -12,7 +13,16 @@
       "layerDepth": 0.5,
       "ySort": true
     },
-    "transform": { "x": 0, "y": 0 },
+    "collider": {
+      "width": 32,
+      "height": 32,
+      "offsetX": -16,
+      "offsetY": -16
+    },
+    "blocker": {
+      "blocksMovement": true,
+      "blocksVision": false
+    },
     "storage": {
       "name": "Chest",
       "slots": 16,

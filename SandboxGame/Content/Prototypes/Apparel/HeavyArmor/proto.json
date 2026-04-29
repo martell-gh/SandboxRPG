@@ -2,6 +2,7 @@
   "id": "heavy_armor",
   "name": "Heavy Armor",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "item.png",
@@ -11,12 +12,15 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Heavy Armor",
       "size": "Medium",
       "slots": 2,
-      "tags": ["clothing", "armor", "torso"]
+      "tags": [
+        "clothing",
+        "armor",
+        "torso"
+      ]
     },
     "info": {
       "description": "Тяжёлый доспех из кованых металлических пластин. Отлично защищает от ударов, но сковывает движения."
@@ -24,11 +28,36 @@
     "wearable": {
       "slot": "torso",
       "speedMultiplier": 0.82,
+      "slashArmor": 0.28,
+      "bluntArmor": 0.36,
+      "burnArmor": 0.08,
       "durability": 140,
       "maxDurability": 140,
-      "materials": ["metal_plate", "leather_patch"],
+      "materials": [
+        "metal_plate",
+        "leather_patch"
+      ],
       "icon": "icon.png",
-      "equippedAnimations": "equipped_animations.json"
+      "equippedSpriteMale": "man_equipped.png",
+      "equippedSpriteFemale": "woman_equipped.png",
+      "equippedAnimationsMale": "man_equipped_animations.json",
+      "equippedAnimationsFemale": "woman_equipped_animations.json"
+    },
+    "craftable": {
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 36,
+      "craftTime": 4.2,
+      "ingredients": [
+        {
+          "prototypeId": "metal_plate",
+          "count": 6
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 2
+        }
+      ]
     }
   }
 }

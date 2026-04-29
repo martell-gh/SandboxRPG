@@ -1,0 +1,109 @@
+{
+  "professions": [
+    {
+      "id": "blacksmith",
+      "name": "Blacksmith",
+      "description": "Makes and sells metal tools, weapons and armor.",
+      "primarySkill": "Smithing",
+      "isTrader": true,
+      "tradeTags": [
+        "armor",
+        "ingot",
+        "metal",
+        "tool",
+        "weapon"
+      ],
+      "stockSizeMin": 4,
+      "stockSizeMax": 12,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "doctor",
+      "name": "Doctor",
+      "description": "Treats wounds and sells medical supplies.",
+      "primarySkill": "Medicine",
+      "isTrader": true,
+      "tradeTags": [
+        "healing",
+        "medical",
+        "medicine"
+      ],
+      "stockSizeMin": 3,
+      "stockSizeMax": 10,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "farmer",
+      "name": "Farmer",
+      "description": "Works fields and handles food production.",
+      "primarySkill": "Craftsmanship",
+      "isTrader": false,
+      "tradeTags": [],
+      "stockSizeMin": 4,
+      "stockSizeMax": 12,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "guard",
+      "name": "Guard",
+      "description": "Protects a settlement or district.",
+      "primarySkill": "OneHandedWeapons",
+      "isTrader": false,
+      "tradeTags": [],
+      "stockSizeMin": 4,
+      "stockSizeMax": 12,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "healer",
+      "name": "Healer",
+      "description": "Treats wounded people and sells simple remedies.",
+      "primarySkill": "Medicine",
+      "isTrader": true,
+      "tradeTags": [
+        "healing",
+        "medical",
+        "medicine"
+      ],
+      "stockSizeMin": 3,
+      "stockSizeMax": 10,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "innkeeper",
+      "name": "Innkeeper",
+      "description": "Runs an inn or tavern.",
+      "primarySkill": "Trade",
+      "isTrader": true,
+      "tradeTags": [
+        "drink",
+        "food"
+      ],
+      "stockSizeMin": 6,
+      "stockSizeMax": 18,
+      "restockEveryDays": 3,
+      "skillGainPerDay": 0.005
+    },
+    {
+      "id": "tailor",
+      "name": "Tailor",
+      "description": "Makes and sells clothing.",
+      "primarySkill": "Tailoring",
+      "isTrader": true,
+      "tradeTags": [
+        "cloth",
+        "clothing",
+        "leather"
+      ],
+      "stockSizeMin": 4,
+      "stockSizeMax": 14,
+      "restockEveryDays": 7,
+      "skillGainPerDay": 0.005
+    }
+  ]
+}

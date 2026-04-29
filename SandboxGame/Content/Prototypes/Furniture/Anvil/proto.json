@@ -1,0 +1,39 @@
+{
+  "id": "anvil",
+  "name": "Anvil",
+  "category": "entity",
+  "base": "base_furniture",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "collider": {
+      "width": 32,
+      "height": 32,
+      "offsetX": -16,
+      "offsetY": -16
+    },
+    "blocker": {
+      "blocksMovement": true,
+      "blocksVision": false
+    },
+    "info": {
+      "description": "Простая наковальня для ковки оружия, доспехов и металлических деталей."
+    },
+    "interactable": {
+      "name": "Anvil",
+      "range": 84
+    },
+    "craftingStation": {
+      "station": "smithing",
+      "name": "Наковальня",
+      "verb": "Ковать"
+    }
+  }
+}

@@ -2,6 +2,7 @@
   "id": "glass_cup",
   "name": "Glass Cup",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,15 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Glass Cup",
       "slots": 1,
       "size": "Small",
-      "tags": ["container", "glass", "cup"]
+      "tags": [
+        "container",
+        "glass",
+        "cup"
+      ]
     },
     "info": {
       "description": "Стеклянный стакан. Хрупкий, но удобный для питья различных жидкостей."
@@ -31,7 +35,10 @@
       "fillSprite75": "fill75.png",
       "fillSprite100": "fill100.png",
       "contents": [
-        { "id": "taurine", "amount": 30 }
+        {
+          "id": "taurine",
+          "amount": 30
+        }
       ]
     }
   }

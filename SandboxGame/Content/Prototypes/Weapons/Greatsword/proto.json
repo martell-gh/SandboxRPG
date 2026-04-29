@@ -1,7 +1,8 @@
 {
   "id": "greatsword",
-  "name": "Greatsword",
+  "name": "Iron Greatsword",
   "category": "entity",
+  "base": "base_weapon",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,16 +12,65 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "info": {
-      "description": "Тяжёлый двуручный меч. Наносит сокрушительные удары, но требует обеих рук для владения."
+      "description": "Обычный железный двуручный меч с деревянным сердечником в рукояти. Надёжен, но далёк от лучших кузнечных работ."
     },
     "item": {
-      "name": "Greatsword",
+      "name": "Iron Greatsword",
       "slots": 3,
       "size": "Large",
       "twoHanded": true,
-      "tags": ["weapon", "melee", "two-handed"]
+      "tags": [
+        "weapon",
+        "melee",
+        "two-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 3,
+      "label": "Железо",
+      "shortLabel": "T3",
+      "tint": "#BFC6CF"
+    },
+    "weapon": {
+      "materials": [
+        "iron_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 28,
+      "minDamage": 22,
+      "maxDamage": 34,
+      "range": 58,
+      "windup": 0.58,
+      "accuracy": 0.9,
+      "verb": "Рубануть",
+      "blockBonus": 0.12
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 3,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 28,
+      "craftTime": 3.5,
+      "ingredients": [
+        {
+          "prototypeId": "iron_ingot",
+          "count": 4
+        },
+        {
+          "prototypeId": "wood",
+          "count": 2
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
     }
   }
 }

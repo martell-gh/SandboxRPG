@@ -2,11 +2,15 @@
   "id": "starch",
   "name": "Крахмал",
   "category": "substance",
+  "base": "base_substance",
   "color": "#D8C9A3FF",
   "defaultAmount": 1,
   "volumePerUnit": 1,
   "absorptionTime": 8,
   "clearanceTime": 60,
-  "smells": ["тесто", "сухо"],
+  "smells": [
+    "тесто",
+    "сухо"
+  ],
   "preparationHint": "Плотная углеводная фракция зерновой пищи."
 }

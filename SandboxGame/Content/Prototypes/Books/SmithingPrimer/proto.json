@@ -1,0 +1,35 @@
+{
+  "id": "book_smithing_primer",
+  "name": "Букварь кузнеца",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../../Materials/ClothBolt/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "color": "#A88652"
+    },
+    "item": {
+      "name": "Букварь кузнеца",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "document",
+        "book"
+      ]
+    },
+    "info": {
+      "description": "Толстая брошюра с основами кузнечного дела."
+    },
+    "skillBook": {
+      "skill": "Smithing",
+      "gain": 8,
+      "readSeconds": 15,
+      "readLabel": "Изучение книги"
+    }
+  }
+}

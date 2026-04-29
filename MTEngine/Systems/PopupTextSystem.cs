@@ -21,8 +21,9 @@ public class PopupTextSystem : GameSystem
         _font = font;
     }
 
-    public void ShowWorld(string text, Vector2 worldPosition, Color? color = null, float lifetime = 1.1f, float riseSpeed = 28f)
+    public void ShowWorld(string text, Vector2 worldPosition, Color? color = null, float lifetime = 1.6f, float riseSpeed = 18f)
     {
+        text = LocalizationManager.T(text);
         if (string.IsNullOrWhiteSpace(text))
             return;
 
@@ -36,7 +37,7 @@ public class PopupTextSystem : GameSystem
         });
     }
 
-    public void ShowNear(Entity entity, string text, Color? color = null, float verticalOffset = -18f, float lifetime = 1.1f)
+    public void ShowNear(Entity entity, string text, Color? color = null, float verticalOffset = -18f, float lifetime = 1.6f)
     {
         var transform = entity.GetComponent<TransformComponent>();
         if (transform == null)
@@ -45,7 +46,7 @@ public class PopupTextSystem : GameSystem
         ShowWorld(text, transform.Position + new Vector2(0f, verticalOffset), color, lifetime);
     }
 
-    public static void Show(string text, Vector2 worldPosition, Color? color = null, float lifetime = 1.1f)
+    public static void Show(string text, Vector2 worldPosition, Color? color = null, float lifetime = 1.6f)
     {
         if (!ServiceLocator.Has<PopupTextSystem>())
             return;
@@ -53,7 +54,7 @@ public class PopupTextSystem : GameSystem
         ServiceLocator.Get<PopupTextSystem>().ShowWorld(text, worldPosition, color, lifetime);
     }
 
-    public static void Show(Entity entity, string text, Color? color = null, float verticalOffset = -18f, float lifetime = 1.1f)
+    public static void Show(Entity entity, string text, Color? color = null, float verticalOffset = -18f, float lifetime = 1.6f)
     {
         if (!ServiceLocator.Has<PopupTextSystem>())
             return;

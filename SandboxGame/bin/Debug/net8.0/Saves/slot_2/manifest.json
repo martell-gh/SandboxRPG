@@ -1,0 +1,656 @@
+{
+  "Version": 1,
+  "CreatedAtUtc": "2026-04-29T21:57:28.217298Z",
+  "UpdatedAtUtc": "2026-04-29T22:02:12.247415Z",
+  "SaveName": "\u041D\u043E\u0432\u0430\u044F \u0438\u0433\u0440\u0430",
+  "PlayerName": "Player",
+  "CurrentMapName": "Bowerstone",
+  "CurrentMapId": "livloc_bowerstone",
+  "TimeOfDaySeconds": 35865.027,
+  "TimeScale": 72,
+  "SystemStates": {
+    "sleepSystem": {
+      "isSleeping": false,
+      "sleepRemainingSeconds": 0,
+      "sleepWakeHour": 6,
+      "sleepWakeAbsoluteSeconds": 0,
+      "sleepTimeScale": 0,
+      "sleepHealingPerSecond": 0
+    },
+    "worldCatchup": {
+      "lastSeenByMap": {
+        "livloc_bowerstone": 0
+      }
+    },
+    "innRental": {
+      "rentals": []
+    },
+    "gameClock": {
+      "timeScale": 72,
+      "totalSecondsAbsolute": 35865.02749174833,
+      "dayIndex": 0,
+      "totalSeconds": 35865.027
+    },
+    "calendar": {
+      "secondsPerDay": 86400,
+      "daysPerWeek": 7,
+      "daysPerMonth": 30,
+      "monthsPerYear": 12,
+      "epochYear": 1000
+    },
+    "worldRegistry": {
+      "residency": {
+        "house_1": [
+          "dbf60a3931bd406f95d7c925bfba45df"
+        ]
+      },
+      "occupation": {
+        "blacksmith": "dbf60a3931bd406f95d7c925bfba45df",
+        "tavern": "38c1fc3ae4e94d8ab0deff861a158227"
+      }
+    },
+    "worldPopulation": {
+      "snapshots": {}
+    }
+  },
+  "PlayerEntities": [
+    {
+      "SaveId": "e969c47d035b4535abb25fc90ca9836c",
+      "PrototypeId": "player",
+      "Name": "Player",
+      "Active": true,
+      "Components": [
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 249.14183,
+              "y": 707.3934
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "collider",
+          "ClrType": "MTEngine.Components.ColliderComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "width": 20,
+            "height": 20,
+            "offsetX": -10,
+            "offsetY": -10
+          }
+        },
+        {
+          "TypeId": "hands",
+          "ClrType": "MTEngine.Items.HandsComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "count": 2,
+            "names": "Left,Right",
+            "activeHandIndex": 0
+          }
+        },
+        {
+          "TypeId": "equipment",
+          "ClrType": "MTEngine.Items.EquipmentComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slots": "torso,pants,shoes,back",
+            "names": "Torso,Pants,Shoes,Back"
+          }
+        },
+        {
+          "TypeId": "health",
+          "ClrType": "MTEngine.Components.HealthComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "health": 50.748676,
+            "maxHealth": 100,
+            "IsDead": false,
+            "DeathPoseApplied": false
+          }
+        },
+        {
+          "TypeId": "wounds",
+          "ClrType": "MTEngine.Wounds.WoundComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slashDamage": 0,
+            "bluntDamage": 0,
+            "burnDamage": 0,
+            "exhaustionDamage": 49.251324,
+            "Bleedings": [],
+            "bleedThreshold": 15,
+            "bleedRateMultiplier": 0.3,
+            "baseClotRate": 0.4,
+            "unstoppableBleedRate": 5
+          }
+        },
+        {
+          "TypeId": "velocity",
+          "ClrType": "MTEngine.Components.VelocityComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "Velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "speed": 65
+          }
+        },
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "layerDepth": 0.5,
+            "ySort": true,
+            "sortOffsetY": 0,
+            "visible": true,
+            "source": "sprite.png",
+            "color": "#F0B99DFF",
+            "srcX": 0,
+            "srcY": 0,
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "TypeId": "currency",
+          "ClrType": "MTEngine.Components.CurrencyComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "amount": 25,
+            "name": "\u041C\u043E\u043D\u0435\u0442\u044B",
+            "symbol": "\u043C\u043E\u043D."
+          }
+        },
+        {
+          "TypeId": "combatMode",
+          "ClrType": "MTEngine.Combat.CombatModeComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "enabled": false
+          }
+        },
+        {
+          "TypeId": "skills",
+          "ClrType": "MTEngine.Combat.SkillComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "fortitude": 6.7790728,
+            "dodge": 5.116667,
+            "blocking": 4,
+            "handToHand": 9.201802,
+            "oneHandedWeapons": 3,
+            "twoHandedWeapons": 6,
+            "medicine": 4,
+            "thievery": 2,
+            "social": 5,
+            "trade": 4,
+            "craftsmanship": 4,
+            "smithing": 1,
+            "tailoring": 2
+          }
+        },
+        {
+          "TypeId": "age",
+          "ClrType": "MTEngine.Npc.AgeComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "birthDayIndex": 0,
+            "years": 0,
+            "isPensioner": false
+          }
+        },
+        {
+          "TypeId": "metabolism",
+          "ClrType": "MTEngine.Metabolism.MetabolismComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "hunger": 38.383255,
+            "hungerDecay": 0.17,
+            "thirst": 0,
+            "thirstDecay": 0.42,
+            "bladder": 41.141373,
+            "bladderFill": 0.15,
+            "bowel": 21.94218,
+            "bowelFill": 0.08,
+            "starvationDamage": 0.35,
+            "dehydrationDamage": 0.75,
+            "naturalRegenRate": 1.2,
+            "naturalRegenThreshold": 70,
+            "exhaustionRecoveryRate": 3.5,
+            "exhaustionRecoveryThreshold": 45,
+            "DigestingItems": [],
+            "ActiveSubstances": [],
+            "SubstanceConcentrations": {},
+            "ActiveConcentrationEffectKeys": [],
+            "SpeedModifier": 0.65,
+            "SubstanceSpeedModifier": 1,
+            "wellFedThreshold": 80,
+            "hungryThreshold": 30,
+            "starvingThreshold": 10,
+            "needToGoThreshold": 60,
+            "urgentThreshold": 85,
+            "TimeSinceLastWarning": 3.4416664,
+            "HadAccident": false
+          }
+        },
+        {
+          "TypeId": "playertag",
+          "ClrType": "MTEngine.Components.PlayerTagComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "identity",
+          "ClrType": "MTEngine.Npc.IdentityComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "firstName": "Player",
+            "lastName": "",
+            "gender": 0,
+            "factionId": "",
+            "settlementId": "",
+            "districtId": ""
+          }
+        },
+        {
+          "TypeId": "hair",
+          "ClrType": "MTEngine.Npc.HairAppearanceComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "styleId": "",
+            "color": "#4C311FFF",
+            "visible": false
+          }
+        },
+        {
+          "TypeId": "MTEngine.Metabolism.MetabolismBaseSpeedTag",
+          "ClrType": "MTEngine.Metabolism.MetabolismBaseSpeedTag, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "MTEngine.ECS.SaveEntityIdComponent",
+          "ClrType": "MTEngine.ECS.SaveEntityIdComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        },
+        {
+          "TypeId": "damageFlash",
+          "ClrType": "MTEngine.Components.DamageFlashComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": null,
+      "HandsRefs": {
+        "ActiveHandIndex": 0,
+        "Hands": [
+          {
+            "Name": "Left",
+            "HeldEntityId": null,
+            "BlockedByTwoHanded": false
+          },
+          {
+            "Name": "Right",
+            "HeldEntityId": null,
+            "BlockedByTwoHanded": false
+          }
+        ]
+      },
+      "EquipmentRefs": {
+        "Slots": [
+          {
+            "SlotId": "torso",
+            "ItemEntityId": "35406fc769bf4583aaf54d87482a396e"
+          },
+          {
+            "SlotId": "pants",
+            "ItemEntityId": "4fdb79597b894646b3f9fd4a1e5e7e59"
+          },
+          {
+            "SlotId": "shoes",
+            "ItemEntityId": "3aa89705ef9a43b4be7b32ebb9c10f1b"
+          },
+          {
+            "SlotId": "back",
+            "ItemEntityId": null
+          }
+        ]
+      },
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "35406fc769bf4583aaf54d87482a396e",
+      "PrototypeId": "tinted_shirt",
+      "Name": "Tinted Shirt",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 416,
+              "y": 288
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Tinted Shirt",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "torso",
+              "shirt"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u0420\u0443\u0431\u0430\u0445\u0430, \u043E\u043A\u0440\u0430\u0448\u0435\u043D\u043D\u0430\u044F \u0440\u0430\u0441\u0442\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u043C \u043A\u0440\u0430\u0441\u0438\u0442\u0435\u043B\u0435\u043C. \u041F\u0440\u043E\u0441\u0442\u0430\u044F, \u043D\u043E \u043D\u043E\u0441\u043A\u0430\u044F \u043E\u0434\u0435\u0436\u0434\u0430."
+          }
+        },
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "layerDepth": 0.5,
+            "ySort": false,
+            "sortOffsetY": 0,
+            "visible": true,
+            "source": "item.png",
+            "color": "#D24C4CFF",
+            "srcX": 0,
+            "srcY": 0,
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slot": "torso",
+            "speedMultiplier": 1,
+            "slashArmor": 0.05,
+            "bluntArmor": 0.02,
+            "burnArmor": 0.01,
+            "maxDurability": 55,
+            "durability": 43.283382,
+            "materials": [
+              "cloth_bolt"
+            ],
+            "color": "#FFFFFFFF"
+          }
+        },
+        {
+          "TypeId": "craftable",
+          "ClrType": "MTEngine.Crafting.CraftableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "recipeId": "",
+            "requiresRecipe": false,
+            "recipeFamily": "",
+            "recipeTier": 0,
+            "discoverableBySmelting": false,
+            "station": "tailoring",
+            "skill": 12,
+            "requiredSkill": 6,
+            "craftTime": 1.6,
+            "ingredients": [
+              {
+                "PrototypeId": "cloth_bolt",
+                "Count": 2
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "MTEngine.ECS.SaveEntityIdComponent",
+          "ClrType": "MTEngine.ECS.SaveEntityIdComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "e969c47d035b4535abb25fc90ca9836c"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "4fdb79597b894646b3f9fd4a1e5e7e59",
+      "PrototypeId": "work_pants",
+      "Name": "Work Pants",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 416,
+              "y": 288
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Work Pants",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "pants"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041F\u0440\u043E\u0447\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0447\u0438\u0435 \u0448\u0442\u0430\u043D\u044B \u0438\u0437 \u043F\u043B\u043E\u0442\u043D\u043E\u0439 \u0442\u043A\u0430\u043D\u0438. \u0423\u0434\u043E\u0431\u043D\u044B \u0434\u043B\u044F \u043F\u043E\u0432\u0441\u0435\u0434\u043D\u0435\u0432\u043D\u043E\u0439 \u043D\u043E\u0441\u043A\u0438 \u0438 \u0442\u0440\u0443\u0434\u0430."
+          }
+        },
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "layerDepth": 0.5,
+            "ySort": false,
+            "sortOffsetY": 0,
+            "visible": true,
+            "source": "item.png",
+            "color": "#506CA8FF",
+            "srcX": 0,
+            "srcY": 0,
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slot": "pants",
+            "speedMultiplier": 1,
+            "slashArmor": 0.03,
+            "bluntArmor": 0.03,
+            "burnArmor": 0.01,
+            "maxDurability": 65,
+            "durability": 53.283382,
+            "materials": [
+              "cloth_bolt"
+            ],
+            "color": "#FFFFFFFF"
+          }
+        },
+        {
+          "TypeId": "craftable",
+          "ClrType": "MTEngine.Crafting.CraftableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "recipeId": "",
+            "requiresRecipe": false,
+            "recipeFamily": "",
+            "recipeTier": 0,
+            "discoverableBySmelting": false,
+            "station": "tailoring",
+            "skill": 12,
+            "requiredSkill": 8,
+            "craftTime": 1.7,
+            "ingredients": [
+              {
+                "PrototypeId": "cloth_bolt",
+                "Count": 2
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "MTEngine.ECS.SaveEntityIdComponent",
+          "ClrType": "MTEngine.ECS.SaveEntityIdComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "e969c47d035b4535abb25fc90ca9836c"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    },
+    {
+      "SaveId": "3aa89705ef9a43b4be7b32ebb9c10f1b",
+      "PrototypeId": "leather_boots",
+      "Name": "Leather Boots",
+      "Active": false,
+      "Components": [
+        {
+          "TypeId": "transform",
+          "ClrType": "MTEngine.Components.TransformComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "position": {
+              "x": 416,
+              "y": 288
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "TypeId": "item",
+          "ClrType": "MTEngine.Items.ItemComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "name": "Leather Boots",
+            "size": 2,
+            "twoHanded": false,
+            "stackable": false,
+            "maxStack": 1,
+            "stack": 1,
+            "slots": 1,
+            "tags": [
+              "clothing",
+              "shoes",
+              "boots"
+            ]
+          }
+        },
+        {
+          "TypeId": "info",
+          "ClrType": "MTEngine.Components.InfoComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "description": "\u041A\u0440\u0435\u043F\u043A\u0438\u0435 \u043A\u043E\u0436\u0430\u043D\u044B\u0435 \u0441\u0430\u043F\u043E\u0433\u0438. \u0417\u0430\u0449\u0438\u0449\u0430\u044E\u0442 \u043D\u043E\u0433\u0438 \u043E\u0442 \u043A\u0430\u043C\u043D\u0435\u0439 \u0438 \u0433\u0440\u044F\u0437\u0438 \u043D\u0430 \u0434\u043E\u0440\u043E\u0433\u0430\u0445."
+          }
+        },
+        {
+          "TypeId": "sprite",
+          "ClrType": "MTEngine.Components.SpriteComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "layerDepth": 0.5,
+            "ySort": false,
+            "sortOffsetY": 0,
+            "visible": true,
+            "source": "item.png",
+            "color": "#8A613AFF",
+            "srcX": 0,
+            "srcY": 0,
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "TypeId": "wearable",
+          "ClrType": "MTEngine.Items.WearableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "slot": "shoes",
+            "speedMultiplier": 1,
+            "slashArmor": 0.04,
+            "bluntArmor": 0.05,
+            "burnArmor": 0.01,
+            "maxDurability": 80,
+            "durability": 68.28338,
+            "materials": [
+              "leather_patch"
+            ],
+            "color": "#FFFFFFFF"
+          }
+        },
+        {
+          "TypeId": "craftable",
+          "ClrType": "MTEngine.Crafting.CraftableComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {
+            "recipeId": "",
+            "requiresRecipe": false,
+            "recipeFamily": "",
+            "recipeTier": 0,
+            "discoverableBySmelting": false,
+            "station": "tailoring",
+            "skill": 12,
+            "requiredSkill": 10,
+            "craftTime": 1.9,
+            "ingredients": [
+              {
+                "PrototypeId": "leather_patch",
+                "Count": 2
+              }
+            ]
+          }
+        },
+        {
+          "TypeId": "MTEngine.ECS.SaveEntityIdComponent",
+          "ClrType": "MTEngine.ECS.SaveEntityIdComponent, MTEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+          "Data": {}
+        }
+      ],
+      "ItemRefs": {
+        "ContainedInEntityId": "e969c47d035b4535abb25fc90ca9836c"
+      },
+      "HandsRefs": null,
+      "EquipmentRefs": null,
+      "StorageRefs": null
+    }
+  ],
+  "SavedMapIds": [
+    "livloc_bowerstone"
+  ]
+}

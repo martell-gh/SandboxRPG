@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using FontStashSharp;
+using MTEditor.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -103,7 +105,7 @@ public class SpawnPointTool
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch, AssetManager assets, SpriteFont font)
+    public void Draw(SpriteBatch spriteBatch, AssetManager assets)
     {
         // спавн поинты на карте
         var tex = assets.GetColorTexture("#ff00ff");
@@ -111,30 +113,40 @@ public class SpawnPointTool
         {
             var pos = new Vector2(sp.X * _map.TileSize, sp.Y * _map.TileSize);
             spriteBatch.Draw(tex, new Rectangle((int)pos.X, (int)pos.Y, _map.TileSize, _map.TileSize), Color.White * 0.8f);
-            spriteBatch.DrawString(font, sp.Id, pos + new Vector2(0, -14), Color.Yellow);
+            EditorTheme.DrawText(spriteBatch, EditorTheme.Small, sp.Id, pos + new Vector2(0, -14), EditorTheme.Warning);
         }
     }
 
-    public void DrawUI(SpriteBatch spriteBatch, SpriteFont font)
+    public void DrawUI(SpriteBatch spriteBatch)
     {
         var viewport = _graphics.Viewport;
-        var rect = new Rectangle(viewport.Width - 320, viewport.Height - 110, 300, 80);
-        spriteBatch.Draw(_pixel!, rect, Color.Black * 0.8f);
-        spriteBatch.DrawString(font, "SPAWN POINT TOOL [2]", new Vector2(rect.X + 5, rect.Y + 3), Color.LimeGreen);
-        spriteBatch.DrawString(font, "Spawn ID:", new Vector2(rect.X + 5, rect.Y + 20), Color.White);
+        var rect = new Rectangle(viewport.Width - 340, viewport.Height - 130, 320, 92);
+        EditorTheme.FillRect(spriteBatch, rect, EditorTheme.Bg);
+        EditorTheme.DrawBorder(spriteBatch, rect, EditorTheme.Border);
+
+        var headerRect = new Rectangle(rect.X, rect.Y, rect.Width, 20);
+        EditorTheme.FillRect(spriteBatch, headerRect, EditorTheme.Panel);
+        spriteBatch.Draw(EditorTheme.Pixel, new Rectangle(headerRect.X, headerRect.Y, 3, headerRect.Height), EditorTheme.Accent);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small, "SPAWN POINT TOOL",
+            new Vector2(rect.X + 10, rect.Y + 4), EditorTheme.Text);
+
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Small, "Spawn ID",
+            new Vector2(rect.X + 10, rect.Y + 26), EditorTheme.TextDim);
 
         var inputRect = GetInputRect();
-        spriteBatch.Draw(_pixel!, inputRect, _typingId ? Color.DarkGreen * 0.8f : Color.Gray * 0.4f);
-        spriteBatch.DrawString(font, InputId + (_typingId ? "_" : ""), new Vector2(inputRect.X + 3, inputRect.Y + 3), Color.White);
+        EditorTheme.FillRect(spriteBatch, inputRect, _typingId ? EditorTheme.BgDeep : EditorTheme.Panel);
+        EditorTheme.DrawBorder(spriteBatch, inputRect, _typingId ? EditorTheme.Accent : EditorTheme.Border);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Body, InputId + (_typingId ? "│" : ""),
+            new Vector2(inputRect.X + 6, inputRect.Y + 4), EditorTheme.Text);
 
-        spriteBatch.DrawString(font, "LClick=place  RClick=delete", new Vector2(rect.X + 5, rect.Y + 55), Color.Gray);
-        spriteBatch.DrawString(font, $"Spawns: {string.Join(", ", _map.SpawnPoints.Select(s => s.Id))}", new Vector2(rect.X + rect.Width + 12, rect.Y + 3), Color.Cyan);
+        EditorTheme.DrawText(spriteBatch, EditorTheme.Tiny, "LClick — place      RClick — delete",
+            new Vector2(rect.X + 10, rect.Bottom - 16), EditorTheme.TextMuted);
     }
 
     private Rectangle GetInputRect()
     {
         var viewport = _graphics.Viewport;
-        return new Rectangle(viewport.Width - 245, viewport.Height - 88, 150, 20);
+        return new Rectangle(viewport.Width - 200, viewport.Height - 102, 180, 22);
     }
 
     private static char KeyToChar(Keys key, bool shift)

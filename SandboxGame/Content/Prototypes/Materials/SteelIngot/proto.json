@@ -1,0 +1,30 @@
+{
+  "id": "steel_ingot",
+  "name": "Steel Ingot",
+  "category": "entity",
+  "base": "iron_ingot",
+  "components": {
+    "info": {
+      "description": "Стальной слиток. Крепкий материал для надёжного боевого оружия."
+    },
+    "item": {
+      "name": "Steel Ingot",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 20,
+      "stack": 1,
+      "tags": [
+        "material",
+        "metal",
+        "ingot"
+      ]
+    },
+    "qualityTier": {
+      "tier": 2,
+      "label": "Сталь",
+      "shortLabel": "T2",
+      "tint": "#8FA7C5"
+    }
+  }
+}

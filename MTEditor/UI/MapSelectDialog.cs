@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,24 +10,16 @@ namespace MTEditor.UI;
 
 public class MapSelectDialog
 {
-    private readonly SpriteFont _font;
     private readonly GraphicsDevice _graphics;
-    private Texture2D _pixel;
 
     public bool IsOpen { get; private set; } = false;
     private List<string> _maps = new();
     private int _selectedIndex = 0;
     private Action<string>? _onSelect;
 
-    private KeyboardState _prevKeys;
-    private MouseState _prevMouse;
-
-    public MapSelectDialog(SpriteFont font, GraphicsDevice graphics)
+    public MapSelectDialog(GraphicsDevice graphics)
     {
-        _font = font;
         _graphics = graphics;
-        _pixel = new Texture2D(graphics, 1, 1);
-        _pixel.SetData(new[] { Color.White });
     }
 
     public void Open(List<string> maps, Action<string> onSelect)
@@ -43,24 +36,20 @@ public class MapSelectDialog
     {
         if (!IsOpen) return;
 
-        // стрелки вверх/вниз
         if (IsPressed(keys, prevKeys, Keys.Up))
             _selectedIndex = Math.Max(0, _selectedIndex - 1);
         if (IsPressed(keys, prevKeys, Keys.Down))
             _selectedIndex = Math.Min(_maps.Count - 1, _selectedIndex + 1);
 
-        // Enter — выбрать
         if (IsPressed(keys, prevKeys, Keys.Enter) && _maps.Count > 0)
         {
             _onSelect?.Invoke(_maps[_selectedIndex]);
             IsOpen = false;
         }
 
-        // Escape — закрыть
         if (IsPressed(keys, prevKeys, Keys.Escape))
             IsOpen = false;
 
-        // клик мышью
         if (mouse.LeftButton == ButtonState.Pressed && prev.LeftButton == ButtonState.Released)
         {
             for (int i = 0; i < _maps.Count; i++)
@@ -74,57 +63,69 @@ public class MapSelectDialog
                 }
             }
 
-            // клик вне диалога — закрыть
             if (!GetDialogRect().Contains(mouse.X, mouse.Y))
                 IsOpen = false;
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch sb)
     {
         if (!IsOpen) return;
 
+        var vp = _graphics.Viewport;
+        EditorTheme.FillRect(sb, new Rectangle(0, 0, vp.Width, vp.Height), Color.Black * 0.55f);
+
         var dialog = GetDialogRect();
+        EditorTheme.DrawShadow(sb, dialog, 8);
+        EditorTheme.FillRect(sb, dialog, EditorTheme.Bg);
+        EditorTheme.DrawBorder(sb, dialog, EditorTheme.Border);
 
-        // затемнение фона
-        spriteBatch.Draw(_pixel, new Rectangle(0, 0, _graphics.Viewport.Width, _graphics.Viewport.Height), Color.Black * 0.5f);
+        // Title bar
+        var title = new Rectangle(dialog.X, dialog.Y, dialog.Width, 26);
+        EditorTheme.FillRect(sb, title, EditorTheme.Panel);
+        sb.Draw(EditorTheme.Pixel, new Rectangle(title.X, title.Bottom - 1, title.Width, 1), EditorTheme.Border);
+        sb.Draw(EditorTheme.Pixel, new Rectangle(title.X, title.Y, 3, title.Height), EditorTheme.Accent);
+        EditorTheme.DrawText(sb, EditorTheme.Medium, "OPEN MAP",
+            new Vector2(title.X + 12, title.Y + (title.Height - EditorTheme.Medium.MeasureString("OPEN MAP").Y) / 2f - 1),
+            EditorTheme.Text);
 
-        // диалог
-        spriteBatch.Draw(_pixel, dialog, Color.Black * 0.95f);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y, dialog.Width, 1), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Bottom - 1, dialog.Width, 1), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y, 1, dialog.Height), Color.DarkGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.Right - 1, dialog.Y, 1, dialog.Height), Color.DarkGreen);
-
-        spriteBatch.DrawString(_font, "SELECT MAP  (Enter=load  Esc=cancel)", new Vector2(dialog.X + 10, dialog.Y + 8), Color.LimeGreen);
-        spriteBatch.Draw(_pixel, new Rectangle(dialog.X, dialog.Y + 25, dialog.Width, 1), Color.DarkGreen * 0.5f);
+        var hint = "Enter — open     Esc — cancel";
+        var hintSize = EditorTheme.Tiny.MeasureString(hint);
+        EditorTheme.DrawText(sb, EditorTheme.Tiny, hint,
+            new Vector2(title.Right - hintSize.X - 10, title.Y + (title.Height - hintSize.Y) / 2f - 1),
+            EditorTheme.TextMuted);
 
         if (_maps.Count == 0)
         {
-            spriteBatch.DrawString(_font, "No maps found. Create one first!", new Vector2(dialog.X + 10, dialog.Y + 35), Color.Gray);
+            EditorTheme.DrawText(sb, EditorTheme.Body, "No maps found. Create one first!",
+                new Vector2(dialog.X + 14, dialog.Y + 40), EditorTheme.TextMuted);
             return;
         }
 
         for (int i = 0; i < _maps.Count; i++)
         {
             var rect = GetItemRect(i);
-            if (i == _selectedIndex)
-                spriteBatch.Draw(_pixel, rect, Color.DarkGreen * 0.6f);
-            spriteBatch.DrawString(_font, _maps[i], new Vector2(rect.X + 8, rect.Y + 4), i == _selectedIndex ? Color.White : Color.LimeGreen);
+            var selected = i == _selectedIndex;
+            if (selected)
+                EditorTheme.FillRect(sb, rect, EditorTheme.Accent);
+            EditorTheme.DrawText(sb, EditorTheme.Body, _maps[i],
+                new Vector2(rect.X + 10, rect.Y + (rect.Height - EditorTheme.Body.MeasureString(_maps[i]).Y) / 2f - 1),
+                selected ? Color.White : EditorTheme.Text);
         }
     }
 
     private Rectangle GetDialogRect()
     {
         var vp = _graphics.Viewport;
-        var w = 400; var h = Math.Max(120, 40 + _maps.Count * 26 + 20);
+        var w = 420;
+        var h = Math.Max(140, 40 + _maps.Count * 24 + 16);
         return new Rectangle(vp.Width / 2 - w / 2, vp.Height / 2 - h / 2, w, h);
     }
 
     private Rectangle GetItemRect(int i)
     {
         var d = GetDialogRect();
-        return new Rectangle(d.X + 5, d.Y + 30 + i * 26, d.Width - 10, 24);
+        return new Rectangle(d.X + 6, d.Y + 34 + i * 24, d.Width - 12, 22);
     }
 
     private static bool IsPressed(KeyboardState cur, KeyboardState prev, Keys key)

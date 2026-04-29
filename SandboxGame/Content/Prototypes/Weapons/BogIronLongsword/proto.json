@@ -1,0 +1,67 @@
+{
+  "id": "bog_iron_longsword",
+  "name": "Bog-Iron Longsword",
+  "category": "entity",
+  "base": "longsword",
+  "components": {
+    "info": {
+      "description": "Одноручный меч из болотного железа. Подойдёт лишь как дешёвое и временное оружие."
+    },
+    "item": {
+      "name": "Bog-Iron Longsword",
+      "slots": 2,
+      "size": "Medium",
+      "tags": [
+        "weapon",
+        "melee",
+        "one-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 4,
+      "label": "Болотное железо",
+      "shortLabel": "T4",
+      "tint": "#8F6A45"
+    },
+    "weapon": {
+      "materials": [
+        "bog_iron_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 14,
+      "minDamage": 11,
+      "maxDamage": 18,
+      "range": 50,
+      "windup": 0.46,
+      "accuracy": 0.9,
+      "verb": "Резануть",
+      "blockBonus": 0.04
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 4,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 5,
+      "craftTime": 2.6,
+      "ingredients": [
+        {
+          "prototypeId": "bog_iron_ingot",
+          "count": 3
+        },
+        {
+          "prototypeId": "wood",
+          "count": 1
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

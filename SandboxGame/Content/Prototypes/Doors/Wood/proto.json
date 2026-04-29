@@ -1,0 +1,39 @@
+{
+  "id": "woodDoor",
+  "name": "Wooden Door",
+  "category": "entity",
+  "base": "base_entity",
+  "components": {
+    "sprite": {
+      "source": "closed.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.55
+    },
+    "collider": {
+      "width": 32,
+      "height": 32,
+      "offsetX": -16,
+      "offsetY": -16
+    },
+    "interactable": {
+      "name": "Wooden Door",
+      "range": 72
+    },
+    "info": {
+      "description": "Простая деревянная дверь. Закрытая дверь не пропускает ни свет, ни взгляд, ни проход."
+    },
+    "blocker": {
+      "blocksMovement": true,
+      "blocksVision": true
+    },
+    "door": {
+      "name": "Wooden Door",
+      "closedSprite": "closed.png",
+      "openSprite": "open.png",
+      "open": false
+    }
+  }
+}

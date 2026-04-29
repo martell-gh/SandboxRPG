@@ -14,7 +14,7 @@
 
   <!-- Nav panel (left) -->
   <NavPanel Fill="#121C16_F0" Border="#486C50" BorderThickness="2"
-            Header="Navigation" HeaderDescription="All primary actions are listed here."
+            Header="--mm-nav-header" HeaderDescription="--mm-nav-description"
             HeaderColor="#FFFFFF" HeaderDescColor="#96AC9C"
             ItemHeight="46" ItemGap="8" ItemStartY="66" />
 
@@ -31,25 +31,25 @@
              AccentBarWidth="4" AccentBarColor="#B4DE80" />
 
   <!-- Hint bar -->
-  <Hint Text="W/S move  Enter select" Color="#96AA96" OffsetX="24" OffsetY="32" Align="right-bottom" />
+  <Hint Text="--mm-hint" Color="#96AA96" OffsetX="24" OffsetY="32" Align="right-bottom" />
 
   <!-- Menu items -->
   <Items>
-    <Item Label="Начать игру"
-          Description="Запускает новую игру с начальной локации."
+    <Item Label="--mm-newgame"
+          Description="--mm-newgame-desc"
           Action="start_game" />
-    <Item Label="Загрузить"
-          Description="Открывает список слотов сохранения."
+    <Item Label="--mm-load"
+          Description="--mm-load-desc"
           Action="open_load" />
-    <Item Label="Река разработчика"
-          Description="Загружает карту river для быстрого тестирования."
+    <Item Label="--mm-dev-river"
+          Description="--mm-dev-river-desc"
           Action="load_river"
           Condition="dev_mode" />
-    <Item Label="Настройки"
-          Description="Настройки игры, управление и режим разработчика."
+    <Item Label="--mm-settings"
+          Description="--mm-settings-desc"
           Action="open_settings" />
-    <Item Label="Выход"
-          Description="Закрыть приложение."
+    <Item Label="--mm-exit"
+          Description="--mm-exit-desc"
           Action="exit_confirm" />
   </Items>
 

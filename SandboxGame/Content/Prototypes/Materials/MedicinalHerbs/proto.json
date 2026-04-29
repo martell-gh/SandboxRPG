@@ -1,0 +1,32 @@
+{
+  "id": "medicinal_herbs",
+  "name": "Medicinal Herbs",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../ClothBolt/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Связка сушёных лечебных трав. Основа для припарок, мазей и грубой полевой медицины."
+    },
+    "item": {
+      "name": "Medicinal Herbs",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 20,
+      "stack": 1,
+      "tags": [
+        "material",
+        "herb",
+        "medical"
+      ]
+    }
+  }
+}

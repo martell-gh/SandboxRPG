@@ -2,6 +2,7 @@
   "id": "apple",
   "name": "Apple",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Apple",
       "slots": 1,
       "size": "Small",
-      "tags": ["food", "organic"]
+      "tags": [
+        "food",
+        "organic"
+      ]
     },
     "info": {
       "description": "Спелое яблоко. Утоляет лёгкий голод и немного освежает."
@@ -24,9 +27,18 @@
     "substanceSource": {
       "yieldMultiplier": 1.0,
       "substances": [
-        { "id": "fructose", "amount": 10 },
-        { "id": "malic_acid", "amount": 4 },
-        { "id": "cyanide", "amount": 0.08 }
+        {
+          "id": "fructose",
+          "amount": 10
+        },
+        {
+          "id": "malic_acid",
+          "amount": 4
+        },
+        {
+          "id": "cyanide",
+          "amount": 0.08
+        }
       ]
     },
     "consumable": {
@@ -37,9 +49,18 @@
       "digestTime": 25,
       "type": "Food",
       "substances": [
-        { "id": "fructose", "amount": 10 },
-        { "id": "malic_acid", "amount": 4 },
-        { "id": "cyanide", "amount": 0.08 }
+        {
+          "id": "fructose",
+          "amount": 10
+        },
+        {
+          "id": "malic_acid",
+          "amount": 4
+        },
+        {
+          "id": "cyanide",
+          "amount": 0.08
+        }
       ]
     }
   }

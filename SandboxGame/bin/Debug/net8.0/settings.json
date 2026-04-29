@@ -1,6 +1,11 @@
 {
   "DevMode": true,
-  "UiScale": 1,
+  "UiScale": 0.95,
+  "ScreenWidth": 1496,
+  "ScreenHeight": 967,
+  "StartMapId": "",
+  "StartSpawnId": "",
+  "LocalizationId": "RU",
   "KeyBindings": {
     "MoveUp": "W",
     "MoveDown": "S",
@@ -16,6 +21,8 @@
     "InspectContainer": "P",
     "InspectMemory": "O",
     "Fullscreen": "F11",
-    "InGameMaps": "F6"
+    "InGameMaps": "F6",
+    "Skills": "K",
+    "CombatMode": "C"
   }
 }

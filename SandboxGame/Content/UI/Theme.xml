@@ -1,0 +1,50 @@
+<Theme>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Window appearance
+       NineSlice="left,top,right,bottom" — border margins in source pixels
+       Scale — multiplier for drawn border size (0.5 = smaller corners, 2.0 = bigger)
+       ═══════════════════════════════════════════════════════════════ -->
+  <Window>
+    <Background Texture="bg_tiled.png" NineSlice="21,21,21,21" Scale="2.5" Tint="#FFFFFF"
+                FlatColor="#121C1C_DC" />
+    <TitleBar Visible="false" Height="32" />
+    <TitleText Color="#ffffff" Scale="1.0" />
+    <Border Color="#466E46" Thickness="0" />
+    <CloseButton Texture="cross.png" Size="18" Tint="#BBBBBB" HoverTint="#FFFFFF" />
+    <Shadow Color="#000000" Alpha="0.4" OffsetX="4" OffsetY="4" />
+  </Window>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Button states
+       ═══════════════════════════════════════════════════════════════ -->
+  <Button BorderThickness="1" DefaultHeight="28">
+    <Normal  BackColor="#2D4A2D" BorderColor="#466E46" TextColor="#FFFFFF" />
+    <Hover   BackColor="#3D6A3D" BorderColor="#5A9A5A" TextColor="#FFFFFF" />
+    <Pressed BackColor="#1E351E" BorderColor="#3A5A3A" TextColor="#CCCCCC" />
+    <Disabled BackColor="#1E1E1E" TextColor="#666666" />
+  </Button>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ProgressBar defaults (FillColor is set per-bar in XML)
+       ═══════════════════════════════════════════════════════════════ -->
+  <ProgressBar BackColor="#1A1A1A" BorderColor="#466E46" TextColor="#FFFFFF" DefaultHeight="18" />
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TextInput
+       ═══════════════════════════════════════════════════════════════ -->
+  <TextInput BackColor="#141820" BorderColor="#464E6E" FocusBorderColor="#64A064"
+             TextColor="#FFFFFF" PlaceholderColor="#666666" DefaultHeight="24" />
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Misc elements
+       ═══════════════════════════════════════════════════════════════ -->
+  <Separator Color="#466E46_66" />
+  <ScrollBar Color="#466E46_78" Width="5" />
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Font
+       ═══════════════════════════════════════════════════════════════ -->
+  <Font Name="DefaultFont" />
+
+</Theme>

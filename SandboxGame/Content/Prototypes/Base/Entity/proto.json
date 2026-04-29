@@ -1,0 +1,9 @@
+{
+  "id": "base_entity",
+  "name": "Base Entity",
+  "category": "entity",
+  "abstract": true,
+  "components": {
+    "transform": { "x": 0, "y": 0 }
+  }
+}

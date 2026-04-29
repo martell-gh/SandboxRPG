@@ -2,6 +2,7 @@
   "id": "grass",
   "name": "Grass",
   "category": "tile",
+  "base": "base_tile",
   "solid": false,
   "transparent": true,
   "color": "#4a7c3f",

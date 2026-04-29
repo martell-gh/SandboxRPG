@@ -271,20 +271,20 @@ public class SubstanceWorkbenchSystem : GameSystem
 
         var predictedWindow = new Rectangle(x, y, 470, 420);
         var closeRect = new Rectangle(
-            predictedWindow.Right - XmlWindow.CloseButtonSize - 6,
+            predictedWindow.Right - XmlWindow.DefaultCloseButtonSize - 6,
             predictedWindow.Y + 5,
-            XmlWindow.CloseButtonSize,
-            XmlWindow.CloseButtonSize);
+            XmlWindow.DefaultCloseButtonSize,
+            XmlWindow.DefaultCloseButtonSize);
 
         if (closeRect.Contains(mouse))
         {
             x = Math.Clamp(mouse.X - predictedWindow.Width - 24, 8, Math.Max(8, viewport.Width - predictedWindow.Width - 8));
             predictedWindow.X = x;
             closeRect = new Rectangle(
-                predictedWindow.Right - XmlWindow.CloseButtonSize - 6,
+                predictedWindow.Right - XmlWindow.DefaultCloseButtonSize - 6,
                 predictedWindow.Y + 5,
-                XmlWindow.CloseButtonSize,
-                XmlWindow.CloseButtonSize);
+                XmlWindow.DefaultCloseButtonSize,
+                XmlWindow.DefaultCloseButtonSize);
 
             if (closeRect.Contains(mouse))
                 y = Math.Clamp(mouse.Y + 36, 8, Math.Max(8, viewport.Height - predictedWindow.Height - 8));

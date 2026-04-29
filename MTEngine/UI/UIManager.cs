@@ -8,8 +8,7 @@ namespace MTEngine.UI;
 
 /// <summary>
 /// GameSystem that manages all XML-based windows.
-/// Handles input routing, drawing order, and focus.
-/// Register as a system in GameEngine — draws on the Overlay layer.
+/// Handles input routing, drawing order, focus, and theme management.
 /// </summary>
 public class UIManager : GameSystem
 {
@@ -27,8 +26,34 @@ public class UIManager : GameSystem
 
     /// <summary>Whether any window consumed input this frame.</summary>
     public bool ConsumedInput { get; private set; }
+    public SpriteFont? Font => _font;
+
+    /// <summary>Active UI theme. Set via LoadTheme() or directly.</summary>
+    public UITheme? Theme { get; set; }
 
     public void SetFont(SpriteFont font) => _font = font;
+
+    /// <summary>
+    /// Load a theme from an XML file.
+    /// Call this after assets are available (after LoadContent).
+    /// </summary>
+    public void LoadTheme(string xmlPath)
+    {
+        EnsureResources();
+        if (_assets == null)
+        {
+            Console.WriteLine("[UIManager] Cannot load theme: AssetManager not available yet");
+            return;
+        }
+
+        Theme = UITheme.LoadFromFile(xmlPath, _assets);
+        ServiceLocator.Register(Theme);
+        Console.WriteLine($"[UIManager] Theme loaded from {xmlPath}");
+
+        // Apply theme to all existing windows
+        foreach (var w in _windows)
+            ApplyThemeToWindow(w);
+    }
 
     public override void OnInitialize()
     {
@@ -53,12 +78,12 @@ public class UIManager : GameSystem
             ? Math.Clamp(ServiceLocator.Get<IUiScaleSource>().UiScale, 0.75f, 2f)
             : 1f;
 
-    // ── Window management ──────────────────────────────��───────────
+    // ── Window management ──────────────────────────────────────────
 
     /// <summary>Load a window from an XML file and register it.</summary>
     public XmlWindow LoadWindow(string xmlPath)
     {
-        var window = UIParser.LoadFromFile(xmlPath);
+        var window = UIParser.LoadFromFile(xmlPath, Theme);
         RegisterWindow(window);
         return window;
     }
@@ -66,7 +91,7 @@ public class UIManager : GameSystem
     /// <summary>Load a window from an XML string and register it.</summary>
     public XmlWindow LoadWindowFromString(string xml)
     {
-        var window = UIParser.LoadFromString(xml);
+        var window = UIParser.LoadFromString(xml, Theme);
         RegisterWindow(window);
         return window;
     }
@@ -79,6 +104,9 @@ public class UIManager : GameSystem
 
         if (!string.IsNullOrEmpty(window.Id))
             _windowsById[window.Id] = window;
+
+        // Apply theme if not already set
+        ApplyThemeToWindow(window);
 
         // Resolve image textures
         if (_assets != null)
@@ -118,7 +146,7 @@ public class UIManager : GameSystem
     /// <summary>Whether any window is currently open.</summary>
     public bool AnyWindowOpen => _windows.Any(w => w.IsOpen);
 
-    // ── Update ──────────────────────────���──────────────────────────
+    // ── Update ─────────────────────────────────────────────────────
 
     public override void Update(float deltaTime)
     {
@@ -127,9 +155,10 @@ public class UIManager : GameSystem
         ConsumedInput = false;
 
         var uiScale = GetUiScale();
+        var mousePx = _input.MousePosition;
         var mouse = new Point(
-            (int)MathF.Round(_input.MousePosition.X / uiScale),
-            (int)MathF.Round(_input.MousePosition.Y / uiScale));
+            (int)MathF.Round(mousePx.X / uiScale),
+            (int)MathF.Round(mousePx.Y / uiScale));
 
         // Escape closes the topmost window
         if (_input.IsPressed(Keys.Escape))
@@ -145,11 +174,9 @@ public class UIManager : GameSystem
             }
         }
 
-        // Update all open windows (for hover, drag, etc.)
         foreach (var w in _windows)
             if (w.IsOpen) w.Update(deltaTime, _input, uiScale);
 
-        // Left click — route to topmost window that contains the point
         if (_input.LeftClicked)
         {
             for (int i = _windows.Count - 1; i >= 0; i--)
@@ -164,14 +191,12 @@ public class UIManager : GameSystem
             }
         }
 
-        // Left release
         if (_input.LeftReleased)
         {
             foreach (var w in _windows)
                 if (w.IsOpen) w.HandleRelease(mouse);
         }
 
-        // Scroll
         if (_input.ScrollDelta != 0)
         {
             for (int i = _windows.Count - 1; i >= 0; i--)
@@ -185,8 +210,6 @@ public class UIManager : GameSystem
             }
         }
 
-        // Text input forwarding (for focused TextInput elements)
-        // MonoGame requires Window.TextInput event; we handle key presses here
         if (_input.IsPressed(Keys.Back))
         {
             foreach (var w in _windows)
@@ -199,7 +222,6 @@ public class UIManager : GameSystem
         }
     }
 
-    /// <summary>Call from Game.Window.TextInput event to forward text to focused inputs.</summary>
     public void OnTextInput(char c)
     {
         foreach (var w in _windows)
@@ -221,14 +243,56 @@ public class UIManager : GameSystem
         if (_sb == null || _pixel == null) return;
 
         _sb.Begin(
-            samplerState: Math.Abs(GetUiScale() - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp,
+            samplerState: SamplerState.LinearClamp,
             rasterizerState: new RasterizerState { ScissorTestEnable = true },
-            transformMatrix: Matrix.CreateScale(GetUiScale(), GetUiScale(), 1f));
+            transformMatrix: GameEngine.Instance.GetUiTransform(GetUiScale()));
 
         foreach (var w in _windows)
             w.Draw(_sb, _pixel, _font);
 
         _sb.End();
+    }
+
+    // ── Theme application ──────────────────────────────────────────
+
+    private void ApplyThemeToWindow(XmlWindow window)
+    {
+        window.Theme ??= Theme;
+        if (window.Theme != null)
+            ApplyThemeToElement(window.Root, window.Theme);
+    }
+
+    private static void ApplyThemeToElement(UIElement element, UITheme theme)
+    {
+        switch (element)
+        {
+            case UIScrollPanel scrollPanel:
+                scrollPanel.Theme ??= theme;
+                foreach (var child in scrollPanel.Children)
+                    ApplyThemeToElement(child, theme);
+                break;
+
+            case UIPanel panel:
+                foreach (var child in panel.Children)
+                    ApplyThemeToElement(child, theme);
+                break;
+
+            case UIButton button:
+                button.Theme ??= theme;
+                break;
+
+            case UIProgressBar bar:
+                bar.Theme ??= theme;
+                break;
+
+            case UITextInput input:
+                input.Theme ??= theme;
+                break;
+
+            case UISeparator separator:
+                separator.Theme ??= theme;
+                break;
+        }
     }
 
     // ── Helpers ─────────────────────────────────────────────────────

@@ -1,0 +1,37 @@
+{
+  "id": "ration_bag",
+  "name": "Ration Bag",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "../../Apparel/Backpack/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "item": {
+      "name": "Сумка для провизии",
+      "size": "Small",
+      "slots": 1,
+      "tags": [
+        "container",
+        "food-storage"
+      ]
+    },
+    "storage": {
+      "name": "Сумка для провизии",
+      "slots": 6,
+      "maxItemSize": 1,
+      "allowedTags": [
+        "food",
+        "drink"
+      ]
+    },
+    "info": {
+      "description": "Мешочек для еды и бутылок с водой. Вмещает только съестное и питьё."
+    }
+  }
+}

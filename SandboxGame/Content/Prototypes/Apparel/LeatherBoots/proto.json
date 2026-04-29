@@ -2,6 +2,7 @@
   "id": "leather_boots",
   "name": "Leather Boots",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "item.png",
@@ -12,23 +13,46 @@
       "layerDepth": 0.5,
       "color": "#8A613A"
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Leather Boots",
       "size": "Small",
       "slots": 1,
-      "tags": ["clothing", "shoes", "boots"]
+      "tags": [
+        "clothing",
+        "shoes",
+        "boots"
+      ]
     },
     "info": {
       "description": "Крепкие кожаные сапоги. Защищают ноги от камней и грязи на дорогах."
     },
     "wearable": {
       "slot": "shoes",
+      "slashArmor": 0.04,
+      "bluntArmor": 0.05,
+      "burnArmor": 0.01,
       "durability": 80,
       "maxDurability": 80,
-      "materials": ["leather_patch"],
+      "materials": [
+        "leather_patch"
+      ],
       "icon": "icon.png",
-      "equippedAnimations": "equipped_animations.json"
+      "equippedSpriteMale": "man_equipped.png",
+      "equippedSpriteFemale": "woman_equipped.png",
+      "equippedAnimationsMale": "man_equipped_animations.json",
+      "equippedAnimationsFemale": "woman_equipped_animations.json"
+    },
+    "craftable": {
+      "station": "tailoring",
+      "skill": "Tailoring",
+      "requiredSkill": 10,
+      "craftTime": 1.9,
+      "ingredients": [
+        {
+          "prototypeId": "leather_patch",
+          "count": 2
+        }
+      ]
     }
   }
 }

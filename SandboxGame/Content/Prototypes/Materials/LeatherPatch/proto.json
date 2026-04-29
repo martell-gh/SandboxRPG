@@ -2,6 +2,7 @@
   "id": "leather_patch",
   "name": "Leather Patch",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,7 +12,6 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "info": {
       "description": "Кусок выделанной кожи. Прочный материал для ремонта снаряжения и изготовления доспехов."
     },
@@ -22,7 +22,10 @@
       "stackable": true,
       "maxStack": 20,
       "stack": 1,
-      "tags": ["material", "leather"]
+      "tags": [
+        "material",
+        "leather"
+      ]
     }
   }
 }

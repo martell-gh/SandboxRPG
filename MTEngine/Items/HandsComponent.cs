@@ -21,10 +21,12 @@ public class HandsComponent : Component, IInteractionSource
 
     /// <summary>Number of hands (created on first access).</summary>
     [DataField("count")]
+    [SaveField("count")]
     public int HandCount { get; set; } = 2;
 
     /// <summary>Hand names in order, comma-separated. Defaults to "Left,Right" etc.</summary>
     [DataField("names")]
+    [SaveField("names")]
     public string HandNames { get; set; } = "";
 
     private List<Hand>? _hands;
@@ -41,6 +43,7 @@ public class HandsComponent : Component, IInteractionSource
     }
 
     /// <summary>Index of the currently active hand.</summary>
+    [SaveField("activeHandIndex")]
     public int ActiveHandIndex { get; set; } = 0;
 
     /// <summary>The currently active hand (or null if no hands).</summary>
@@ -473,7 +476,7 @@ public class HandsComponent : Component, IInteractionSource
 
         var input = ServiceLocator.Get<InputManager>();
         var camera = ServiceLocator.Get<Camera>();
-        return camera.ScreenToWorld(new Vector2(input.MousePosition.X, input.MousePosition.Y));
+        return camera.ScreenToWorld(new Vector2(input.ViewportMousePosition.X, input.ViewportMousePosition.Y));
     }
 
     private static void MarkWorldDirty()

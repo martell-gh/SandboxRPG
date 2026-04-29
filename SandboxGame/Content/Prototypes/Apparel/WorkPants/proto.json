@@ -2,6 +2,7 @@
   "id": "work_pants",
   "name": "Work Pants",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "item.png",
@@ -12,23 +13,45 @@
       "layerDepth": 0.5,
       "color": "#506CA8"
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Work Pants",
       "size": "Small",
       "slots": 1,
-      "tags": ["clothing", "pants"]
+      "tags": [
+        "clothing",
+        "pants"
+      ]
     },
     "info": {
       "description": "Прочные рабочие штаны из плотной ткани. Удобны для повседневной носки и труда."
     },
     "wearable": {
       "slot": "pants",
+      "slashArmor": 0.03,
+      "bluntArmor": 0.03,
+      "burnArmor": 0.01,
       "durability": 65,
       "maxDurability": 65,
-      "materials": ["cloth_bolt"],
+      "materials": [
+        "cloth_bolt"
+      ],
       "icon": "icon.png",
-      "equippedAnimations": "equipped_animations.json"
+      "equippedSpriteMale": "man_equipped.png",
+      "equippedSpriteFemale": "woman_equipped.png",
+      "equippedAnimationsMale": "man_equipped_animations.json",
+      "equippedAnimationsFemale": "woman_equipped_animations.json"
+    },
+    "craftable": {
+      "station": "tailoring",
+      "skill": "Tailoring",
+      "requiredSkill": 8,
+      "craftTime": 1.7,
+      "ingredients": [
+        {
+          "prototypeId": "cloth_bolt",
+          "count": 2
+        }
+      ]
     }
   }
 }

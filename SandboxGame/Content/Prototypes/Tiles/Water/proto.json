@@ -2,6 +2,7 @@
   "id": "water",
   "name": "Water",
   "category": "tile",
+  "base": "base_tile",
   "solid": true,
   "transparent": true,
   "color": "#2a6db5",

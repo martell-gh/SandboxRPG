@@ -1,0 +1,353 @@
+[
+  {
+    "id": "npc_001",
+    "proto": "npc_base",
+    "ageYears": 24,
+    "identity": {
+      "firstName": "Genry",
+      "lastName": "Baratheon",
+      "gender": "Male",
+      "factionId": "fac_starks",
+      "settlementId": "",
+      "districtId": ""
+    },
+    "personality": {
+      "infidelity": -1,
+      "vengefulness": -1,
+      "childWish": 9,
+      "marriageWish": 8,
+      "sociability": 8,
+      "pacifist": false
+    },
+    "skills": {
+      "Smithing": 3
+    },
+    "residence": {
+      "houseId": "house_1",
+      "bedSlotId": "bed@3,10"
+    },
+    "profession": {
+      "slotId": "blacksmith"
+    },
+    "kin": [],
+    "description": null,
+    "components": {
+      "schedule": {
+        "templateId": "default_worker",
+        "slots": [
+          {
+            "start": 0,
+            "end": 6,
+            "action": "Sleep",
+            "targetAreaId": "$house",
+            "priority": 20
+          },
+          {
+            "start": 6,
+            "end": 7,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 7,
+            "end": 12,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 12,
+            "end": 13,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 13,
+            "end": 18,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 18,
+            "end": 19,
+            "action": "Free",
+            "targetAreaId": "",
+            "priority": 8
+          },
+          {
+            "start": 19,
+            "end": 20,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 20,
+            "end": 24,
+            "action": "Sleep",
+            "targetAreaId": "$house",
+            "priority": 20
+          }
+        ],
+        "freetime": [
+          {
+            "action": "Socialize",
+            "priority": 1,
+            "dayOnly": true
+          },
+          {
+            "action": "Wander",
+            "priority": 1
+          }
+        ]
+      },
+      "hair": {
+        "visible": false
+      }
+    },
+    "outfit": {
+      "torso": "tinted_shirt",
+      "pants": "work_pants",
+      "shoes": "leather_boots"
+    },
+    "hands": [],
+    "inventory": []
+  },
+  {
+    "id": "npc_002",
+    "proto": "npc_base",
+    "ageYears": 25,
+    "identity": {
+      "firstName": "Mia",
+      "lastName": "Stark",
+      "gender": "Female",
+      "factionId": "fac_starks",
+      "settlementId": "",
+      "districtId": ""
+    },
+    "personality": {
+      "infidelity": -1,
+      "vengefulness": -1,
+      "childWish": 4,
+      "marriageWish": 9,
+      "sociability": 7,
+      "pacifist": true
+    },
+    "skills": {
+      "Medicine": 6,
+      "Social": 10,
+      "Trade": 7
+    },
+    "residence": null,
+    "profession": {
+      "slotId": "tavern"
+    },
+    "kin": [],
+    "description": null,
+    "components": {
+      "schedule": {
+        "templateId": "default_worker",
+        "slots": [
+          {
+            "start": 0,
+            "end": 6,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 6,
+            "end": 7,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 7,
+            "end": 9,
+            "action": "Free",
+            "targetAreaId": "",
+            "priority": 8
+          },
+          {
+            "start": 9,
+            "end": 12,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 12,
+            "end": 13,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 13,
+            "end": 17,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          },
+          {
+            "start": 17,
+            "end": 20,
+            "action": "Free",
+            "targetAreaId": "",
+            "priority": 8
+          },
+          {
+            "start": 20,
+            "end": 21,
+            "action": "EatAtHome",
+            "targetAreaId": "$house",
+            "priority": 12
+          },
+          {
+            "start": 21,
+            "end": 24,
+            "action": "Work",
+            "targetAreaId": "$profession",
+            "priority": 18
+          }
+        ],
+        "freetime": [
+          {
+            "action": "Visit",
+            "priority": 3,
+            "conditions": [
+              "has_partner"
+            ]
+          },
+          {
+            "action": "StayInTavern",
+            "priority": 2
+          },
+          {
+            "action": "Socialize",
+            "priority": 1,
+            "dayOnly": true
+          },
+          {
+            "action": "Wander",
+            "priority": 1
+          }
+        ]
+      },
+      "hair": {
+        "styleId": "hair_short_messy",
+        "color": "#B8733DFF"
+      },
+      "sprite": {
+        "srcX": 0,
+        "srcY": 0,
+        "width": 32,
+        "height": 32,
+        "ySort": true,
+        "layerDepth": 0.5,
+        "color": "#FFE1CEFF"
+      }
+    },
+    "outfit": {
+      "torso": "tinted_shirt",
+      "shoes": "leather_boots"
+    },
+    "hands": [],
+    "inventory": []
+  },
+  {
+    "id": "npc_003",
+    "proto": "npc_base",
+    "ageYears": 43,
+    "identity": {
+      "firstName": "Jeffrey",
+      "lastName": "Epstein",
+      "gender": "Male",
+      "factionId": "fac_starks",
+      "settlementId": "",
+      "districtId": ""
+    },
+    "personality": {
+      "infidelity": -1,
+      "vengefulness": -1,
+      "childWish": -1,
+      "marriageWish": 0,
+      "sociability": -1,
+      "pacifist": false
+    },
+    "skills": {
+      "TwoHandedWeapons": 10
+    },
+    "residence": null,
+    "profession": null,
+    "kin": [],
+    "description": null,
+    "components": {
+      "schedule": {
+        "templateId": "default_unemployed",
+        "slots": [
+          {
+            "start": 0,
+            "end": 7,
+            "action": "Sleep",
+            "targetAreaId": "$inn",
+            "priority": 18
+          },
+          {
+            "start": 7,
+            "end": 22,
+            "action": "Free",
+            "targetAreaId": "",
+            "priority": 8
+          },
+          {
+            "start": 22,
+            "end": 24,
+            "action": "Sleep",
+            "targetAreaId": "$inn",
+            "priority": 18
+          }
+        ],
+        "freetime": [
+          {
+            "action": "Socialize",
+            "priority": 1,
+            "dayOnly": true
+          },
+          {
+            "action": "Wander",
+            "priority": 1
+          }
+        ]
+      },
+      "hair": {
+        "styleId": "hair_short_messy",
+        "color": "#4C311FFF"
+      },
+      "sprite": {
+        "srcX": 0,
+        "srcY": 0,
+        "width": 32,
+        "height": 32,
+        "ySort": true,
+        "layerDepth": 0.5,
+        "color": "#5E3529FF"
+      }
+    },
+    "outfit": {
+      "torso": "heavy_armor",
+      "pants": "work_pants",
+      "shoes": "leather_boots"
+    },
+    "hands": [
+      "valyrian_greatsword"
+    ],
+    "inventory": [
+      "book_smithing_primer"
+    ]
+  }
+]

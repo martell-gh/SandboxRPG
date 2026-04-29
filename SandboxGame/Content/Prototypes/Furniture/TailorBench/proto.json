@@ -1,0 +1,29 @@
+{
+  "id": "tailor_bench",
+  "name": "Tailor Bench",
+  "category": "entity",
+  "base": "base_furniture",
+  "components": {
+    "sprite": {
+      "source": "../Chest/sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true
+    },
+    "info": {
+      "description": "Портняжный стол с нитками, иглами и рамой для шитья одежды и сумок."
+    },
+    "interactable": {
+      "name": "Tailor Bench",
+      "range": 84
+    },
+    "craftingStation": {
+      "station": "tailoring",
+      "name": "Портняжный стол",
+      "verb": "Шить"
+    }
+  }
+}

@@ -2,6 +2,7 @@
   "id": "water_bottle",
   "name": "Water Bottle",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Water Bottle",
       "slots": 1,
       "size": "Small",
-      "tags": ["drink", "water"]
+      "tags": [
+        "drink",
+        "water"
+      ]
     },
     "info": {
       "description": "Бутыль с чистой водой. Утоляет жажду и поддерживает силы в пути."
@@ -30,7 +33,10 @@
       "type": "Drink",
       "eatVerb": "Выпить",
       "substances": [
-        { "id": "spring_water", "amount": 40 }
+        {
+          "id": "spring_water",
+          "amount": 40
+        }
       ]
     }
   }

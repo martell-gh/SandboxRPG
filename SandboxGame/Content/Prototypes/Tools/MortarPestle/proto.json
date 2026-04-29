@@ -2,6 +2,7 @@
   "id": "mortar_pestle",
   "name": "Mortar & Pestle",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Mortar & Pestle",
       "slots": 1,
       "size": "Small",
-      "tags": ["tool", "mortar"]
+      "tags": [
+        "tool",
+        "mortar"
+      ]
     },
     "info": {
       "description": "Каменная ступка с пестиком. Незаменимый инструмент для измельчения трав, специй и минералов."
@@ -24,6 +27,11 @@
     "mortar": {
       "name": "Толкушка",
       "capacity": 120
+    },
+    "craftingStation": {
+      "station": "medicine",
+      "name": "Ступка и пестик",
+      "verb": "Готовить снадобья"
     }
   }
 }

@@ -8,10 +8,14 @@ public class UIProgressBar : UIElement
     public float Value { get; set; } = 1f;
     public float MaxValue { get; set; } = 1f;
     public Color FillColor { get; set; } = new(80, 180, 80);
+    public Color? OverrideBackColor { get; set; }
+    public Color? OverrideBorderColor { get; set; }
     public Color BackColor { get; set; } = new(30, 30, 30);
     public Color BorderColor { get; set; } = new(70, 110, 70);
     public bool ShowText { get; set; } = true;
     public string? TextFormat { get; set; }
+
+    public UITheme? Theme { get; set; }
 
     public float Fraction => MaxValue > 0 ? MathHelper.Clamp(Value / MaxValue, 0f, 1f) : 0f;
 
@@ -19,24 +23,27 @@ public class UIProgressBar : UIElement
     {
         base.Layout(available);
         if (Height <= 0)
-            Bounds = new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, 18);
+        {
+            var h = Theme?.ProgressDefaultHeight ?? 18;
+            Bounds = new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, h);
+        }
     }
 
     public override void Draw(SpriteBatch sb, Texture2D pixel, SpriteFont font)
     {
         if (!Visible) return;
 
-        sb.Draw(pixel, Bounds, BackColor);
+        var backColor = OverrideBackColor ?? Theme?.ProgressBackColor ?? BackColor;
+        var borderColor = OverrideBorderColor ?? Theme?.ProgressBorderColor ?? BorderColor;
+        var textColor = Theme?.ProgressTextColor ?? Color.White;
+
+        sb.Draw(pixel, Bounds, backColor);
 
         var fillW = (int)(Bounds.Width * Fraction);
         if (fillW > 0)
             sb.Draw(pixel, new Rectangle(Bounds.X, Bounds.Y, fillW, Bounds.Height), FillColor);
 
-        // Border
-        sb.Draw(pixel, new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, 1), BorderColor);
-        sb.Draw(pixel, new Rectangle(Bounds.X, Bounds.Bottom - 1, Bounds.Width, 1), BorderColor);
-        sb.Draw(pixel, new Rectangle(Bounds.X, Bounds.Y, 1, Bounds.Height), BorderColor);
-        sb.Draw(pixel, new Rectangle(Bounds.Right - 1, Bounds.Y, 1, Bounds.Height), BorderColor);
+        UIDrawHelper.DrawBorder(sb, pixel, Bounds, borderColor);
 
         if (ShowText)
         {
@@ -45,9 +52,9 @@ public class UIProgressBar : UIElement
                 : $"{Value:0}/{MaxValue:0}";
             var size = font.MeasureString(text);
             var pos = new Vector2(
-                Bounds.X + (Bounds.Width - size.X) / 2,
-                Bounds.Y + (Bounds.Height - size.Y) / 2);
-            sb.DrawString(font, text, pos, Color.White);
+                MathF.Round(Bounds.X + (Bounds.Width - size.X) / 2),
+                MathF.Round(Bounds.Y + (Bounds.Height - size.Y) / 2));
+            sb.DrawString(font, text, pos, textColor);
         }
     }
 }

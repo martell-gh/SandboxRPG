@@ -2,6 +2,7 @@
   "id": "metal_flask",
   "name": "Metal Flask",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Metal Flask",
       "slots": 1,
       "size": "Small",
-      "tags": ["container", "flask"]
+      "tags": [
+        "container",
+        "flask"
+      ]
     },
     "info": {
       "description": "Металлическая фляга. Прочная и надёжная, хорошо сохраняет воду в долгих походах."
@@ -31,7 +34,10 @@
       "fillSprite75": "fill75.png",
       "fillSprite100": "fill100.png",
       "contents": [
-        { "id": "spring_water", "amount": 60 }
+        {
+          "id": "spring_water",
+          "amount": 60
+        }
       ],
       "digestTime": 6
     }

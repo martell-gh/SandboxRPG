@@ -8,6 +8,7 @@ using MTEngine.ECS;
 using MTEngine.Items;
 using MTEngine.Rendering;
 using MTEngine.Systems;
+using MTEngine.UI;
 
 namespace SandboxGame.Systems;
 
@@ -15,6 +16,7 @@ public class PlayerMovementSystem : GameSystem
 {
     private InputManager _input = null!;
     private Camera _camera = null!;
+    private UIManager? _uiManager;
     private IKeyBindingSource? _keys;
 
     private const float MinZoom = 1f;
@@ -26,31 +28,69 @@ public class PlayerMovementSystem : GameSystem
     {
         _input = ServiceLocator.Get<InputManager>();
         _camera = ServiceLocator.Get<Camera>();
+        _uiManager = ServiceLocator.Has<UIManager>() ? ServiceLocator.Get<UIManager>() : null;
         _keys = ServiceLocator.Has<IKeyBindingSource>() ? ServiceLocator.Get<IKeyBindingSource>() : null;
         _camera.Zoom = DefaultZoom;
     }
 
     public override void Update(float deltaTime)
     {
-        if (DevConsole.IsOpen)
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
         {
             foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
             {
-                var sprite = entity.GetComponent<SpriteComponent>();
-                if (sprite != null)
-                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
+                if (entity.GetComponent<PlayerTagComponent>() == null)
+                    continue;
+
+                entity.GetComponent<VelocityComponent>()!.Velocity = Vector2.Zero;
+                entity.GetComponent<SpriteComponent>()?.PlayDirectionalIdle(Vector2.Zero);
             }
             return;
         }
 
+        if (ServiceLocator.Has<ITradeUiService>() && ServiceLocator.Get<ITradeUiService>().IsTradeOpen)
+        {
+            foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
+            {
+                if (entity.GetComponent<PlayerTagComponent>() == null)
+                    continue;
+
+                entity.GetComponent<VelocityComponent>()!.Velocity = Vector2.Zero;
+                entity.GetComponent<SpriteComponent>()?.PlayDirectionalIdle(Vector2.Zero);
+            }
+            return;
+        }
+
+        if (DevConsole.IsOpen)
+        {
+            foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
+            {
+                if (entity.GetComponent<PlayerTagComponent>() == null)
+                    continue;
+
+                var sprite = entity.GetComponent<SpriteComponent>();
+                if (sprite != null)
+                    sprite.PlayDirectionalIdle(Vector2.Zero);
+            }
+            return;
+        }
+
+        var uiConsumedScroll = _input.ScrollDelta != 0 && _uiManager?.ConsumedInput == true;
+
         // зум колёсиком
-        if (_input.ScrollDelta > 0)
-            _camera.Zoom = Math.Min(MaxZoom, _camera.Zoom + ZoomStep);
-        else if (_input.ScrollDelta < 0)
-            _camera.Zoom = Math.Max(MinZoom, _camera.Zoom - ZoomStep);
+        if (!uiConsumedScroll)
+        {
+            if (_input.ScrollDelta > 0)
+                _camera.Zoom = Math.Min(MaxZoom, _camera.Zoom + ZoomStep);
+            else if (_input.ScrollDelta < 0)
+                _camera.Zoom = Math.Max(MinZoom, _camera.Zoom - ZoomStep);
+        }
 
         foreach (var entity in World.GetEntitiesWith<TransformComponent, VelocityComponent>())
         {
+            if (entity.GetComponent<PlayerTagComponent>() == null)
+                continue;
+
             var transform = entity.GetComponent<TransformComponent>()!;
             var velocity = entity.GetComponent<VelocityComponent>()!;
             var sprite = entity.GetComponent<SpriteComponent>();
@@ -63,7 +103,7 @@ public class PlayerMovementSystem : GameSystem
                 velocity.Velocity = Vector2.Zero;
                 _camera.Follow(transform.Position);
                 if (sprite != null)
-                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
+                    sprite.PlayDirectionalIdle(Vector2.Zero);
                 continue;
             }
 
@@ -72,7 +112,7 @@ public class PlayerMovementSystem : GameSystem
                 velocity.Velocity = Vector2.Zero;
                 _camera.Follow(transform.Position);
                 if (sprite != null)
-                    sprite.PlayClip(ResolveDirectionalIdleClip(Vector2.Zero, sprite));
+                    sprite.PlayDirectionalIdle(Vector2.Zero);
                 continue;
             }
 
@@ -92,26 +132,9 @@ public class PlayerMovementSystem : GameSystem
 
             if (sprite != null)
             {
-                sprite.PlayClip(ResolveDirectionalIdleClip(dir, sprite));
+                sprite.PlayDirectionalIdle(dir);
             }
         }
-    }
-
-    private static string ResolveDirectionalIdleClip(Vector2 dir, SpriteComponent sprite)
-    {
-        if (dir != Vector2.Zero)
-        {
-            if (Math.Abs(dir.X) > Math.Abs(dir.Y))
-                return dir.X < 0 ? "idle_left" : "idle_right";
-
-            return dir.Y < 0 ? "idle_up" : "idle_down";
-        }
-
-        var current = sprite.AnimationPlayer?.CurrentClipName;
-        if (!string.IsNullOrWhiteSpace(current) && current.StartsWith("idle_", StringComparison.Ordinal))
-            return current;
-
-        return "idle_down";
     }
 
     private Keys GetKey(string action, Keys fallback)

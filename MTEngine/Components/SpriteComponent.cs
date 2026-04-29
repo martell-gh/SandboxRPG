@@ -15,20 +15,26 @@ public class SpriteComponent : Component, IPrototypeInitializable
     public Vector2 Origin { get; set; } = Vector2.Zero;
 
     [DataField("layerDepth")]
+    [SaveField("layerDepth")]
     public float LayerDepth { get; set; } = 0f;
 
     [DataField("ySort")]
+    [SaveField("ySort")]
     public bool YSort { get; set; } = false;
 
     [DataField("sortOffsetY")]
+    [SaveField("sortOffsetY")]
     public float SortOffsetY { get; set; } = 0f;
 
+    [SaveField("visible")]
     public bool Visible { get; set; } = true;
 
     [DataField("source")]
+    [SaveField("source")]
     public string? Source { get; set; }
 
     [DataField("color")]
+    [SaveField("color")]
     public string ColorHex
     {
         get => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}{Color.A:X2}";
@@ -36,15 +42,19 @@ public class SpriteComponent : Component, IPrototypeInitializable
     }
 
     [DataField("srcX")]
+    [SaveField("srcX")]
     public int SrcX { get; set; }
 
     [DataField("srcY")]
+    [SaveField("srcY")]
     public int SrcY { get; set; }
 
     [DataField("width")]
+    [SaveField("width")]
     public int Width { get; set; } = 32;
 
     [DataField("height")]
+    [SaveField("height")]
     public int Height { get; set; } = 32;
 
     // анимация
@@ -127,6 +137,35 @@ public class SpriteComponent : Component, IPrototypeInitializable
         if (!AnimationSet.HasClip(clipName)) return;
 
         AnimationPlayer.Play(AnimationSet, clipName, restart);
+    }
+
+    public void PlayDirectionalIdle(Vector2 direction)
+    {
+        PlayClip(ResolveDirectionalIdleClip(direction));
+    }
+
+    private string ResolveDirectionalIdleClip(Vector2 direction)
+    {
+        if (direction != Vector2.Zero)
+        {
+            var clipName = Math.Abs(direction.X) > Math.Abs(direction.Y)
+                ? direction.X < 0 ? "idle_left" : "idle_right"
+                : direction.Y < 0 ? "idle_up" : "idle_down";
+
+            if (AnimationSet?.HasClip(clipName) == true)
+                return clipName;
+
+            if (AnimationSet?.HasClip("idle") == true)
+                return "idle";
+
+            return clipName;
+        }
+
+        var current = AnimationPlayer?.CurrentClipName;
+        if (!string.IsNullOrWhiteSpace(current) && current.StartsWith("idle_", StringComparison.Ordinal))
+            return current;
+
+        return AnimationSet?.HasClip("idle_down") == true ? "idle_down" : "idle";
     }
 
     public void UpdateAnimation(float deltaTime)

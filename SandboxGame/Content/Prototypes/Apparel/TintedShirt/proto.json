@@ -2,6 +2,7 @@
   "id": "tinted_shirt",
   "name": "Tinted Shirt",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "item.png",
@@ -12,23 +13,46 @@
       "layerDepth": 0.5,
       "color": "#D24C4C"
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Tinted Shirt",
       "size": "Small",
       "slots": 1,
-      "tags": ["clothing", "torso", "shirt"]
+      "tags": [
+        "clothing",
+        "torso",
+        "shirt"
+      ]
     },
     "info": {
       "description": "Рубаха, окрашенная растительным красителем. Простая, но ноская одежда."
     },
     "wearable": {
       "slot": "torso",
+      "slashArmor": 0.05,
+      "bluntArmor": 0.02,
+      "burnArmor": 0.01,
       "durability": 55,
       "maxDurability": 55,
-      "materials": ["cloth_bolt"],
+      "materials": [
+        "cloth_bolt"
+      ],
       "icon": "icon.png",
-      "equippedAnimations": "equipped_animations.json"
+      "equippedSpriteMale": "man_equipped.png",
+      "equippedSpriteFemale": "woman_equipped.png",
+      "equippedAnimationsMale": "man_equipped_animations.json",
+      "equippedAnimationsFemale": "woman_equipped_animations.json"
+    },
+    "craftable": {
+      "station": "tailoring",
+      "skill": "Tailoring",
+      "requiredSkill": 6,
+      "craftTime": 1.6,
+      "ingredients": [
+        {
+          "prototypeId": "cloth_bolt",
+          "count": 2
+        }
+      ]
     }
   }
 }

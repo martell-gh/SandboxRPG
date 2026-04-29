@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Text.Json.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MTEngine.Combat;
 using MTEngine.Components;
 using MTEngine.Core;
+using MTEngine.Crafting;
 using MTEngine.ECS;
 using MTEngine.Interactions;
 using MTEngine.Items;
 using MTEngine.Metabolism;
+using MTEngine.Npc;
 using MTEngine.Rendering;
+using MTEngine.UI;
+using MTEngine.World;
 using MTEngine.Wounds;
 
 namespace MTEngine.Systems;
@@ -46,11 +52,13 @@ public class InteractionSystem : GameSystem
     private readonly Dictionary<string, Texture2D?> _equipmentSlotTextures = new();
     private readonly Dictionary<string, SpriteMaskData> _spriteMaskCache = new();
     private readonly Dictionary<string, Texture2D> _statusIconTextures = new();
+    private UITheme? _theme;
 
     // Menu state
     private bool _menuOpen;
     private Vector2 _menuScreenPos;
     private Entity? _targetEntity;
+    private Entity? _menuTitleEntity;
     private InteractionContext? _activeContext;
     private List<MenuActionState> _menuActions = new();
     private int _hoveredIndex = -1;
@@ -150,6 +158,12 @@ public class InteractionSystem : GameSystem
         public required StatusEffectDefinition Effect { get; init; }
     }
 
+    public bool RequestsInteractionSlowdown
+        => _menuOpen
+           && _targetEntity != null
+           && _targetEntity != _activeContext?.Actor
+           && _targetEntity.HasComponent<NpcTagComponent>();
+
     public void SetFont(SpriteFont font) => _font = font;
 
     public override void OnInitialize()
@@ -179,6 +193,49 @@ public class InteractionSystem : GameSystem
             _equipmentSlotTextures["shoes"] = assets.LoadFromFile(Path.Combine(UiTextureRoot, "slot_shoes.png"));
             _equipmentSlotTextures["back"] = assets.LoadFromFile(Path.Combine(UiTextureRoot, "slot_back.png"));
         }
+
+        _theme ??= ServiceLocator.Has<UITheme>() ? ServiceLocator.Get<UITheme>() : null;
+    }
+
+    /// <summary>Draw a themed 9-slice background or fallback to flat color.</summary>
+    private void DrawThemedBackground(Rectangle rect, Color fallbackColor)
+    {
+        if (_sb == null || _pixel == null) return;
+        var slice = _theme?.WindowBackground;
+        if (slice != null)
+        {
+            // Shadow
+            var shadowAlpha = _theme?.ShadowAlpha ?? 0.35f;
+            _sb.Draw(_pixel, new Rectangle(rect.X + 4, rect.Y + 4, rect.Width, rect.Height),
+                Color.Black * shadowAlpha);
+            slice.Draw(_sb, rect, _theme?.WindowBackgroundTint ?? Color.White);
+        }
+        else
+        {
+            _sb.Draw(_pixel, new Rectangle(rect.X + 3, rect.Y + 3, rect.Width, rect.Height), Color.Black * 0.4f);
+            _sb.Draw(_pixel, rect, fallbackColor);
+            UIDrawHelper.DrawBorder(_sb, _pixel, rect, new Color(70, 110, 70));
+        }
+    }
+
+    /// <summary>Draw the themed close button (cross.png or fallback).</summary>
+    private void DrawThemedCloseButton(Rectangle rect, bool hovered)
+    {
+        if (_sb == null || _pixel == null) return;
+        var closeTex = _theme?.CloseButtonTexture;
+        if (closeTex != null)
+        {
+            var tint = hovered
+                ? (_theme?.CloseButtonHoverTint ?? Color.White)
+                : (_theme?.CloseButtonTint ?? Color.White);
+            _sb.Draw(closeTex, rect, tint);
+        }
+        else
+        {
+            _sb.Draw(_pixel, rect, hovered ? new Color(180, 50, 50) : new Color(90, 30, 30));
+            if (_font != null)
+                _sb.DrawString(_font, "X", new Vector2(rect.X + 5, rect.Y + 1), Color.White);
+        }
     }
 
     private float GetUiScale()
@@ -192,30 +249,62 @@ public class InteractionSystem : GameSystem
             return Point.Zero;
 
         var scale = GetUiScale();
+        var mouse = _input.MousePosition;
         return new Point(
-            (int)MathF.Round(_input.MousePosition.X / scale),
-            (int)MathF.Round(_input.MousePosition.Y / scale));
+            (int)MathF.Round(mouse.X / scale),
+            (int)MathF.Round(mouse.Y / scale));
     }
 
     private int GetUiViewportWidth()
-        => _gd == null ? 0 : Math.Max(1, (int)MathF.Round(_gd.Viewport.Width / GetUiScale()));
+        => GameEngine.Instance.GetUiLogicalBounds(GetUiScale()).Width;
 
     private int GetUiViewportHeight()
-        => _gd == null ? 0 : Math.Max(1, (int)MathF.Round(_gd.Viewport.Height / GetUiScale()));
+        => GameEngine.Instance.GetUiLogicalBounds(GetUiScale()).Height;
 
     public override void Update(float deltaTime)
     {
         if (_input == null || _camera == null) return;
+
+        if (ServiceLocator.Has<IGodModeService>() && ServiceLocator.Get<IGodModeService>().IsGodModeActive)
+        {
+            CloseMenu();
+            CloseStorage();
+            return;
+        }
+
+        if (ServiceLocator.Has<ITradeUiService>() && ServiceLocator.Get<ITradeUiService>().IsTradeOpen)
+        {
+            CloseMenu();
+            CloseStorage();
+            return;
+        }
 
         if (DevConsole.IsOpen) { CloseMenu(); CloseStorage(); return; }
 
         var player = GetPrimaryActor();
         var hands = player?.GetComponent<HandsComponent>();
         var equipment = player?.GetComponent<EquipmentComponent>();
-        var rawMousePos = new Vector2(_input.MousePosition.X, _input.MousePosition.Y);
+        var combatMode = player?.GetComponent<CombatModeComponent>();
+        var rawMousePos = new Vector2(_input.ViewportMousePosition.X, _input.ViewportMousePosition.Y);
         var mousePos = new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y);
         var worldPos = _camera.ScreenToWorld(rawMousePos);
-        _hoveredWorldEntity = FindHoveredInteractable(worldPos, player);
+        var combatSystem = World.GetSystem<CombatSystem>();
+        _hoveredWorldEntity = combatMode?.CombatEnabled == true && player != null && combatSystem != null
+            ? FindHoveredCombatTarget(player, worldPos, combatSystem) ?? FindHoveredInteractable(worldPos, player)
+            : FindHoveredInteractable(worldPos, player);
+
+        if (player != null && combatMode != null && _input.IsPressed(GetKey("CombatMode", Keys.C)))
+        {
+            combatMode.CombatEnabled = !combatMode.CombatEnabled;
+            PopupTextSystem.Show(
+                player,
+                combatMode.CombatEnabled ? "Боевой режим" : "Обычный режим",
+                combatMode.CombatEnabled ? Color.IndianRed : Color.LightGray,
+                lifetime: 1.2f);
+            if (ServiceLocator.Has<IWorldStateTracker>())
+                ServiceLocator.Get<IWorldStateTracker>().MarkDirty();
+            return;
+        }
 
         UpdateDelayedInteraction(deltaTime);
 
@@ -317,6 +406,23 @@ public class InteractionSystem : GameSystem
             return;
         }
 
+        if (player != null
+            && combatMode?.CombatEnabled == true
+            && RangedCombatSystem.HasActiveRangedWeapon(player)
+            && (_input.LeftClicked || _input.LeftDown || _input.LeftReleased))
+        {
+            return;
+        }
+
+        if (_input.LeftClicked && player != null && combatMode?.CombatEnabled == true)
+        {
+            TryExecuteCombatModeAttack(player, worldPos);
+            return;
+        }
+
+        if (_input.LeftClicked && player != null && TryExecutePrimaryWorldInteraction(player, worldPos))
+            return;
+
         if (_input.RightClicked)
             TryOpenMenu(worldPos, mousePos);
     }
@@ -375,7 +481,8 @@ public class InteractionSystem : GameSystem
             {
                 Actor = ctx.Actor,
                 Target = ctx.Actor,
-                World = ctx.World
+                World = ctx.World,
+                OriginalTarget = ctx.Target
             };
             CollectActionsFromEntity(activeItem, selfCtx, entries, dedupe);
         }
@@ -386,10 +493,123 @@ public class InteractionSystem : GameSystem
             {
                 Actor = ctx.Actor,
                 Target = activeItem,
-                World = ctx.World
+                World = ctx.World,
+                OriginalTarget = ctx.Target
             };
             CollectActionsFromEntity(activeItem, itemCtx, entries, dedupe);
         }
+    }
+
+    private bool TryExecutePrimaryWorldInteraction(Entity actor, Vector2 worldPos)
+    {
+        var target = FindHoveredInteractable(worldPos, actor);
+        if (target == null)
+            return false;
+
+        if (IsUseBlockedByActiveWorker(actor, target, out var reason))
+        {
+            PopupTextSystem.Show(actor, reason, Color.LightGoldenrodYellow, lifetime: 1.25f);
+            return true;
+        }
+
+        var ctx = new InteractionContext
+        {
+            Actor = actor,
+            Target = target,
+            World = World
+        };
+
+        var actions = CollectTargetOnlyActions(ctx);
+        var primaryAction = actions
+            .Where(action => action.Entry.IsPrimaryAction)
+            .OrderByDescending(action => action.Entry.Priority)
+            .FirstOrDefault();
+
+        if (primaryAction == null)
+        {
+            var hands = actor.GetComponent<HandsComponent>();
+            var activeItem = hands?.ActiveItem;
+            if (activeItem != null)
+            {
+                var heldActions = CollectHeldItemPrimaryActions(activeItem, ctx);
+                primaryAction = heldActions
+                    .Where(action => action.Entry.IsPrimaryAction)
+                    .OrderByDescending(action => action.Entry.Priority)
+                    .FirstOrDefault();
+            }
+        }
+
+        if (primaryAction == null)
+            return false;
+
+        return TryExecuteInteractionAction(primaryAction.Entry, primaryAction.Context);
+    }
+
+    private bool TryExecuteCombatModeAttack(Entity actor, Vector2 worldPos)
+    {
+        var combat = World.GetSystem<CombatSystem>();
+        if (combat == null)
+            return false;
+
+        var target = FindHoveredCombatTarget(actor, worldPos, combat);
+        return combat.TryAttackOrSwing(actor, target, worldPos);
+    }
+
+    private static List<MenuActionState> CollectTargetOnlyActions(InteractionContext ctx)
+    {
+        var entries = new List<MenuActionState>();
+        var dedupe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        CollectActionsFromEntity(ctx.Target, ctx, entries, dedupe);
+        entries.Sort((a, b) => b.Entry.Priority.CompareTo(a.Entry.Priority));
+        return entries;
+    }
+
+    private static List<MenuActionState> CollectHeldItemPrimaryActions(Entity activeItem, InteractionContext ctx)
+    {
+        var entries = new List<MenuActionState>();
+        var dedupe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        CollectActionsFromEntity(activeItem, ctx, entries, dedupe);
+        entries.Sort((a, b) => b.Entry.Priority.CompareTo(a.Entry.Priority));
+        return entries;
+    }
+
+    private Entity? FindHoveredCombatTarget(Entity actor, Vector2 worldPos, CombatSystem combat)
+    {
+        var attack = combat.GetCurrentAttackProfile(actor);
+        Entity? best = null;
+        float bestLayer = float.MinValue;
+        float bestSortY = float.MinValue;
+
+        foreach (var entity in World.GetEntitiesWith<TransformComponent>())
+        {
+            if (entity == actor || !entity.Active)
+                continue;
+
+            if (entity.GetComponent<HealthComponent>() == null &&
+                entity.GetComponent<WoundComponent>() == null &&
+                entity.GetComponent<TrainingDummyComponent>() == null)
+            {
+                continue;
+            }
+
+            if (!combat.CanAttack(actor, entity, attack))
+                continue;
+
+            if (!TryGetInteractionBounds(entity, out var bounds) || !bounds.Contains(worldPos))
+                continue;
+
+            var sprite = entity.GetComponent<SpriteComponent>();
+            var layer = sprite?.LayerDepth ?? 0f;
+            var sortY = GetInteractionSortY(entity);
+            if (best == null || layer > bestLayer || (Math.Abs(layer - bestLayer) < 0.0001f && sortY > bestSortY))
+            {
+                best = entity;
+                bestLayer = layer;
+                bestSortY = sortY;
+            }
+        }
+
+        return best;
     }
 
     private void TryOpenMenu(Vector2 worldPos, Vector2 screenPos)
@@ -413,6 +633,7 @@ public class InteractionSystem : GameSystem
             if (selfActions.Count == 0) return;
 
             _targetEntity = player;
+            _menuTitleEntity = player;
             _activeContext = selfCtx;
             _menuActions = selfActions;
             _menuScreenPos = screenPos;
@@ -426,6 +647,12 @@ public class InteractionSystem : GameSystem
         if (best == null)
             return;
 
+        if (IsUseBlockedByActiveWorker(player, best, out var reason))
+        {
+            PopupTextSystem.Show(player, reason, Color.LightGoldenrodYellow, lifetime: 1.25f);
+            return;
+        }
+
         var ctx = new InteractionContext
         {
             Actor = player,
@@ -437,6 +664,7 @@ public class InteractionSystem : GameSystem
         if (actions.Count == 0) return;
 
         _targetEntity = best;
+        _menuTitleEntity = best;
         _activeContext = ctx;
         _menuActions = actions;
         _menuScreenPos = screenPos;
@@ -445,6 +673,81 @@ public class InteractionSystem : GameSystem
 
         var name = GetInteractName(best);
         Console.WriteLine($"[Interaction] Opened: {name} ({actions.Count} actions)");
+    }
+
+    private bool IsUseBlockedByActiveWorker(Entity actor, Entity target, out string reason)
+    {
+        reason = "";
+        if (actor == target
+            || target.HasComponent<NpcTagComponent>()
+            || target.HasComponent<PlayerTagComponent>()
+            || target.HasComponent<DoorComponent>())
+        {
+            return false;
+        }
+
+        if (!ServiceLocator.Has<MapManager>())
+            return false;
+
+        var mapManager = ServiceLocator.Get<MapManager>();
+        var map = mapManager.CurrentMap;
+        var targetTransform = target.GetComponent<TransformComponent>();
+        if (map == null || targetTransform == null)
+            return false;
+
+        var tile = new Point(
+            (int)MathF.Floor(targetTransform.Position.X / map.TileSize),
+            (int)MathF.Floor(targetTransform.Position.Y / map.TileSize));
+
+        var area = map.Areas.FirstOrDefault(a =>
+            string.Equals(a.Kind, AreaZoneKinds.Profession, StringComparison.OrdinalIgnoreCase)
+            && a.ContainsTile(tile.X, tile.Y));
+        if (area == null)
+            return false;
+
+        var worker = FindActiveWorkerForArea(area, map);
+        if (worker == null || worker == actor)
+            return false;
+
+        reason = "Сейчас этим пользуется работник.";
+        return true;
+    }
+
+    private Entity? FindActiveWorkerForArea(AreaZoneData area, MapData map)
+    {
+        foreach (var npc in World.GetEntitiesWith<NpcTagComponent, ProfessionComponent>())
+        {
+            if (npc.GetComponent<HealthComponent>()?.IsDead == true)
+                continue;
+
+            var profession = npc.GetComponent<ProfessionComponent>()!;
+            if (!string.Equals(profession.SlotId, area.Id, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var intent = npc.GetComponent<NpcIntentComponent>();
+            if (intent?.Action != ScheduleAction.Work
+                || !string.Equals(intent.TargetMapId, map.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!MerchantWorkRules.IsTradeOpenNow(npc))
+                continue;
+
+            var transform = npc.GetComponent<TransformComponent>();
+            if (transform == null)
+                continue;
+
+            var tile = new Point(
+                (int)MathF.Floor(transform.Position.X / map.TileSize),
+                (int)MathF.Floor(transform.Position.Y / map.TileSize));
+            if (!area.ContainsTile(tile.X, tile.Y))
+                continue;
+
+            return npc;
+        }
+
+        return null;
     }
 
     private Entity? FindHoveredInteractable(Vector2 worldPos, Entity? actor)
@@ -730,6 +1033,7 @@ public class InteractionSystem : GameSystem
             return;
 
         _targetEntity = actor;
+        _menuTitleEntity = activeItem;
         _activeContext = ctx;
         _menuActions = actions;
         _menuScreenPos = GetMouseAnchoredMenuPosition();
@@ -788,24 +1092,34 @@ public class InteractionSystem : GameSystem
     {
         var interactable = entity.GetComponent<InteractableComponent>();
         if (!string.IsNullOrWhiteSpace(interactable?.DisplayName))
-            return interactable.DisplayName;
+            return LocalizationManager.T(interactable.DisplayName);
 
         var item = entity.GetComponent<ItemComponent>();
         if (!string.IsNullOrWhiteSpace(item?.ItemName))
-            return item.ItemName;
+            return LocalizationManager.T(item.ItemName);
 
         var storage = entity.GetComponent<StorageComponent>();
         if (!string.IsNullOrWhiteSpace(storage?.StorageName))
-            return storage.StorageName;
+            return LocalizationManager.T(storage.StorageName);
 
-        return entity.Name;
+        return LocalizationManager.T(entity.Name);
     }
 
-    public void OpenStorage(Entity actor, Entity storageEntity)
+    public void OpenStorage(Entity actor, Entity storageEntity, bool allowNpcStorage = false)
     {
-        if (!storageEntity.HasComponent<StorageComponent>())
+        var storage = storageEntity.GetComponent<StorageComponent>();
+        if (storage == null)
             return;
 
+        if (!allowNpcStorage
+            && storageEntity != actor
+            && storageEntity.HasComponent<NpcTagComponent>())
+        {
+            PopupTextSystem.Show(actor, "Только через кражу.", Color.LightGoldenrodYellow, lifetime: 1.2f);
+            return;
+        }
+
+        EnsureStorageInitialContentsReady(storageEntity, storage);
         _storageActor = actor;
         _openStorageEntity = storageEntity;
         if (_storageWindowPosition == null && _gd != null)
@@ -866,6 +1180,7 @@ public class InteractionSystem : GameSystem
     private void BeginDelayedInteraction(InteractionEntry action, InteractionContext context, InteractionDelay delay)
     {
         var actorTf = context.Actor.GetComponent<TransformComponent>();
+        ApplyDelayedInteractionHold(action, context);
         _activeDelayedInteraction = new DelayedInteractionState
         {
             Entry = action,
@@ -907,10 +1222,12 @@ public class InteractionSystem : GameSystem
         }
 
         state.Elapsed += deltaTime;
+        RefreshDelayedInteractionHold(state);
         if (state.Elapsed < state.Duration)
             return;
 
         _activeDelayedInteraction = null;
+        ReleaseDelayedInteractionHold(state);
         state.Entry.Execute?.Invoke(state.Context);
     }
 
@@ -926,14 +1243,61 @@ public class InteractionSystem : GameSystem
             return;
 
         var actor = _activeDelayedInteraction.Actor;
+        ReleaseDelayedInteractionHold(_activeDelayedInteraction);
         _activeDelayedInteraction = null;
         PopupTextSystem.Show(actor, popupText, Color.LightGray, lifetime: 1f);
+    }
+
+    private static void ApplyDelayedInteractionHold(InteractionEntry action, InteractionContext context)
+    {
+        if (!string.Equals(action.Id, "npc.talk", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var target = context.Target;
+        if (!target.HasComponent<NpcTagComponent>())
+            return;
+
+        var hold = target.GetComponent<NpcInteractionHoldComponent>()
+                   ?? target.AddComponent(new NpcInteractionHoldComponent());
+        hold.ActorId = context.Actor.Id;
+        FaceTarget(context.Actor, target);
+    }
+
+    private static void RefreshDelayedInteractionHold(DelayedInteractionState state)
+    {
+        if (!string.Equals(state.Entry.Id, "npc.talk", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        FaceTarget(state.Context.Actor, state.Context.Target);
+    }
+
+    private static void ReleaseDelayedInteractionHold(DelayedInteractionState state)
+    {
+        if (string.Equals(state.Entry.Id, "npc.talk", StringComparison.OrdinalIgnoreCase)
+            && state.Context.Target.GetComponent<NpcInteractionHoldComponent>() != null)
+        {
+            state.Context.Target.RemoveComponent<NpcInteractionHoldComponent>();
+        }
+    }
+
+    private static void FaceTarget(Entity actor, Entity target)
+    {
+        var actorPosition = actor.GetComponent<TransformComponent>()?.Position;
+        var targetPosition = target.GetComponent<TransformComponent>()?.Position;
+        if (!actorPosition.HasValue || !targetPosition.HasValue)
+            return;
+
+        if (target.GetComponent<VelocityComponent>() is { } velocity)
+            velocity.Velocity = Vector2.Zero;
+
+        target.GetComponent<SpriteComponent>()?.PlayDirectionalIdle(actorPosition.Value - targetPosition.Value);
     }
 
     private void CloseMenu()
     {
         _menuOpen = false;
         _targetEntity = null;
+        _menuTitleEntity = null;
         _activeContext = null;
         _menuActions.Clear();
         _hoveredIndex = -1;
@@ -1003,6 +1367,7 @@ public class InteractionSystem : GameSystem
 
         var storage = _openStorageEntity.GetComponent<StorageComponent>();
         var hands = _storageActor.GetComponent<HandsComponent>();
+        var pickpocket = _openStorageEntity.GetComponent<PickpocketComponent>();
         if (storage == null) return;
 
         foreach (var row in BuildStorageRows(storage, hands))
@@ -1015,12 +1380,32 @@ public class InteractionSystem : GameSystem
                 if (rightClick)
                 {
                     InterruptDelayedInteractionForAction();
-                    storage.TryRemove(row.Item);
+                    if (pickpocket != null)
+                    {
+                        if (pickpocket.TryStealItem(_storageActor, row.Item))
+                            storage.TryRemove(row.Item);
+                        else
+                            CloseStorage();
+                    }
+                    else
+                    {
+                        storage.TryRemove(row.Item);
+                    }
                 }
                 else if (hands != null)
                 {
                     InterruptDelayedInteractionForAction();
-                    storage.TryRemoveToHands(row.Item, hands);
+                    if (pickpocket != null)
+                    {
+                        if (pickpocket.TryStealItem(_storageActor, row.Item))
+                            storage.TryRemoveToHands(row.Item, hands);
+                        else
+                            CloseStorage();
+                    }
+                    else
+                    {
+                        storage.TryRemoveToHands(row.Item, hands);
+                    }
                 }
             }
             else if (!rightClick)
@@ -1060,10 +1445,9 @@ public class InteractionSystem : GameSystem
         }
 
         var uiScale = GetUiScale();
-        var uiSampler = Math.Abs(uiScale - 1f) > 0.01f ? SamplerState.LinearClamp : SamplerState.PointClamp;
         _sb.Begin(
-            samplerState: uiSampler,
-            transformMatrix: Matrix.CreateScale(uiScale, uiScale, 1f));
+            samplerState: SamplerState.LinearClamp,
+            transformMatrix: GameEngine.Instance.GetUiTransform(uiScale));
 
         DrawDelayedInteractionProgress();
 
@@ -1075,7 +1459,9 @@ public class InteractionSystem : GameSystem
         if (_openStorageEntity != null)
             DrawStorageWindow();
 
-        if (hands != null)
+        if (GetPrimaryActor()?.GetComponent<CombatModeComponent>()?.CombatEnabled == true)
+            DrawCombatModeCursor();
+        else if (hands != null)
             DrawActiveHandCursorIcon(hands);
 
         if (hands != null || equipment != null)
@@ -1083,6 +1469,9 @@ public class InteractionSystem : GameSystem
 
         if (_draggedItem == null && _input != null)
             DrawHoveredSlotTooltip(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y), hands, equipment);
+
+        if (_input != null)
+            DrawHoveredStorageTooltip(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y), hands);
 
         if (_input != null)
             DrawStatusEffectTooltip(new Vector2(GetUiMousePoint().X, GetUiMousePoint().Y));
@@ -1127,6 +1516,7 @@ public class InteractionSystem : GameSystem
         if (_camera == null)
             return;
 
+        var outlineColor = ResolveOutlineColor(entity);
         var tf = entity.GetComponent<TransformComponent>();
         var sprite = entity.GetComponent<SpriteComponent>();
         if (tf == null || sprite == null)
@@ -1140,14 +1530,14 @@ public class InteractionSystem : GameSystem
             var fallbackY = (int)MathF.Round(Math.Min(fallbackTopLeft.Y, fallbackBottomRight.Y));
             var fallbackWidth = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBottomRight.X - fallbackTopLeft.X)));
             var fallbackHeight = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBottomRight.Y - fallbackTopLeft.Y)));
-            DrawOutlineRect(new Rectangle(fallbackX - 1, fallbackY - 1, fallbackWidth + 2, fallbackHeight + 2));
+            DrawOutlineRect(new Rectangle(fallbackX - 1, fallbackY - 1, fallbackWidth + 2, fallbackHeight + 2), outlineColor);
             return;
         }
 
         var combinedOutline = BuildCombinedOutlineData(entity, sprite);
         if (combinedOutline?.EdgePixels.Length > 0)
         {
-            DrawOutlineMask(tf, tf.Scale, combinedOutline);
+            DrawOutlineMask(tf, tf.Scale, combinedOutline, outlineColor);
             return;
         }
 
@@ -1160,7 +1550,7 @@ public class InteractionSystem : GameSystem
         var fallbackBoundsY = (int)MathF.Round(Math.Min(fallbackBoundsTopLeft.Y, fallbackBoundsBottomRight.Y));
         var fallbackBoundsWidth = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBoundsBottomRight.X - fallbackBoundsTopLeft.X)));
         var fallbackBoundsHeight = Math.Max(4, (int)MathF.Round(Math.Abs(fallbackBoundsBottomRight.Y - fallbackBoundsTopLeft.Y)));
-        DrawOutlineRect(new Rectangle(fallbackBoundsX - 1, fallbackBoundsY - 1, fallbackBoundsWidth + 2, fallbackBoundsHeight + 2));
+        DrawOutlineRect(new Rectangle(fallbackBoundsX - 1, fallbackBoundsY - 1, fallbackBoundsWidth + 2, fallbackBoundsHeight + 2), outlineColor);
     }
 
     private CombinedOutlineData? BuildCombinedOutlineData(Entity entity, SpriteComponent baseSprite)
@@ -1237,21 +1627,95 @@ public class InteractionSystem : GameSystem
         };
     }
 
-    private void DrawOutlineMask(TransformComponent tf, Vector2 scale, CombinedOutlineData outline)
+    private Color ResolveOutlineColor(Entity entity)
+    {
+        var defaultColor = new Color(255, 220, 80);
+        if (entity.GetComponent<DoorComponent>() == null)
+            return defaultColor;
+
+        var actor = GetPrimaryActor();
+        if (actor == null)
+            return defaultColor;
+
+        if (World.GetSystem<InnRentalSystem>()?.TryGetDoorAccess(actor, entity, out var innAllowed) == true)
+            return innAllowed ? new Color(255, 220, 80) : new Color(235, 72, 72);
+
+        if (TryGetHouseDoorAccess(actor, entity, out var houseAllowed))
+            return houseAllowed ? new Color(255, 220, 80) : new Color(235, 72, 72);
+
+        return defaultColor;
+    }
+
+    private bool TryGetHouseDoorAccess(Entity actor, Entity door, out bool allowed)
+    {
+        allowed = false;
+        if (!ServiceLocator.Has<MapManager>() || !ServiceLocator.Has<WorldRegistry>())
+            return false;
+
+        var map = ServiceLocator.Get<MapManager>().CurrentMap;
+        var doorTransform = door.GetComponent<TransformComponent>();
+        if (map == null || doorTransform == null)
+            return false;
+
+        var doorTile = new Point(
+            (int)MathF.Floor(doorTransform.Position.X / map.TileSize),
+            (int)MathF.Floor(doorTransform.Position.Y / map.TileSize));
+        var registry = ServiceLocator.Get<WorldRegistry>();
+        var house = registry.Houses.Values.FirstOrDefault(h =>
+            string.Equals(h.MapId, map.Id, StringComparison.OrdinalIgnoreCase)
+            && h.Tiles.Any(t => Math.Abs(t.X - doorTile.X) + Math.Abs(t.Y - doorTile.Y) <= 1));
+        if (house == null || house.ResidentNpcSaveIds.Count == 0)
+            return false;
+
+        allowed = IsTrustedHouseVisitor(actor, house);
+        return true;
+    }
+
+    private bool IsTrustedHouseVisitor(Entity actor, HouseDef house)
+    {
+        if (!actor.HasComponent<PlayerTagComponent>())
+            return false;
+
+        foreach (var npc in World.GetEntitiesWith<NpcTagComponent, ResidenceComponent>())
+        {
+            var residence = npc.GetComponent<ResidenceComponent>()!;
+            if (!string.Equals(residence.HouseId, house.Id, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var relationships = npc.GetComponent<RelationshipsComponent>();
+            if (relationships is
+                {
+                    PartnerIsPlayer: true,
+                    Status: RelationshipStatus.Dating or RelationshipStatus.Engaged or RelationshipStatus.Married
+                })
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void DrawOutlineMask(TransformComponent tf, Vector2 scale, CombinedOutlineData outline, Color outlineColor)
     {
         if (_camera == null || _sb == null || _pixel == null)
             return;
 
         var pixelWidth = Math.Max(1, (int)MathF.Ceiling(Math.Abs(scale.X) * _camera.Zoom));
         var pixelHeight = Math.Max(1, (int)MathF.Ceiling(Math.Abs(scale.Y) * _camera.Zoom));
-        var outlineColor = new Color(255, 220, 80);
         var glowColor = outlineColor * 0.30f;
+
+        var cos = MathF.Cos(tf.Rotation);
+        var sin = MathF.Sin(tf.Rotation);
 
         foreach (var edge in outline.EdgePixels)
         {
-            var worldTopLeft = new Vector2(
-                tf.Position.X + edge.X * scale.X,
-                tf.Position.Y + edge.Y * scale.Y);
+            var localX = edge.X * scale.X;
+            var localY = edge.Y * scale.Y;
+            var rotatedX = localX * cos - localY * sin;
+            var rotatedY = localX * sin + localY * cos;
+
+            var worldTopLeft = new Vector2(tf.Position.X + rotatedX, tf.Position.Y + rotatedY);
             var screenTopLeft = _camera.WorldToScreen(worldTopLeft);
 
             var rect = new Rectangle(
@@ -1265,9 +1729,9 @@ public class InteractionSystem : GameSystem
         }
     }
 
-    private void DrawOutlineRect(Rectangle rect)
+    private void DrawOutlineRect(Rectangle rect, Color? color = null)
     {
-        var outlineColor = new Color(255, 220, 80);
+        var outlineColor = color ?? new Color(255, 220, 80);
         var glowColor = outlineColor * 0.30f;
 
         _sb!.Draw(_pixel!, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, 1), glowColor);
@@ -1283,21 +1747,16 @@ public class InteractionSystem : GameSystem
 
     private void DrawInteractionMenu()
     {
-        var targetName = _targetEntity != null ? GetInteractName(_targetEntity) : "Object";
+        var targetName = _menuTitleEntity != null ? GetInteractName(_menuTitleEntity) : _targetEntity != null ? GetInteractName(_targetEntity) : "Object";
         var menuRect = GetMenuRect();
 
-        _sb!.Draw(_pixel!, new Rectangle(menuRect.X + 3, menuRect.Y + 3, menuRect.Width, menuRect.Height),
-            Color.Black * 0.4f);
-        _sb.Draw(_pixel, menuRect, new Color(18, 22, 28));
+        // Background — 9-slice or flat
+        DrawThemedBackground(menuRect, new Color(18, 22, 28));
 
-        var hdr = new Rectangle(menuRect.X, menuRect.Y, menuRect.Width, HeaderHeight);
-        _sb.Draw(_pixel, hdr, new Color(35, 55, 35));
-        _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Y + HeaderHeight, menuRect.Width, 1),
-            new Color(70, 110, 70));
-
+        // Header text (no separate title bar bg)
         DrawFittedMenuText(
             targetName,
-            new Rectangle(menuRect.X + 8, menuRect.Y + 2, menuRect.Width - 16, HeaderHeight - 4),
+            new Rectangle(menuRect.X + 8, menuRect.Y + 4, menuRect.Width - 16, HeaderHeight - 4),
             Color.LimeGreen);
 
         for (int i = 0; i < _menuActions.Count; i++)
@@ -1306,7 +1765,7 @@ public class InteractionSystem : GameSystem
             bool hovered = i == _hoveredIndex;
 
             if (hovered)
-                _sb.Draw(_pixel, itemRect, new Color(55, 85, 55));
+                _sb!.Draw(_pixel!, itemRect, new Color(55, 85, 55) * 0.6f);
 
             DrawFittedMenuText(
                 _menuActions[i].Entry.Label,
@@ -1314,18 +1773,14 @@ public class InteractionSystem : GameSystem
                 hovered ? Color.White : new Color(200, 200, 200));
 
             if (i < _menuActions.Count - 1)
-                _sb.Draw(_pixel, new Rectangle(itemRect.X + 6, itemRect.Bottom, itemRect.Width - 12, 1),
+                _sb!.Draw(_pixel!, new Rectangle(itemRect.X + 6, itemRect.Bottom, itemRect.Width - 12, 1),
                     Color.White * 0.08f);
         }
-
-        _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Y, menuRect.Width, 1), new Color(70, 110, 70));
-        _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Bottom, menuRect.Width, 1), new Color(70, 110, 70));
-        _sb.Draw(_pixel, new Rectangle(menuRect.X, menuRect.Y, 1, menuRect.Height + 1), new Color(70, 110, 70));
-        _sb.Draw(_pixel, new Rectangle(menuRect.Right, menuRect.Y, 1, menuRect.Height + 1), new Color(70, 110, 70));
     }
 
     private void DrawFittedMenuText(string text, Rectangle bounds, Color color)
     {
+        text = LocalizationManager.T(text);
         if (_sb == null || _font == null || string.IsNullOrWhiteSpace(text))
             return;
 
@@ -1413,6 +1868,29 @@ public class InteractionSystem : GameSystem
         }
     }
 
+    private void DrawCombatModeCursor()
+    {
+        if (_input == null || _sb == null || _pixel == null)
+            return;
+
+        var effect = StatusEffectCatalog.Get("combat_mode");
+        if (effect == null)
+            return;
+
+        var mouse = GetUiMousePoint();
+        var rect = new Rectangle(mouse.X + 14, mouse.Y - 6, 14, 14);
+        var tint = AssetManager.ParseHexColor(effect.Tint);
+        var icon = GetOrCreateStatusIcon(effect.Id, effect.Pattern, tint);
+
+        _sb.Draw(_pixel, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), Color.Black * 0.55f);
+        _sb.Draw(_pixel, rect, new Color(24, 16, 16, 235));
+        _sb.Draw(icon, rect, Color.White);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), tint * 0.95f);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), Color.Black * 0.75f);
+        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), tint * 0.95f);
+        _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), Color.Black * 0.75f);
+    }
+
     private void DrawStatusEffectTooltip(Vector2 mousePos)
     {
         if (_sb == null || _font == null || _pixel == null)
@@ -1484,6 +1962,10 @@ public class InteractionSystem : GameSystem
         var effectIds = new List<string>();
         var metabolism = actor.GetComponent<MetabolismComponent>();
         var wounds = actor.GetComponent<WoundComponent>();
+        var combatMode = actor.GetComponent<CombatModeComponent>();
+
+        if (combatMode?.CombatEnabled == true)
+            effectIds.Add("combat_mode");
 
         if (wounds?.IsBleeding == true)
             effectIds.Add("bleeding");
@@ -1635,12 +2117,8 @@ public class InteractionSystem : GameSystem
                 rect.Y = Math.Max(0, GetUiViewportHeight() - rect.Height - 4);
         }
 
-        _sb!.Draw(_pixel!, rect, Color.Black * 0.82f);
-        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), new Color(120, 150, 120));
-        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), new Color(120, 150, 120));
-        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), new Color(120, 150, 120));
-        _sb.Draw(_pixel, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), new Color(120, 150, 120));
-        _sb.DrawString(_font, text, new Vector2(rect.X + 6, rect.Y + 4), Color.White);
+        DrawThemedBackground(rect, Color.Black * 0.82f);
+        _sb!.DrawString(_font, text, new Vector2(rect.X + 6, rect.Y + 4), Color.White);
     }
 
     private Entity? GetHoveredSlotItem(Vector2 mousePos, HandsComponent? hands, EquipmentComponent? equipment)
@@ -1668,17 +2146,39 @@ public class InteractionSystem : GameSystem
 
     private static string GetSlotTooltipText(Entity itemEntity)
     {
+        var lines = new List<string>();
+
         var liquid = itemEntity.GetComponent<LiquidContainerComponent>();
         if (liquid != null)
-            return $"{liquid.ContainerName} - {liquid.CurrentVolume:0.#}/{liquid.Capacity:0.#} мл";
+            lines.Add($"{liquid.ContainerName} - {liquid.CurrentVolume:0.#}/{liquid.Capacity:0.#} мл");
 
         var item = itemEntity.GetComponent<ItemComponent>();
-        if (!string.IsNullOrWhiteSpace(item?.ItemName))
-            return item.Stackable && item.StackCount > 1
-                ? $"{item.ItemName} x{item.StackCount}"
-                : item.ItemName;
+        if (lines.Count == 0 && !string.IsNullOrWhiteSpace(item?.ItemName))
+        {
+            var displayName = LocalizationManager.T(item.ItemName);
+            lines.Add(item.Stackable && item.StackCount > 1
+                ? $"{displayName} x{item.StackCount}"
+                : displayName);
+        }
 
-        return itemEntity.Name;
+        if (itemEntity.GetComponent<QualityTierComponent>() is { } qualityTier)
+            lines.Add($"Тир: {qualityTier.GetDisplayLabel()}");
+
+        if (itemEntity.GetComponent<CraftQualityComponent>() is { } craftQuality)
+            lines.Add($"Работа: {craftQuality.Label}");
+
+        if (itemEntity.GetComponent<RecipeNoteComponent>() is { } recipeNote)
+        {
+            var recipeTitle = !string.IsNullOrWhiteSpace(recipeNote.RecipeTitle)
+                ? recipeNote.RecipeTitle
+                : recipeNote.RecipeId;
+            lines.Add($"Схема: {recipeTitle}");
+        }
+
+        if (lines.Count == 0)
+            lines.Add(itemEntity.Name);
+
+        return string.Join('\n', lines);
     }
 
     private static string SanitizeTooltipText(string text)
@@ -1698,10 +2198,11 @@ public class InteractionSystem : GameSystem
         var rect = GetStorageRect();
         var title = GetInteractName(_openStorageEntity);
 
-        _sb!.Draw(_pixel!, rect, Color.Black * 0.86f);
-        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), new Color(70, 110, 70));
-        _sb.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, StorageHeaderHeight), new Color(35, 55, 35));
-        _sb.DrawString(_font, $"{title} [{storage.UsedSlots}/{storage.MaxSlots} slots]",
+        // Background — 9-slice or flat
+        DrawThemedBackground(rect, Color.Black * 0.86f);
+
+        // Title text (no separate header bar)
+        _sb!.DrawString(_font, $"{title} [{storage.UsedSlots}/{storage.MaxSlots} slots]",
             new Vector2(rect.X + 8, rect.Y + 6), Color.LimeGreen);
         DrawStorageCloseButton();
 
@@ -1717,7 +2218,7 @@ public class InteractionSystem : GameSystem
             foreach (var entity in storeables)
             {
                 var row = rows.First(r => !r.IsStoredItem && r.Item == entity);
-                DrawStorageRow(row, entity.GetComponent<ItemComponent>()!.ItemName, storage.GetSlotSize(entity), false);
+                DrawStorageRow(row, LocalizationManager.T(entity.GetComponent<ItemComponent>()!.ItemName), storage.GetSlotSize(entity), false);
                 y += StorageRowHeight;
             }
 
@@ -1732,7 +2233,7 @@ public class InteractionSystem : GameSystem
             var item = entity.GetComponent<ItemComponent>();
             if (item == null) continue;
             var row = rows.First(r => r.IsStoredItem && r.Item == entity);
-            DrawStorageRow(row, item.ItemName, storage.GetSlotSize(entity), true);
+            DrawStorageRow(row, LocalizationManager.T(item.ItemName), storage.GetSlotSize(entity), true);
             y += StorageRowHeight;
         }
 
@@ -1741,7 +2242,10 @@ public class InteractionSystem : GameSystem
             _sb.DrawString(_font, "[empty]", new Vector2(rect.X + StoragePadding, y), Color.Gray);
         }
 
-        _sb.DrawString(_font, "LMB: hand / store   RMB: drop from storage",
+        var hintText = IsPickpocketStorage(storage)
+            ? "LMB/RMB: попытка украсть предмет"
+            : "LMB: hand / store   RMB: drop from storage";
+        _sb.DrawString(_font, hintText,
             new Vector2(rect.X + StoragePadding, rect.Bottom - 20), Color.Gray);
     }
 
@@ -1750,12 +2254,16 @@ public class InteractionSystem : GameSystem
         _sb!.Draw(_pixel!, row.Rect, Color.DarkSlateGray * 0.35f);
         var prefix = isStoredItem ? "[in]" : "[hold]";
         var suffix = slotSize == 1 ? "slot" : "slots";
+        var text = FitTextWithEllipsis($"{prefix} {label} ({slotSize} {suffix})", row.Rect.Width - 30);
         DrawEntityIcon(row.Item, new Rectangle(row.Rect.X + 4, row.Rect.Y + 1, ItemIconSize, ItemIconSize));
-        _sb.DrawString(_font!, $"{prefix} {label} ({slotSize} {suffix})", new Vector2(row.Rect.X + 24, row.Rect.Y + 2), Color.White);
+        _sb.DrawString(_font!, text, new Vector2(row.Rect.X + 24, row.Rect.Y + 2), Color.White);
     }
 
     private IEnumerable<Entity> GetStoreableHandItems(StorageComponent storage, HandsComponent? hands)
     {
+        if (IsPickpocketStorage(storage))
+            yield break;
+
         if (hands == null)
             yield break;
 
@@ -1822,6 +2330,69 @@ public class InteractionSystem : GameSystem
         return rows;
     }
 
+    private void DrawHoveredStorageTooltip(Vector2 mousePos, HandsComponent? hands)
+    {
+        if (_openStorageEntity == null || _font == null || _pixel == null)
+            return;
+
+        var storage = _openStorageEntity.GetComponent<StorageComponent>();
+        var pickpocket = _openStorageEntity.GetComponent<PickpocketComponent>();
+        if (storage == null || pickpocket == null || _storageActor == null)
+            return;
+
+        var hoveredRow = BuildStorageRows(storage, hands)
+            .FirstOrDefault(row => row.IsStoredItem && row.Rect.Contains((int)mousePos.X, (int)mousePos.Y));
+        if (hoveredRow == null)
+            return;
+
+        var itemName = LocalizationManager.T(hoveredRow.Item.GetComponent<ItemComponent>()?.ItemName ?? hoveredRow.Item.Name);
+        var chance = pickpocket.GetStealChance(_storageActor, hoveredRow.Item);
+        var text = SanitizeTooltipText($"{itemName}\nШанс кражи: {chance:0%}");
+        var size = _font.MeasureString(text);
+        var rect = new Rectangle(
+            (int)mousePos.X + 16,
+            (int)mousePos.Y - 8,
+            (int)size.X + 12,
+            (int)size.Y + 8);
+
+        if (_gd != null)
+        {
+            if (rect.Right > GetUiViewportWidth())
+                rect.X = Math.Max(0, (int)mousePos.X - rect.Width - 16);
+            if (rect.Bottom > GetUiViewportHeight())
+                rect.Y = Math.Max(0, GetUiViewportHeight() - rect.Height - 4);
+        }
+
+        var sb = _sb!;
+        sb.Draw(_pixel!, rect, Color.Black * 0.86f);
+        sb.Draw(_pixel!, new Rectangle(rect.X, rect.Y, rect.Width, 1), new Color(132, 98, 98));
+        sb.Draw(_pixel!, new Rectangle(rect.X, rect.Bottom - 1, rect.Width, 1), new Color(132, 98, 98));
+        sb.Draw(_pixel!, new Rectangle(rect.X, rect.Y, 1, rect.Height), new Color(132, 98, 98));
+        sb.Draw(_pixel!, new Rectangle(rect.Right - 1, rect.Y, 1, rect.Height), new Color(132, 98, 98));
+        sb.DrawString(_font, text, new Vector2(rect.X + 6, rect.Y + 4), Color.White);
+    }
+
+    private string FitTextWithEllipsis(string text, int maxWidth)
+    {
+        if (_font == null || string.IsNullOrEmpty(text) || maxWidth <= 0)
+            return string.Empty;
+
+        if (_font.MeasureString(text).X <= maxWidth)
+            return text;
+
+        const string ellipsis = "...";
+        var trimmed = text;
+        while (trimmed.Length > 0)
+        {
+            trimmed = trimmed[..^1];
+            var candidate = trimmed + ellipsis;
+            if (_font.MeasureString(candidate).X <= maxWidth)
+                return candidate;
+        }
+
+        return ellipsis;
+    }
+
     private bool ShouldCloseStorageByDistance()
     {
         if (_openStorageEntity == null || _storageActor == null)
@@ -1839,6 +2410,12 @@ public class InteractionSystem : GameSystem
         var maxRange = GetInteractRange(_openStorageEntity);
         return Vector2.Distance(actorTf.Position, targetTf.Position) > maxRange;
     }
+
+    private bool IsPickpocketStorage(StorageComponent storage)
+        => _storageActor != null
+           && _openStorageEntity != null
+           && _openStorageEntity != _storageActor
+           && _openStorageEntity.GetComponent<PickpocketComponent>() != null;
 
     private Rectangle GetStorageHeaderRect()
     {
@@ -1860,8 +2437,9 @@ public class InteractionSystem : GameSystem
     private void DrawStorageCloseButton()
     {
         var rect = GetStorageCloseRect();
-        _sb!.Draw(_pixel!, rect, new Color(90, 30, 30));
-        _sb.DrawString(_font!, "X", new Vector2(rect.X + 5, rect.Y + 1), Color.White);
+        var mouse = GetUiMousePoint();
+        var hovered = rect.Contains(mouse);
+        DrawThemedCloseButton(rect, hovered);
     }
 
     private void MoveStorageWindow(Vector2 mousePos)
@@ -1876,6 +2454,173 @@ public class InteractionSystem : GameSystem
         x = Math.Clamp(x, 0, Math.Max(0, GetUiViewportWidth() - currentRect.Width));
         y = Math.Clamp(y, 0, Math.Max(0, GetUiViewportHeight() - currentRect.Height));
         _storageWindowPosition = new Point(x, y);
+    }
+
+    private void EnsureStorageInitialContentsReady(Entity storageEntity, StorageComponent storage)
+    {
+        ReconcileStorageContents(storageEntity, storage);
+        if (storage.Contents.Count > 0)
+        {
+            storage.MarkInitialContentsResolved();
+            return;
+        }
+
+        var isPickpocketStorage = storageEntity.GetComponent<PickpocketComponent>() != null;
+        if (isPickpocketStorage && !storage.RepairAttemptedThisSession)
+        {
+            storage.RepairAttemptedThisSession = true;
+
+            if (storage.TryRestoreSpawnContentsIfMissing(ignoreResolved: true))
+            {
+                storage.MarkInitialContentsResolved();
+                return;
+            }
+
+            if (TryPopulateStorageFromCurrentMap(storageEntity, storage))
+            {
+                storage.MarkInitialContentsResolved();
+                return;
+            }
+        }
+
+        if (storage.TryRestoreSpawnContentsIfMissing())
+        {
+            storage.MarkInitialContentsResolved();
+            return;
+        }
+
+        if (storage.InitialContentsResolved)
+            return;
+
+        if (TryPopulateStorageFromCurrentMap(storageEntity, storage))
+            storage.MarkInitialContentsResolved();
+    }
+
+    private void ReconcileStorageContents(Entity storageEntity, StorageComponent storage)
+    {
+        foreach (var entity in World.GetEntities())
+        {
+            var item = entity.GetComponent<ItemComponent>();
+            if (item?.ContainedIn != storageEntity)
+                continue;
+
+            if (!storage.Contents.Contains(entity))
+                storage.Contents.Add(entity);
+        }
+
+        storage.Contents.RemoveAll(entity => entity.GetComponent<ItemComponent>()?.ContainedIn != storageEntity);
+    }
+
+    private bool TryPopulateStorageFromCurrentMap(Entity storageEntity, StorageComponent storage)
+    {
+        if (!ServiceLocator.Has<MapManager>() || !ServiceLocator.Has<EntityFactory>() || !ServiceLocator.Has<PrototypeManager>())
+            return false;
+
+        var map = ServiceLocator.Get<MapManager>().CurrentMap;
+        if (map == null)
+            return false;
+
+        var entry = FindMapEntityDataFor(storageEntity, map);
+        if (entry == null || entry.ContainedEntities.Count == 0)
+            return false;
+
+        var hydrated = false;
+        foreach (var containedEntry in entry.ContainedEntities)
+        {
+            if (TrySpawnContainedMapEntity(storage, containedEntry, map))
+                hydrated = true;
+        }
+
+        return hydrated;
+    }
+
+    private MapEntityData? FindMapEntityDataFor(Entity entity, MapData map)
+    {
+        var transform = entity.GetComponent<TransformComponent>();
+        if (transform == null || string.IsNullOrWhiteSpace(entity.PrototypeId))
+            return null;
+
+        foreach (var entry in map.Entities)
+        {
+            var found = FindMapEntityDataRecursive(entry, entity.PrototypeId, transform.Position, map);
+            if (found != null)
+                return found;
+        }
+
+        return null;
+    }
+
+    private MapEntityData? FindMapEntityDataRecursive(MapEntityData entry, string prototypeId, Vector2 position, MapData map)
+    {
+        if (string.Equals(entry.ProtoId, prototypeId, StringComparison.OrdinalIgnoreCase)
+            && Vector2.DistanceSquared(GetMapEntryWorldPosition(entry, map), position) <= 1f)
+        {
+            return entry;
+        }
+
+        foreach (var child in entry.ContainedEntities)
+        {
+            var found = FindMapEntityDataRecursive(child, prototypeId, position, map);
+            if (found != null)
+                return found;
+        }
+
+        return null;
+    }
+
+    private static Vector2 GetMapEntryWorldPosition(MapEntityData entry, MapData map)
+    {
+        if (entry.WorldSpace)
+            return new Vector2(entry.X, entry.Y);
+
+        return new Vector2(
+            (entry.X + 0.5f) * map.TileSize,
+            (entry.Y + 0.5f) * map.TileSize);
+    }
+
+    private bool TrySpawnContainedMapEntity(StorageComponent parentStorage, MapEntityData entry, MapData map)
+    {
+        var prototype = ServiceLocator.Get<PrototypeManager>().GetEntity(entry.ProtoId);
+        if (prototype == null)
+            return false;
+
+        var entity = ServiceLocator.Get<EntityFactory>().CreateFromPrototype(prototype, GetMapEntryWorldPosition(entry, map));
+        if (entity == null)
+            return false;
+
+        ApplyMapComponentOverrides(entity, entry.ComponentOverrides);
+        if (!parentStorage.TryInsertInitial(entity))
+        {
+            entity.World?.DestroyEntity(entity);
+            return false;
+        }
+
+        if (entity.GetComponent<StorageComponent>() is { } childStorage)
+        {
+            foreach (var childEntry in entry.ContainedEntities)
+                TrySpawnContainedMapEntity(childStorage, childEntry, map);
+
+            if (childStorage.Contents.Count > 0)
+                childStorage.MarkInitialContentsResolved();
+        }
+
+        return true;
+    }
+
+    private static void ApplyMapComponentOverrides(Entity entity, IReadOnlyDictionary<string, JsonObject> overrides)
+    {
+        foreach (var pair in overrides)
+        {
+            var componentType = ComponentRegistry.GetComponentType(pair.Key);
+            if (componentType == null)
+                continue;
+
+            var component = entity.GetComponent(componentType);
+            if (component == null)
+                continue;
+
+            ComponentPrototypeSerializer.ApplyData(component, pair.Value);
+        }
     }
 
     private List<HandSlotInfo> BuildHandSlots(HandsComponent hands)
@@ -1965,6 +2710,8 @@ public class InteractionSystem : GameSystem
         {
             var storage = _openStorageEntity.GetComponent<StorageComponent>();
             if (storage == null) return false;
+            if (IsPickpocketStorage(storage))
+                return false;
 
             foreach (var row in BuildStorageRows(storage, hands))
             {
@@ -2106,7 +2853,7 @@ public class InteractionSystem : GameSystem
         var rect = new Rectangle((int)mousePos.X + 12, (int)mousePos.Y + 12, 160, 20);
         _sb!.Draw(_pixel!, rect, Color.Black * 0.8f);
         DrawEntityIcon(_draggedItem, new Rectangle(rect.X + 4, rect.Y + 2, ItemIconSize, ItemIconSize));
-        var name = _draggedItem.GetComponent<ItemComponent>()?.ItemName ?? GetInteractName(_draggedItem);
+        var name = LocalizationManager.T(_draggedItem.GetComponent<ItemComponent>()?.ItemName ?? GetInteractName(_draggedItem));
         _sb.DrawString(_font!, name, new Vector2(rect.X + 24, rect.Y + 2), Color.White);
     }
 

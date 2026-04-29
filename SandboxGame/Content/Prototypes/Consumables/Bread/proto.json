@@ -2,6 +2,7 @@
   "id": "bread",
   "name": "Bread",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,12 +12,14 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Bread",
       "slots": 1,
       "size": "Small",
-      "tags": ["food", "organic"]
+      "tags": [
+        "food",
+        "organic"
+      ]
     },
     "info": {
       "description": "Ломоть ржаного хлеба. Основа рациона простого люда. Сытный и питательный."
@@ -24,8 +27,14 @@
     "substanceSource": {
       "yieldMultiplier": 1.0,
       "substances": [
-        { "id": "starch", "amount": 16 },
-        { "id": "gluten", "amount": 8 }
+        {
+          "id": "starch",
+          "amount": 16
+        },
+        {
+          "id": "gluten",
+          "amount": 8
+        }
       ]
     },
     "consumable": {
@@ -36,7 +45,10 @@
       "digestTime": 40,
       "type": "Food",
       "substances": [
-        { "id": "starch", "amount": 16 }
+        {
+          "id": "starch",
+          "amount": 16
+        }
       ]
     }
   }

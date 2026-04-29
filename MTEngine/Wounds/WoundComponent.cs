@@ -86,18 +86,22 @@ public class WoundComponent : Component, IInteractionSource
 
     /// <summary>Минимальная сила единичного пореза для начала кровотечения.</summary>
     [DataField("bleedThreshold")]
+    [SaveField("bleedThreshold")]
     public float BleedThreshold { get; set; } = 15f;
 
     /// <summary>Множитель: сила_пореза * BleedRateMultiplier = начальная скорость кровотечения.</summary>
     [DataField("bleedRateMultiplier")]
+    [SaveField("bleedRateMultiplier")]
     public float BleedRateMultiplier { get; set; } = 0.3f;
 
     /// <summary>Базовая скорость свёртывания (снижение Rate/сек). Чем выше — тем быстрее останавливается.</summary>
     [DataField("baseClotRate")]
+    [SaveField("baseClotRate")]
     public float BaseClotRate { get; set; } = 0.4f;
 
     /// <summary>Порог Rate, выше которого кровотечение НЕ останавливается само (слишком сильное).</summary>
     [DataField("unstoppableBleedRate")]
+    [SaveField("unstoppableBleedRate")]
     public float UnstoppableBleedRate { get; set; } = 5f;
 
     // ── Вычисляемые свойства ───────────────────────────────────────
@@ -149,6 +153,9 @@ public class WoundComponent : Component, IInteractionSource
         if (wounds == null) return false;
 
         wounds.SetDamage(type, wounds.GetDamage(type) + amount);
+
+        if (type != DamageType.Exhaustion)
+            DamageFlashComponent.Trigger(target);
 
         // Кровотечение от сильных порезов
         if (type == DamageType.Slash && amount >= wounds.BleedThreshold)

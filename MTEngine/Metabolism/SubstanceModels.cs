@@ -19,6 +19,8 @@ public class SubstancePrototype
 {
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
+    public string BaseId { get; set; } = "";
+    public bool Abstract { get; set; }
     public string Color { get; set; } = "#FFFFFFFF";
     public float DefaultAmount { get; set; } = 1f;
     public float VolumePerUnit { get; set; } = 1f;
@@ -69,10 +71,25 @@ public class SubstancePrototype
             if (node == null)
                 return null;
 
+            return LoadFromNode(node);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[SubstancePrototype] Error loading {path}: {e.Message}");
+            return null;
+        }
+    }
+
+    public static SubstancePrototype? LoadFromNode(JsonObject node)
+    {
+        try
+        {
             return new SubstancePrototype
             {
                 Id = node["id"]?.GetValue<string>() ?? "",
                 Name = node["name"]?.GetValue<string>() ?? "",
+                BaseId = node["base"]?.GetValue<string>() ?? "",
+                Abstract = node["abstract"]?.GetValue<bool>() ?? false,
                 Color = node["color"]?.GetValue<string>() ?? "#FFFFFFFF",
                 DefaultAmount = node["defaultAmount"]?.GetValue<float>() ?? 1f,
                 VolumePerUnit = node["volumePerUnit"]?.GetValue<float>() ?? 1f,
@@ -91,7 +108,7 @@ public class SubstancePrototype
         }
         catch (Exception e)
         {
-            Console.WriteLine($"[SubstancePrototype] Error loading {path}: {e.Message}");
+            Console.WriteLine($"[SubstancePrototype] Error loading node: {e.Message}");
             return null;
         }
     }

@@ -1,0 +1,45 @@
+{
+  "id": "shortbow",
+  "name": "Shortbow",
+  "category": "entity",
+  "base": "base_item",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5
+    },
+    "info": {
+      "description": "Простой охотничий лук. Быстро стреляет, но требует натяжения и заметно мажет без навыка дальнего боя."
+    },
+    "item": {
+      "name": "Shortbow",
+      "slots": 2,
+      "size": "Medium",
+      "twoHanded": true,
+      "tags": [
+        "weapon",
+        "ranged",
+        "bow",
+        "wood"
+      ]
+    },
+    "rangedWeapon": {
+      "kind": "Bow",
+      "projectile": "arrow_projectile",
+      "damageType": "Slash",
+      "minDamage": 7,
+      "maxDamage": 12,
+      "projectileSpeed": 360,
+      "maxRange": 560,
+      "cooldown": 0.32,
+      "accuracy": 0.74,
+      "spreadDegrees": 9.5,
+      "bowDrawSeconds": 0.9,
+      "bowMinPower": 0.32
+    }
+  }
+}

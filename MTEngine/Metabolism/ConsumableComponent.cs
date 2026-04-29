@@ -32,34 +32,42 @@ public class ConsumableComponent : Component, IInteractionSource, IPrototypeInit
 {
     /// <summary>How much hunger this restores (spread over digestion time).</summary>
     [DataField("nutrition")]
+    [SaveField("nutrition")]
     public float Nutrition { get; set; } = 25f;
 
     /// <summary>How much thirst this restores (spread over digestion time).</summary>
     [DataField("hydration")]
+    [SaveField("hydration")]
     public float Hydration { get; set; } = 0f;
 
     /// <summary>How much bladder fills from consuming this.</summary>
     [DataField("bladderLoad")]
+    [SaveField("bladderLoad")]
     public float BladderLoad { get; set; } = 5f;
 
     /// <summary>How much bowel fills from consuming this.</summary>
     [DataField("bowelLoad")]
+    [SaveField("bowelLoad")]
     public float BowelLoad { get; set; } = 15f;
 
     /// <summary>Seconds to fully digest (nutrients absorbed gradually).</summary>
     [DataField("digestTime")]
+    [SaveField("digestTime")]
     public float DigestTime { get; set; } = 30f;
 
     /// <summary>Food, Drink, or Both — affects interaction label.</summary>
     [DataField("type")]
+    [SaveField("type")]
     public ConsumableType Type { get; set; } = ConsumableType.Food;
 
     /// <summary>Custom verb for the interaction menu (e.g. "Выпить", "Съесть").</summary>
     [DataField("eatVerb")]
+    [SaveField("eatVerb")]
     public string? EatVerb { get; set; }
 
     /// <summary>Optional embedded substances that enter the body together with this item.</summary>
     [DataField("substances")]
+    [SaveField("substances")]
     public List<SubstanceReference> SubstanceRefs { get; set; } = new();
 
     public List<SubstanceDose> Substances { get; private set; } = new();

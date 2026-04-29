@@ -2,9 +2,10 @@
   "id": "bed",
   "name": "Bed",
   "category": "entity",
+  "base": "base_furniture",
   "components": {
     "sprite": {
-      "source": "../Chest/sprite.png",
+      "source": "sprite.png",
       "srcX": 0,
       "srcY": 0,
       "width": 32,
@@ -12,7 +13,6 @@
       "layerDepth": 0.5,
       "ySort": true
     },
-    "transform": { "x": 0, "y": 0 },
     "collider": {
       "width": 24,
       "height": 24,
@@ -30,7 +30,9 @@
       "name": "Bed",
       "wakeHour": 6,
       "sleepTimeScale": 2400,
-      "healingPerSecond": 0.6
+      "healingPerSecond": 0.6,
+      "sleepOffsetX": 0,
+      "sleepOffsetY": 0
     }
   }
 }

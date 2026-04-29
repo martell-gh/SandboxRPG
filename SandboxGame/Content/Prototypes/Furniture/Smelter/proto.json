@@ -1,0 +1,36 @@
+{
+  "id": "smelter",
+  "name": "Smelter",
+  "category": "entity",
+  "base": "base_furniture",
+  "components": {
+    "sprite": {
+      "source": "sprite.png",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32,
+      "layerDepth": 0.5,
+      "ySort": true,
+      "color": "#EFEFEF"
+    },
+    "info": {
+      "description": "\u041D\u0435\u0431\u043E\u043B\u044C\u0448\u0430\u044F \u043F\u043B\u0430\u0432\u0438\u043B\u044C\u043D\u044F. \u041F\u043E\u0437\u0432\u043E\u043B\u044F\u0435\u0442 \u0440\u0430\u0437\u0431\u0438\u0440\u0430\u0442\u044C \u043C\u0435\u0447\u0438 \u043D\u0430 \u0441\u044B\u0440\u044C\u0451 \u0438 \u0432\u044B\u0442\u0430\u0441\u043A\u0438\u0432\u0430\u0442\u044C \u0443\u0446\u0435\u043B\u0435\u0432\u0448\u0438\u0435 \u0441\u0445\u0435\u043C\u044B \u043A\u043E\u0432\u043A\u0438."
+    },
+    "interactable": {
+      "name": "Smelter",
+      "range": 84
+    },
+    "craftingStation": {
+      "station": "smelting",
+      "name": "\u041F\u043B\u0430\u0432\u0438\u043B\u044C\u043D\u044F",
+      "verb": "\u041F\u0435\u0440\u0435\u043F\u043B\u0430\u0432\u0438\u0442\u044C"
+    },
+    "light": {
+      "radius": 190,
+      "enabled": true,
+      "intensity": 2,
+      "color": "#FFC98A"
+    }
+  }
+}

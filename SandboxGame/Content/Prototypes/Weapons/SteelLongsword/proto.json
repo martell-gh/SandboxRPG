@@ -1,0 +1,67 @@
+{
+  "id": "steel_longsword",
+  "name": "Steel Longsword",
+  "category": "entity",
+  "base": "longsword",
+  "components": {
+    "info": {
+      "description": "Стальной одноручный меч. Быстрее и надёжнее обычного железного клинка."
+    },
+    "item": {
+      "name": "Steel Longsword",
+      "slots": 2,
+      "size": "Medium",
+      "tags": [
+        "weapon",
+        "melee",
+        "one-handed"
+      ]
+    },
+    "qualityTier": {
+      "tier": 2,
+      "label": "Сталь",
+      "shortLabel": "T2",
+      "tint": "#8FA7C5"
+    },
+    "weapon": {
+      "materials": [
+        "steel_ingot",
+        "wood",
+        "leather_patch"
+      ],
+      "damageType": "Slash",
+      "damage": 23,
+      "minDamage": 18,
+      "maxDamage": 28,
+      "range": 54,
+      "windup": 0.39,
+      "accuracy": 0.95,
+      "verb": "Резануть",
+      "blockBonus": 0.08
+    },
+    "craftable": {
+      "recipeFamily": "sword",
+      "recipeTier": 2,
+      "requiresRecipe": true,
+      "discoverableBySmelting": true,
+      "station": "smithing",
+      "skill": "Smithing",
+      "requiredSkill": 40,
+      "craftTime": 3.0,
+      "ingredients": [
+        {
+          "prototypeId": "steel_ingot",
+          "count": 3
+        },
+        {
+          "prototypeId": "wood",
+          "count": 1
+        },
+        {
+          "prototypeId": "leather_patch",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

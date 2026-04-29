@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MTEngine.Crafting;
 using MTEngine.Components;
 using MTEngine.ECS;
+using MTEngine.Items;
 
 namespace MTEngine.Core;
 
@@ -79,7 +81,19 @@ public class EntityFactory
             entity.AddComponent(new SpriteComponent(texture));
         }
 
+        entity.GetComponent<DoorComponent>()?.SyncState();
+        entity.GetComponent<QualityTierComponent>()?.ApplyPresentation(entity);
+        entity.GetComponent<RecipeNoteComponent>()?.RefreshPresentation();
+
         Console.WriteLine($"[EntityFactory] Created entity: {proto.Name}");
         return entity;
+    }
+
+    public void RefreshPresentationFromPrototype(Entity entity, EntityPrototype proto)
+    {
+        entity.GetComponent<SpriteComponent>()?.InitializeFromPrototype(proto, _assets);
+        entity.GetComponent<WearableComponent>()?.InitializeFromPrototype(proto, _assets);
+        entity.GetComponent<QualityTierComponent>()?.ApplyPresentation(entity);
+        entity.GetComponent<RecipeNoteComponent>()?.RefreshPresentation();
     }
 }

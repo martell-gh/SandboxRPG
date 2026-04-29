@@ -9,9 +9,11 @@ public class LightComponent : Component
     public Color Color { get; set; } = Color.White;
 
     [DataField("radius")]
+    [SaveField("radius")]
     public float Radius { get; set; } = 150f;
 
     [DataField("intensity")]
+    [SaveField("intensity")]
     public float Intensity { get; set; } = 1f;
 
     [DataField("enabled")]
@@ -23,6 +25,7 @@ public class LightComponent : Component
     }
 
     [DataField("color")]
+    [SaveField("color")]
     public string ColorHex
     {
         get => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";

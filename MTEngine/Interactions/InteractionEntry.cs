@@ -40,6 +40,12 @@ public class InteractionEntry
     public int Priority { get; init; } = 0;
 
     /// <summary>
+    /// Marks this action as the preferred left-click action for the target entity.
+    /// If multiple actions are primary, the highest-priority one is used.
+    /// </summary>
+    public bool IsPrimaryAction { get; init; } = false;
+
+    /// <summary>
     /// Optional do-after configuration. If set, the action completes only after the delay.
     /// </summary>
     public InteractionDelay? Delay { get; init; }

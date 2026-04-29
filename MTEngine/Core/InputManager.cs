@@ -20,6 +20,8 @@ public class InputManager
     public bool IsReleased(Keys key) => _current.IsKeyUp(key) && _previous.IsKeyDown(key);
 
     public Microsoft.Xna.Framework.Point MousePosition => _currentMouse.Position;
+
+    public Microsoft.Xna.Framework.Point ViewportMousePosition => _currentMouse.Position;
     public bool LeftClicked => _currentMouse.LeftButton == ButtonState.Pressed
                             && _previousMouse.LeftButton == ButtonState.Released;
     public bool LeftReleased => _currentMouse.LeftButton == ButtonState.Released

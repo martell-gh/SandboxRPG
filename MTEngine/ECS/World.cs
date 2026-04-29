@@ -37,12 +37,17 @@ public class World
 
     public IEnumerable<GameSystem> GetSystems() => _systems;
 
-    public void Update(float deltaTime)
+    public void FlushEntityChanges()
     {
         foreach (var e in _toAdd) _entities.Add(e);
         _toAdd.Clear();
         foreach (var e in _toRemove) _entities.Remove(e);
         _toRemove.Clear();
+    }
+
+    public void Update(float deltaTime)
+    {
+        FlushEntityChanges();
 
         foreach (var s in _systems)
             if (s.Enabled) s.Update(deltaTime);

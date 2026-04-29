@@ -2,6 +2,7 @@
   "id": "poultice",
   "name": "Poultice",
   "category": "entity",
+  "base": "base_item",
   "components": {
     "sprite": {
       "source": "sprite.png",
@@ -11,7 +12,6 @@
       "height": 32,
       "layerDepth": 0.5
     },
-    "transform": { "x": 0, "y": 0 },
     "item": {
       "name": "Припарка",
       "size": "Small",
@@ -19,7 +19,10 @@
       "stackable": true,
       "maxStack": 5,
       "stack": 1,
-      "tags": ["medical", "poultice"]
+      "tags": [
+        "medical",
+        "poultice"
+      ]
     },
     "info": {
       "description": "Влажная припарка из глины и трав. Прикладывается к ушибам, снимает отёк и уменьшает боль."
@@ -28,7 +31,24 @@
       "damageType": "Blunt",
       "healAmount": 25,
       "stopBleedAmount": 0,
-      "useLabel": "Наложить припарку"
+      "useLabel": "Наложить припарку",
+      "requiredSkill": 12
+    },
+    "craftable": {
+      "station": "medicine",
+      "skill": "Medicine",
+      "requiredSkill": 10,
+      "craftTime": 1.8,
+      "ingredients": [
+        {
+          "prototypeId": "medicinal_herbs",
+          "count": 2
+        },
+        {
+          "prototypeId": "cloth_bolt",
+          "count": 1
+        }
+      ]
     }
   }
 }

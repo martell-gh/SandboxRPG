@@ -1,0 +1,31 @@
+{
+  "id": "valyrian_steel_ingot",
+  "name": "Valyrian Steel Ingot",
+  "category": "entity",
+  "base": "iron_ingot",
+  "components": {
+    "info": {
+      "description": "Редчайший слиток валирийской стали. Из него рождаются лучшие клинки."
+    },
+    "item": {
+      "name": "Valyrian Steel Ingot",
+      "size": "Small",
+      "slots": 1,
+      "stackable": true,
+      "maxStack": 20,
+      "stack": 1,
+      "tags": [
+        "material",
+        "metal",
+        "ingot",
+        "rare"
+      ]
+    },
+    "qualityTier": {
+      "tier": 1,
+      "label": "Валирийская сталь",
+      "shortLabel": "T1",
+      "tint": "#D9B64A"
+    }
+  }
+}

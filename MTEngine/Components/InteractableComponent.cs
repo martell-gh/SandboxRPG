@@ -12,9 +12,11 @@ public class InteractableComponent : Component
 {
     /// <summary>Name shown in the interaction menu header.</summary>
     [DataField("name")]
+    [SaveField("name")]
     public string DisplayName { get; set; } = "Object";
 
     /// <summary>Max distance (in pixels) from which the player can interact.</summary>
     [DataField("range")]
+    [SaveField("range")]
     public float InteractRange { get; set; } = 64f;
 }

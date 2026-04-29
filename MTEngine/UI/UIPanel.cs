@@ -11,6 +11,11 @@ public class UIPanel : UIElement
     public int Gap { get; set; } = 4;
     public int Padding { get; set; } = 0;
     public Color? BackColor { get; set; }
+    public Texture2D? BackgroundTexture { get; set; }
+    public Color BackgroundTint { get; set; } = Color.White;
+    public bool TileBackground { get; set; } = true;
+    public Color BorderColor { get; set; } = Color.Transparent;
+    public int BorderThickness { get; set; } = 1;
     public List<UIElement> Children { get; } = new();
 
     public void Add(UIElement child)
@@ -119,8 +124,8 @@ public class UIPanel : UIElement
     {
         if (!Visible) return;
 
-        if (BackColor.HasValue)
-            sb.Draw(pixel, Bounds, BackColor.Value);
+        UIDrawHelper.DrawBackground(sb, pixel, Bounds, BackColor, BackgroundTexture, BackgroundTint, TileBackground);
+        UIDrawHelper.DrawBorder(sb, pixel, Bounds, BorderColor, BorderThickness);
 
         foreach (var child in Children)
             child.Draw(sb, pixel, font);

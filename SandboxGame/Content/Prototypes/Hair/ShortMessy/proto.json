@@ -1,0 +1,18 @@
+{
+  "id": "hair_short_messy",
+  "name": "Short Messy Hair",
+  "category": "entity",
+  "base": "base_hair",
+  "components": {
+    "hairStyle": {
+      "displayName": "Short Messy Hair",
+      "gender": "Female",
+      "sprite": "sprite.png",
+      "animations": "animations.json",
+      "srcX": 0,
+      "srcY": 0,
+      "width": 32,
+      "height": 32
+    }
+  }
+}

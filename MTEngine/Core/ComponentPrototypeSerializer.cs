@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Microsoft.Xna.Framework;
 using MTEngine.ECS;
 
@@ -11,7 +12,8 @@ public static class ComponentPrototypeSerializer
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        IncludeFields = true
+        IncludeFields = true,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     public static Component Deserialize(Type componentType, JsonObject data)

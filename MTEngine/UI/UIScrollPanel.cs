@@ -12,7 +12,10 @@ public class UIScrollPanel : UIPanel
 {
     public int ScrollOffset { get; set; }
     public int ScrollStep { get; set; } = 20;
+    public Color? OverrideScrollBarColor { get; set; }
     public Color ScrollBarColor { get; set; } = new(70, 110, 70, 120);
+
+    public UITheme? Theme { get; set; }
 
     private int _contentHeight;
 
@@ -20,7 +23,6 @@ public class UIScrollPanel : UIPanel
     {
         base.Layout(available);
 
-        // Compute total content height
         _contentHeight = 0;
         foreach (var child in Children)
         {
@@ -29,19 +31,13 @@ public class UIScrollPanel : UIPanel
             if (bottom > _contentHeight) _contentHeight = bottom;
         }
 
-        // Clamp scroll
         var maxScroll = Math.Max(0, _contentHeight - Bounds.Height);
         ScrollOffset = Math.Clamp(ScrollOffset, 0, maxScroll);
 
-        // Shift children by scroll offset
         foreach (var child in Children)
         {
             if (!child.Visible) continue;
-            child.Bounds = new Rectangle(
-                child.Bounds.X,
-                child.Bounds.Y - ScrollOffset,
-                child.Bounds.Width,
-                child.Bounds.Height);
+            OffsetElementTree(child, 0, -ScrollOffset);
         }
     }
 
@@ -49,8 +45,8 @@ public class UIScrollPanel : UIPanel
     {
         if (!Visible) return;
 
-        if (BackColor.HasValue)
-            sb.Draw(pixel, Bounds, BackColor.Value);
+        UIDrawHelper.DrawBackground(sb, pixel, Bounds, BackColor, BackgroundTexture, BackgroundTint, TileBackground);
+        UIDrawHelper.DrawBorder(sb, pixel, Bounds, BorderColor, BorderThickness);
 
         var gd = ServiceLocator.Has<GraphicsDevice>() ? ServiceLocator.Get<GraphicsDevice>() : null;
         var previousScissor = gd?.ScissorRectangle ?? Rectangle.Empty;
@@ -70,12 +66,14 @@ public class UIScrollPanel : UIPanel
         // Scroll bar
         if (_contentHeight > Bounds.Height)
         {
+            var scrollBarWidth = Theme?.ScrollBarWidth ?? 4;
+            var scrollBarColor = OverrideScrollBarColor ?? Theme?.ScrollBarColor ?? ScrollBarColor;
             var barHeight = Math.Max(20, Bounds.Height * Bounds.Height / _contentHeight);
             var maxScroll = _contentHeight - Bounds.Height;
             var barY = maxScroll > 0
                 ? Bounds.Y + (int)((Bounds.Height - barHeight) * ((float)ScrollOffset / maxScroll))
                 : Bounds.Y;
-            sb.Draw(pixel, new Rectangle(Bounds.Right - 4, barY, 4, barHeight), ScrollBarColor);
+            sb.Draw(pixel, new Rectangle(Bounds.Right - scrollBarWidth, barY, scrollBarWidth, barHeight), scrollBarColor);
         }
     }
 
@@ -98,5 +96,25 @@ public class UIScrollPanel : UIPanel
             if (Children[i].HandleClick(mousePos)) return true;
         }
         return false;
+    }
+
+    private static void OffsetElementTree(UIElement element, int dx, int dy)
+    {
+        element.Bounds = new Rectangle(
+            element.Bounds.X + dx,
+            element.Bounds.Y + dy,
+            element.Bounds.Width,
+            element.Bounds.Height);
+
+        if (element is not UIPanel panel)
+            return;
+
+        foreach (var child in panel.Children)
+        {
+            if (!child.Visible)
+                continue;
+
+            OffsetElementTree(child, dx, dy);
+        }
     }
 }

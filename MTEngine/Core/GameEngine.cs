@@ -1,7 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MTEngine.Combat;
+using MTEngine.Crafting;
 using MTEngine.Metabolism;
+using MTEngine.Npc;
 using MTEngine.Rendering;
 using MTEngine.Systems;
 using MTEngine.UI;
@@ -21,6 +24,7 @@ public class GameEngine : Game
     public AssetManager Assets { get; private set; } = null!;
     public PrototypeManager Prototypes { get; private set; } = new();
     public GameClock Clock { get; private set; } = new(8f);
+    public Calendar Calendar { get; protected set; } = new();
     public EntityFactory EntityFactory { get; private set; } = null!;
 
     public ECSWorld World { get; } = new();
@@ -35,6 +39,7 @@ public class GameEngine : Game
     public SleepSystem SleepSystem { get; private set; } = new();
     public InteractionSystem InteractionSystem { get; private set; } = new();
     public PopupTextSystem PopupTextSystem { get; private set; } = new();
+    public SpeechBubbleSystem SpeechBubbleSystem { get; private set; } = new();
     public UIManager UIManager { get; private set; } = new();
     public HealthSystem HealthSystem { get; private set; } = new();
     public HealthOverlaySystem HealthOverlaySystem { get; private set; } = new();
@@ -42,10 +47,43 @@ public class GameEngine : Game
     public SubstanceDebugSystem SubstanceDebugSystem { get; private set; } = new();
     public SubstanceWorkbenchSystem SubstanceWorkbenchSystem { get; private set; } = new();
     public WoundSystem WoundSystem { get; private set; } = new();
+    public CombatSystem CombatSystem { get; private set; } = new();
+    public SkillUiSystem SkillUiSystem { get; private set; } = new();
+    public CraftingSystem CraftingSystem { get; private set; } = new();
+    public AgingSystem AgingSystem { get; private set; } = new();
+    public MatchmakingSystem MatchmakingSystem { get; private set; } = new();
+    public RelationshipTickSystem RelationshipTickSystem { get; private set; } = new();
+    public PlayerCohabitationSystem PlayerCohabitationSystem { get; private set; } = new();
+    public KinSyncSystem KinSyncSystem { get; private set; } = new();
+    public RevengeSystem RevengeSystem { get; private set; } = new();
+    public AvengerSystem AvengerSystem { get; private set; } = new();
+    public ScheduleSystem ScheduleSystem { get; private set; } = new();
+    public PregnancyPlanningSystem PregnancyPlanningSystem { get; private set; } = new();
+    public BirthSystem BirthSystem { get; private set; } = new();
+    public ChildGrowthSystem ChildGrowthSystem { get; private set; } = new();
+    public JobMarketSystem JobMarketSystem { get; private set; } = new();
+    public ProfessionTickSystem ProfessionTickSystem { get; private set; } = new();
+    public WorldCatchupSystem WorldCatchupSystem { get; private set; } = new();
+    public ShopRestockSystem ShopRestockSystem { get; private set; } = new();
+    public TradeSystem TradeSystem { get; private set; } = new();
+    public InnRentalSystem InnRentalSystem { get; private set; } = new();
+    public SimulationLodSystem SimulationLodSystem { get; private set; } = new();
+    public HomeIntrusionSystem HomeIntrusionSystem { get; private set; } = new();
+    public CombatThreatSystem CombatThreatSystem { get; private set; } = new();
+    public NpcCombatReactionSystem NpcCombatReactionSystem { get; private set; } = new();
+    public NpcHealingSystem NpcHealingSystem { get; private set; } = new();
+    public NpcLocationTravelSystem NpcLocationTravelSystem { get; private set; } = new();
+    public NpcMovementSystem NpcMovementSystem { get; private set; } = new();
+    public WorldRegistry WorldRegistry { get; private set; } = new();
+    public WorldPopulationStore WorldPopulation { get; private set; } = new();
+    public LocationGraph LocationGraph { get; private set; } = new();
 
     private RenderTarget2D? _sceneRT;
     private bool _isApplyingWindowChange;
     private Point _windowedSize = new(1280, 720);
+
+    public const int MinResolutionWidth = 640;
+    public const int MinResolutionHeight = 360;
 
     public GameEngine()
     {
@@ -54,7 +92,10 @@ public class GameEngine : Game
         {
             PreferredBackBufferWidth = 1280,
             PreferredBackBufferHeight = 720,
-            IsFullScreen = false
+            IsFullScreen = false,
+            // Borderless fullscreen — avoids the SDL2/Cocoa NSWindowStyleMask
+            // crash that hits when the hardware mode switch fires on macOS.
+            HardwareModeSwitch = false
         };
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -72,8 +113,14 @@ public class GameEngine : Game
         ServiceLocator.Register(Camera);
         ServiceLocator.Register(GraphicsDevice);
         ServiceLocator.Register(Clock);
+        ServiceLocator.Register(Calendar);
+        ServiceLocator.Register(WorldRegistry);
+        ServiceLocator.Register(WorldPopulation);
+        ServiceLocator.Register(LocationGraph);
+        ServiceLocator.Register(SimulationLodSystem);
         ServiceLocator.Register(SleepSystem);
         ServiceLocator.Register(PopupTextSystem);
+        ServiceLocator.Register(SpeechBubbleSystem);
         ServiceLocator.Register(UIManager);
 
         World.AddSystem(TileMapRenderer);
@@ -84,13 +131,42 @@ public class GameEngine : Game
         World.AddSystem(VisibilityOcclusionSystem);
         World.AddSystem(LightingSystem);
         World.AddSystem(InteractionSystem);
+        World.AddSystem(TradeSystem);
         World.AddSystem(PopupTextSystem);
+        World.AddSystem(SpeechBubbleSystem);
         World.AddSystem(WoundSystem);
+        World.AddSystem(CombatSystem);
+        World.AddSystem(new RangedCombatSystem());
+        World.AddSystem(SkillUiSystem);
+        World.AddSystem(CraftingSystem);
         World.AddSystem(HealthSystem);
         World.AddSystem(HealthOverlaySystem);
         World.AddSystem(MetabolismSystem);
         World.AddSystem(SubstanceDebugSystem);
         World.AddSystem(SubstanceWorkbenchSystem);
+        World.AddSystem(AgingSystem);
+        World.AddSystem(MatchmakingSystem);
+        World.AddSystem(RelationshipTickSystem);
+        World.AddSystem(PlayerCohabitationSystem);
+        World.AddSystem(KinSyncSystem);
+        World.AddSystem(RevengeSystem);
+        World.AddSystem(PregnancyPlanningSystem);
+        World.AddSystem(BirthSystem);
+        World.AddSystem(ChildGrowthSystem);
+        World.AddSystem(JobMarketSystem);
+        World.AddSystem(ProfessionTickSystem);
+        World.AddSystem(WorldCatchupSystem);
+        World.AddSystem(ShopRestockSystem);
+        World.AddSystem(InnRentalSystem);
+        World.AddSystem(SimulationLodSystem);
+        World.AddSystem(ScheduleSystem);
+        World.AddSystem(HomeIntrusionSystem);
+        World.AddSystem(CombatThreatSystem);
+        World.AddSystem(NpcCombatReactionSystem);
+        World.AddSystem(AvengerSystem);
+        World.AddSystem(NpcHealingSystem);
+        World.AddSystem(NpcLocationTravelSystem);
+        World.AddSystem(NpcMovementSystem);
         World.AddSystem(UIManager);
 
         base.Initialize();
@@ -173,14 +249,18 @@ public class GameEngine : Game
     {
         if (!Graphics.IsFullScreen)
         {
-            _windowedSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+            _windowedSize = GetWindowClientSize();
+            Graphics.HardwareModeSwitch = false;
+            var display = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            Graphics.PreferredBackBufferWidth = Math.Max(MinResolutionWidth, display.Width);
+            Graphics.PreferredBackBufferHeight = Math.Max(MinResolutionHeight, display.Height);
             Graphics.IsFullScreen = true;
         }
         else
         {
             Graphics.IsFullScreen = false;
-            Graphics.PreferredBackBufferWidth = Math.Max(640, _windowedSize.X);
-            Graphics.PreferredBackBufferHeight = Math.Max(360, _windowedSize.Y);
+            Graphics.PreferredBackBufferWidth = Math.Max(MinResolutionWidth, _windowedSize.X);
+            Graphics.PreferredBackBufferHeight = Math.Max(MinResolutionHeight, _windowedSize.Y);
         }
 
         ApplyWindowChanges();
@@ -191,14 +271,41 @@ public class GameEngine : Game
         if (_isApplyingWindowChange || Graphics.IsFullScreen)
             return;
 
-        var width = Math.Max(640, Window.ClientBounds.Width);
-        var height = Math.Max(360, Window.ClientBounds.Height);
+        var size = GetWindowClientSize();
+        var width = Math.Max(MinResolutionWidth, size.X);
+        var height = Math.Max(MinResolutionHeight, size.Y);
         if (Graphics.PreferredBackBufferWidth == width && Graphics.PreferredBackBufferHeight == height)
             return;
 
-        _windowedSize = new Point(width, height);
+        _windowedSize = new Point(
+            Math.Max(MinResolutionWidth, size.X),
+            Math.Max(MinResolutionHeight, size.Y));
         Graphics.PreferredBackBufferWidth = width;
         Graphics.PreferredBackBufferHeight = height;
+        ApplyWindowChanges();
+    }
+
+    /// <summary>
+    /// Switch to a windowed back buffer of the requested size, expressed in
+    /// OS window points. On HiDPI displays SDL/MonoGame will provide a denser
+    /// drawable automatically; we keep the configuration path in one space.
+    /// </summary>
+    public void SetWindowedResolution(int width, int height)
+    {
+        var clampedWidth = Math.Max(MinResolutionWidth, width);
+        var clampedHeight = Math.Max(MinResolutionHeight, height);
+        _windowedSize = new Point(clampedWidth, clampedHeight);
+
+        if (!Graphics.IsFullScreen &&
+            Graphics.PreferredBackBufferWidth == clampedWidth &&
+            Graphics.PreferredBackBufferHeight == clampedHeight)
+        {
+            return;
+        }
+
+        Graphics.IsFullScreen = false;
+        Graphics.PreferredBackBufferWidth = clampedWidth;
+        Graphics.PreferredBackBufferHeight = clampedHeight;
         ApplyWindowChanges();
     }
 
@@ -213,5 +320,74 @@ public class GameEngine : Game
         {
             _isApplyingWindowChange = false;
         }
+    }
+
+    public Point GetUiClientSize()
+    {
+        return GetWindowClientSize();
+    }
+
+    public Vector2 GetWindowDensity()
+    {
+        return Vector2.One;
+    }
+
+    public Rectangle GetUiLogicalBounds(float uiScale = 1f)
+    {
+        var size = GetUiClientSize();
+        var scale = Math.Max(0.01f, uiScale);
+        return new Rectangle(
+            0,
+            0,
+            Math.Max(1, (int)MathF.Round(size.X / scale)),
+            Math.Max(1, (int)MathF.Round(size.Y / scale)));
+    }
+
+    public Matrix GetUiTransform(float uiScale = 1f)
+    {
+        var scale = Math.Max(0.01f, uiScale);
+        return Matrix.CreateScale(scale, scale, 1f);
+    }
+
+    public Point ScreenToUi(Point pixelPoint, float uiScale)
+    {
+        var scale = Math.Max(0.01f, uiScale);
+        return new Point(
+            (int)MathF.Round(pixelPoint.X / scale),
+            (int)MathF.Round(pixelPoint.Y / scale));
+    }
+
+    public Point GetWindowSizeForPixelSize(Point pixelSize)
+    {
+        return new Point(
+            Math.Max(MinResolutionWidth, pixelSize.X),
+            Math.Max(MinResolutionHeight, pixelSize.Y));
+    }
+
+    public Point GetPixelSizeForWindowSize(Point windowSize)
+    {
+        return new Point(
+            Math.Max(MinResolutionWidth, windowSize.X),
+            Math.Max(MinResolutionHeight, windowSize.Y));
+    }
+
+    public Point GetNativeDisplayPixelSize()
+    {
+        var currentDisplay = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+        return new Point(
+            Math.Max(MinResolutionWidth, currentDisplay.Width),
+            Math.Max(MinResolutionHeight, currentDisplay.Height));
+    }
+
+    private Point GetWindowClientSize()
+    {
+        var client = Window.ClientBounds;
+        if (client.Width > 0 && client.Height > 0)
+            return new Point(client.Width, client.Height);
+
+        var vp = GraphicsDevice.Viewport;
+        return new Point(
+            Math.Max(1, vp.Width),
+            Math.Max(1, vp.Height));
     }
 }
