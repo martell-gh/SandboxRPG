@@ -5,7 +5,7 @@
 --mm-newgame-desc: "Starts a new game at the configured starting location."
 --mm-load: "Load"
 --mm-load-desc: "Opens the save slot list."
---mm-dev-river: "Developer River"
+--mm-dev-river: "Dev River"
 --mm-dev-river-desc: "Loads the river map for quick testing."
 --mm-settings: "Settings"
 --mm-settings-desc: "Game settings, controls, and developer mode."
