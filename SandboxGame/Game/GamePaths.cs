@@ -12,4 +12,5 @@ public static class GamePaths
     public static string Textures => ContentPaths.TexturesRoot;
     public static string Ui => ContentPaths.UiRoot;
     public static string UIWindows => ContentPaths.UiWindowsRoot;
+    public static string Data => ContentPaths.DataRoot;
 }

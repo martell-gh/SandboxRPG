@@ -16,6 +16,7 @@ public static class ContentPaths
     public static string TexturesRoot => Path.Combine(ContentRoot, "Textures");
     public static string UiRoot => Path.Combine(TexturesRoot, "UI");
     public static string UiWindowsRoot => Path.Combine(ContentRoot, "UI");
+    public static string DataRoot => Path.Combine(ContentRoot, "Data");
 
     public static string AbsoluteContentRoot => ResolveDirectory(ContentRoot);
     public static string AbsoluteMapsRoot => ResolveDirectory(MapsRoot);
